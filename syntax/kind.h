@@ -4,67 +4,68 @@ namespace WinZigC {
 namespace Syntax {
 
 enum class Kind {
-  IdentifierToken,
-  IntegerToken,
-  WhiteSpaceToken,
-  CharToken,
-  StringToken,
-  CommentToken,
-  NewlineToken,           //  \n
-  ProgramToken,           //  program
-  VarToken,               //  var
-  ConstToken,             //  const
-  TypeToken,              //  type
-  FunctionToken,          //  function
-  ReturnToken,            //  return
-  BeginToken,             //  begin
-  EndToken,               //  end
-  SwapToken,              //  :=:
-  AssignToken,            //  :=
-  OutputToken,            //  output
-  IfToken,                //  if
-  ThenToken,              //  then
-  ElseToken,              //  else
-  WhileToken,             //  while
-  DoToken,                //  do
-  CaseToken,              //  case
-  OfToken,                //  of
-  CaseExpToken,           //  ..
-  OtherwiseToken,         //  otherwise
-  RepeatToken,            //  repeat
-  ForToken,               //  for
-  UntilToken,             //  until
-  LoopToken,              //  loop
-  PoolToken,              //  pool
-  ExitToken,              //  exit
-  LessOrEqualOprToken,    //  <=
-  NotEqualOprToken,       //  <>
-  LessThanOprToken,       //  <
-  GreaterOrEqualOprToken, //  >=
-  GreaterThanOprToken,    //  >
-  EqualToOprToken,        //  =
-  ModulusOprToken,        //  mod
-  AndOprToken,            //  and
-  OrOprToken,             //  or
-  NotOprToken,            //  not
-  ReadToken,              //  read
-  SuccessorToken,         //  succ
-  PredecessorToken,       //  pred
-  CharFuncToken,          //  chr
-  OrdinalFuncToken,       //  ord
-  EndOfFileToken,         //  eof
-  ColonToken,             //  :
-  SemiColonToken,         //  ;
-  SingleDotToken,         //  .
-  CommaToken,             //  ,
-  OpenBracketToken,       //  (
-  CloseBracketToken,      //  )
-  PlusToken,              //  +
-  MinusToken,             //  -
-  MultiplyToken,          //  *
-  DivideToken,            //  /
-  EndOfProgramToken,
-  BadToken,
+  kIdentifier,
+  kInteger,
+  kWhiteSpace,
+  kChar,
+  kString,
+  kLineComment,
+  kBlockComment,
+  kNewline,           //  \n
+  kProgram,           //  program
+  kVar,               //  var
+  kConst,             //  const
+  kType,              //  type
+  kFunction,          //  function
+  kReturn,            //  return
+  kBegin,             //  begin
+  kEnd,               //  end
+  kSwap,              //  :=:
+  kAssign,            //  :=
+  kOutput,            //  output
+  kIf,                //  if
+  kThen,              //  then
+  kElse,              //  else
+  kWhile,             //  while
+  kDo,                //  do
+  kCase,              //  case
+  kOf,                //  of
+  kCaseExp,           //  ..
+  kOtherwise,         //  otherwise
+  kRepeat,            //  repeat
+  kFor,               //  for
+  kUntil,             //  until
+  kLoop,              //  loop
+  kPool,              //  pool
+  kExit,              //  exit
+  kLessOrEqualOpr,    //  <=
+  kNotEqualOpr,       //  <>
+  kLessThanOpr,       //  <
+  kGreaterOrEqualOpr, //  >=
+  kGreaterThanOpr,    //  >
+  kEqualToOpr,        //  =
+  kModulusOpr,        //  mod
+  kAndOpr,            //  and
+  kOrOpr,             //  or
+  kNotOpr,            //  not
+  kRead,              //  read
+  kSuccessor,         //  succ
+  kPredecessor,       //  pred
+  kCharFunc,          //  chr
+  kOrdinalFunc,       //  ord
+  kEndOfFile,         //  eof
+  kColon,             //  :
+  kSemiColon,         //  ;
+  kSingleDot,         //  .
+  kComma,             //  ,
+  kOpenBracket,       //  (
+  kCloseBracket,      //  )
+  kPlus,              //  +
+  kMinus,             //  -
+  kMultiply,          //  *
+  kDivide,            //  /
+  kEndOfProgram,
+  kUnknown,
 };
 
 } // namespace Syntax

@@ -1,0 +1,14 @@
+{ This program tests simple function calls for many argument. }
+program MyProg:
+
+function Calc(x,y,z:integer):integer;
+	begin
+		return x + y * z;
+	end 
+Calc;
+
+begin
+	output(Calc(3, 4, -5));
+end 
+
+MyProg.

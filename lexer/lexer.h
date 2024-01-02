@@ -10,11 +10,10 @@ namespace WinZigC {
 constexpr std::array<char, 4> kSpaceCharactors = {' ', '\f', '\r', '\t'};
 constexpr std::array<char, 10> kDigitCharacters = {'0', '1', '2', '3', '4',
                                                    '5', '6', '7', '8', '9'};
-constexpr std::array<char, 63> kIdentifierCharacters = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
-    'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',  'q', 'r', 's', 't', 'u',
-    'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I', 'J', 'K',
-    'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',  'W', 'X', 'Y', 'Z', '_'};
+constexpr std::array<char, 53> kIdentifierCharacters = {
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+    's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_'};
 
 class Lexer {
 public:
@@ -23,6 +22,7 @@ public:
 
 private:
   char get_current_char();
+  char get_char_at(int);
   std::string find_identifier_or_predefined_syntax();
   // # this is line comment
   Syntax::Token find_line_comment();
