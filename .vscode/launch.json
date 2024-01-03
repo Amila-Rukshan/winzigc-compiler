@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(lldb) Launch Debug",
+      "preLaunchTask": "Bazel Build (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bazel-bin/main/cmd",
+      "args": [
+        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/tests/winzig_00"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}"
+      }
+    },
+  ]
+}

@@ -53,7 +53,9 @@ std::string Lexer::find_identifier_or_predefined_syntax() {
 Syntax::Token Lexer::find_line_comment() {
   int start = position;
   if (get_current_char() == '#') {
-    while (get_current_char() != '\n' && get_current_char() != '\0') {
+    position++;
+    column++;
+    while (get_current_char() != '\n') {
       position++;
       column++;
     }

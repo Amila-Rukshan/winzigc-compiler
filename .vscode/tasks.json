@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bazel Build (Debug)",
+      "type": "shell",
+      "osx": {
+        "command": "bazel build --cxxopt='-std=c++17' //main:cmd --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+  ]
+}
