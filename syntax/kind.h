@@ -3,6 +3,9 @@
 namespace WinZigC {
 namespace Syntax {
 
+/*
+ * This enum class is used to represent the kind of a token.
+ */
 enum class Kind {
   kIdentifier,
   kInteger,

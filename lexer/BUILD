@@ -5,6 +5,7 @@ cc_library(
     srcs = ["lexer.cc"],
     hdrs = ["lexer.h"],
     deps = [
+        "@com_github_google_glog//:glog",
         "//syntax:token"
     ],
     visibility = ["//main:__pkg__"],

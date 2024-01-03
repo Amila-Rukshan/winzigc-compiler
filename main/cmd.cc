@@ -6,10 +6,15 @@
 
 #include "lexer/lexer.h"
 
+#include "glog/logging.h"
+
 int main(int argc, char** argv) {
+  // Initialize Google's logging library.
+  google::InitGoogleLogging(argv[0]);
+
   // Check if a file path was provided
   if (argc < 2) {
-    std::cerr << "Please provide a file path." << std::endl;
+    LOG(ERROR) << "Please provide a file path.";
     return 1;
   }
 
@@ -19,7 +24,7 @@ int main(int argc, char** argv) {
   // Open the file
   std::ifstream file(filePath);
   if (!file) {
-    std::cerr << "Failed to open file." << std::endl;
+    LOG(ERROR) << "Failed to open file.";
     return 1;
   }
 
@@ -30,10 +35,6 @@ int main(int argc, char** argv) {
   std::string sample_program = buffer.str();
   WinZigC::Lexer lexer(sample_program);
   auto tokens = lexer.get_tokens();
-
-  for (auto token : tokens) {
-    std::cout << token.lexeme << std::endl;
-  }
 
   return 0;
 }

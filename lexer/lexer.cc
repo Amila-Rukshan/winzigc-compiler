@@ -1,7 +1,11 @@
 #include <algorithm>
 #include <stack>
+#include <string>
+#include <iostream>
 
 #include "lexer/lexer.h"
+
+#include "glog/logging.h"
 
 namespace WinZigC {
 
@@ -17,10 +21,20 @@ Lexer::Lexer(const std::string& source) {
 std::vector<Syntax::Token> Lexer::get_tokens() {
   Syntax::Token token = find_next_token();
   while (token.kind != Syntax::Kind::kEndOfProgram) {
-    tokens.push_back(token);
+    if (token.kind == Syntax::Kind::kUnknown) {
+      LOG(ERROR) << "Unknown token: >" << token.lexeme << "< at line: " << token.line
+                << " column: " << token.column << std::endl;
+      break;
+    }
+    // ignore comments, newlines, whitespaces, and end of file, end of program tokens
+    if (token.kind != Syntax::Kind::kWhiteSpace && token.kind != Syntax::Kind::kLineComment &&
+        token.kind != Syntax::Kind::kBlockComment && token.kind != Syntax::Kind::kNewline &&
+        token.kind != Syntax::Kind::kEndOfFile && token.kind != Syntax::Kind::kEndOfProgram) {
+      tokens.push_back(token);
+    }
     token = find_next_token();
   }
-  return tokens;
+  return std::move(tokens);
 }
 
 char Lexer::get_current_char() {
@@ -140,7 +154,7 @@ Syntax::Token Lexer::find_integer() {
 
 Syntax::Token Lexer::find_char() {
   int start = position;
-  if (get_current_char() == '\'' && get_char_at(position) != '\'' &&
+  if (get_current_char() == '\'' && get_char_at(position + 1) != '\'' &&
       get_char_at(position + 2) == '\'') {
     position += 3;
     column += 3;

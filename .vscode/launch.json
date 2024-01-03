@@ -8,11 +8,16 @@
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/main/cmd",
       "args": [
-        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/tests/winzig_00"
+        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/tests/winzig_15"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
-      "environment": [],
+      "environment": [
+        {
+          "name": "GLOG_logtostderr",
+          "value": "1"
+        }
+      ],
       "externalConsole": false,
       "MIMode": "lldb",
       "sourceFileMap": {
