@@ -23,7 +23,7 @@ std::vector<Syntax::Token> Lexer::get_tokens() {
   while (token.kind != Syntax::Kind::kEndOfProgram) {
     if (token.kind == Syntax::Kind::kUnknown) {
       LOG(ERROR) << "Unknown token: >" << token.lexeme << "< at line: " << token.line
-                << " column: " << token.column << std::endl;
+                 << " column: " << token.column;
       break;
     }
     // ignore comments, newlines, whitespaces, and end of file, end of program tokens
