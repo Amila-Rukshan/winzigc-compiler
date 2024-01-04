@@ -5,6 +5,8 @@ cc_library(
     srcs = ["lexer.cc"],
     hdrs = ["lexer.h"],
     deps = [
+        # "@llvm-project//llvm:Core",
+        "@llvm-project//llvm:Support",
         "@com_github_google_glog//:glog",
         "//syntax:token"
     ],

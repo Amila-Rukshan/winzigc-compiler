@@ -6,6 +6,7 @@
 #include "lexer/lexer.h"
 
 #include "glog/logging.h"
+#include "llvm/ADT/APFloat.h"
 
 namespace WinZigC {
 
@@ -19,6 +20,8 @@ Lexer::Lexer(const std::string& source) {
 }
 
 std::vector<Syntax::Token> Lexer::get_tokens() {
+  llvm::APFloat f(0.0);
+  f.convert(llvm::APFloat::IEEEdouble(), llvm::APFloat::rmNearestTiesToEven, nullptr);
   Syntax::Token token = find_next_token();
   while (token.kind != Syntax::Kind::kEndOfProgram) {
     if (token.kind == Syntax::Kind::kUnknown) {
