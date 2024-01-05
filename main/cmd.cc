@@ -36,5 +36,9 @@ int main(int argc, char** argv) {
   WinZigC::Lexer lexer(sample_program);
   auto tokens = lexer.get_tokens();
 
+  for (auto token : tokens) {
+    std::cout << token.lexeme << std::endl;
+  }
+
   return 0;
 }

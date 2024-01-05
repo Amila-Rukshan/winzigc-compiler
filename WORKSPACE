@@ -1,63 +1,65 @@
+# This file is licensed under the Apache License v2.0 with LLVM Exceptions.
+# See https://llvm.org/LICENSE.txt for license information.
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+# Demonstration of using these build files with http_archive instead of submodules.
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+
+################################################################
+# llvm setup
+
+LLVM_COMMIT = "499bce3abab8a362b9b4197944bd40b826c736c4"
+
+LLVM_BAZEL_TAG = "llvm-project-%s" % (LLVM_COMMIT,)
+
+LLVM_BAZEL_SHA256 = "a05a83300b6b4d8b45c9ba48296c06217f3ea27ed06b7e698896b5a3b2ed498d"
 
 http_archive(
-    name = "bazel_skylib",
-    sha256 = "cd55a062e763b9349921f0f5db8c3933288dc8ba4f76dd9416aac68acee3cb94",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-    ],
+    name = "llvm-bazel",
+    sha256 = LLVM_BAZEL_SHA256,
+    strip_prefix = "llvm-bazel-{tag}/llvm-bazel".format(tag = LLVM_BAZEL_TAG),
+    url = "https://github.com/google/llvm-bazel/archive/{tag}.tar.gz".format(tag = LLVM_BAZEL_TAG),
 )
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+LLVM_SHA256 = "a154965dfeb2b5963acc2193bc334ce90b314acbe48430ba310d8a7c7a20de8b"
 
-bazel_skylib_workspace()
+LLVM_URLS = [
+    "https://storage.googleapis.com/mirror.tensorflow.org/github.com/llvm/llvm-project/archive/{commit}.tar.gz".format(commit = LLVM_COMMIT),
+    "https://github.com/llvm/llvm-project/archive/{commit}.tar.gz".format(commit = LLVM_COMMIT),
+]
 
-# start ---- LLVM ---- #
-
-new_local_repository(
-    name = "llvm-raw",
-    build_file_content = "# empty",
-    path = "llvm-project",
+http_archive(
+    name = "llvm-project-raw",
+    build_file_content = "#empty",
+    sha256 = LLVM_SHA256,
+    strip_prefix = "llvm-project-" + LLVM_COMMIT,
+    urls = LLVM_URLS,
 )
 
-load("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
+load("@llvm-bazel//:terminfo.bzl", "llvm_terminfo_disable")
 
-llvm_configure(name = "llvm-project")
+llvm_terminfo_disable(
+    name = "llvm_terminfo",
+)
 
-maybe(
-    http_archive,
+load("@llvm-bazel//:zlib.bzl", "llvm_zlib_disable")
+
+llvm_zlib_disable(
     name = "llvm_zlib",
-    build_file = "@llvm-raw//utils/bazel/third_party_build:zlib-ng.BUILD",
-    sha256 = "e36bb346c00472a1f9ff2a0a4643e590a254be6379da7cddd9daeb9a7f296731",
-    strip_prefix = "zlib-ng-2.0.7",
-    urls = [
-        "https://github.com/zlib-ng/zlib-ng/archive/refs/tags/2.0.7.zip",
-    ],
 )
 
-maybe(
-    http_archive,
-    name = "llvm_zstd",
-    build_file = "@llvm-raw//utils/bazel/third_party_build:zstd.BUILD",
-    sha256 = "7c42d56fac126929a6a85dbc73ff1db2411d04f104fae9bdea51305663a83fd0",
-    strip_prefix = "zstd-1.5.2",
-    urls = [
-        "https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz"
-    ],
+load("@llvm-bazel//:configure.bzl", "llvm_configure")
+
+llvm_configure(
+    name = "llvm-project",
+    src_path = ".",
+    src_workspace = "@llvm-project-raw//:WORKSPACE",
 )
 
-# end ---- LLVM ---- #
-
-http_archive(
-    name = "aspect_gcc_toolchain",
-    sha256 = "3341394b1376fb96a87ac3ca01c582f7f18e7dc5e16e8cf40880a31dd7ac0e1e",
-    strip_prefix = "gcc-toolchain-0.4.2",
-    urls = [
-        "https://github.com/aspect-build/gcc-toolchain/archive/refs/tags/0.4.2.tar.gz",
-    ],
-)
+################################################################
+################################################################
+# glog setup
 
 http_archive(
     name = "com_github_gflags_gflags",
@@ -73,13 +75,5 @@ http_archive(
     urls = ["https://github.com/google/glog/archive/v0.6.0.zip"],
 )
 
-# load("@aspect_gcc_toolchain//toolchain:repositories.bzl", "gcc_toolchain_dependencies")
-
-# gcc_toolchain_dependencies()
-
-# load("@aspect_gcc_toolchain//toolchain:defs.bzl", "gcc_register_toolchain", "ARCHS")
-
-# gcc_register_toolchain(
-#     name = "gcc_toolchain_x86_64",
-#     target_arch = ARCHS.x86_64,
-# )
+################################################################
+################################################################
