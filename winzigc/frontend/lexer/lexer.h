@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "syntax/token.h"
+#include "winzigc/frontend/syntax/token.h"
 
 namespace WinZigC {
 

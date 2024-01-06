@@ -5,7 +5,7 @@
       "label": "Bazel Build (Debug)",
       "type": "shell",
       "osx": {
-        "command": "bazel build --cxxopt='-std=c++17' //main:cmd --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+        "command": "bazel build --cxxopt='-std=c++17' //winzigc/main:cmd --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
       },
       "group": {
         "kind": "build",

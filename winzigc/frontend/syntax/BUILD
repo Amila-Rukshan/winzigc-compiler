@@ -9,5 +9,5 @@ cc_library(
     name = "token",
     hdrs = ["token.h"],
     deps = [":kind"],
-    visibility = ["//lexer:__pkg__"],
+    visibility = ["//winzigc/frontend/lexer:__pkg__"],
 )

@@ -6,7 +6,7 @@
       "preLaunchTask": "Bazel Build (Debug)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/bazel-bin/main/cmd",
+      "program": "${workspaceFolder}/bazel-bin/winzigc/main/cmd",
       "args": [
         "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/tests/winzig_00"
       ],

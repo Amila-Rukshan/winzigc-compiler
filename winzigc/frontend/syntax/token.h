@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "kind.h"
+#include "winzigc/frontend/syntax/kind.h"
 
 namespace WinZigC {
 namespace Syntax {

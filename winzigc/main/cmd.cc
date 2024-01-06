@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "lexer/lexer.h"
+#include "winzigc/frontend/lexer/lexer.h"
 
 #include "glog/logging.h"
 

@@ -8,7 +8,7 @@ cc_library(
         "@llvm-project//llvm:Core",
         "@llvm-project//llvm:Support",
         "@com_github_google_glog//:glog",
-        "//syntax:token"
+        "//winzigc/frontend/syntax:token"
     ],
-    visibility = ["//main:__pkg__"],
+    visibility = ["//winzigc/main:__pkg__"],
 )
