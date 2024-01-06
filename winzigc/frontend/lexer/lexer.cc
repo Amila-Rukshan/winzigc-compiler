@@ -36,7 +36,7 @@ std::vector<Syntax::Token> Lexer::get_tokens() {
     }
     token = find_next_token();
   }
-  return std::move(tokens);
+  return tokens;
 }
 
 char Lexer::get_current_char() {
