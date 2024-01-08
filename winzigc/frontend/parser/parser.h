@@ -11,6 +11,9 @@ public:
 
 private:
   std::unique_ptr<std::vector<Syntax::Token>> tokens;
+  private:
+    std::unique_ptr<Syntax::Token> token_index;
+    std::unique_ptr<Syntax::Token> next_token;
 };
 
 } // namespace Frontend

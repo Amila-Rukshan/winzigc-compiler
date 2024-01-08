@@ -4,7 +4,11 @@ cc_library(
     name = "ast_lib",
     hdrs = [
         "expr.h",
-        "expr.cc"
+        "statement.h",
+        "type.h",
+        "var.h",
+        "function.h",
+        "program.h",
     ],
     visibility = ["//winzigc/frontend/parser:__pkg__"],
 )
