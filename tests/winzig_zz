@@ -1,0 +1,12 @@
+{ This program tests simple function calls for many argument. }
+program MyProg:
+
+var
+    i : integer;
+
+begin
+    i := 5;
+	output(i);
+end 
+
+MyProg.
