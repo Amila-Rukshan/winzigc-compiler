@@ -18,7 +18,7 @@ constexpr std::array<char, 53> kIdentifierCharacters = {
 class Lexer {
 public:
   Lexer(const std::string& source);
-  std::vector<Syntax::Token> get_tokens();
+  std::unique_ptr<std::vector<Syntax::Token>> get_tokens();
 
 private:
   char get_current_char();
@@ -35,7 +35,7 @@ private:
   Syntax::Token find_string();
   Syntax::Token find_next_token();
 
-  std::vector<Syntax::Token> tokens;
+  std::unique_ptr<std::vector<Syntax::Token>> tokens;
   std::string source;
   std::string lexeme;
   int position;

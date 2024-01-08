@@ -1,13 +1,16 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
-    name = "kind",
+    name = "kind_lib",
     hdrs = ["kind.h"],
 )
 
 cc_library(
-    name = "token",
+    name = "token_lib",
     hdrs = ["token.h"],
-    deps = [":kind"],
-    visibility = ["//winzigc/frontend/lexer:__pkg__"],
+    deps = [":kind_lib"],
+    visibility = [
+        "//winzigc/frontend/lexer:__pkg__",
+        "//winzigc/frontend/parser:__pkg__"
+    ],
 )

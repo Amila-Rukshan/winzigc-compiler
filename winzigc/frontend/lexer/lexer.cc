@@ -14,12 +14,13 @@ namespace WinZigC {
 
 Lexer::Lexer(const std::string& source) {
   this->source = source;
+  tokens = std::make_unique<std::vector<Syntax::Token>>();
   position = 0;
   line = 1;
   column = 0;
 }
 
-std::vector<Syntax::Token> Lexer::get_tokens() {
+std::unique_ptr<std::vector<Syntax::Token>> Lexer::get_tokens() {
   llvm::APFloat f(0.0);
   Syntax::Token token = find_next_token();
   while (token.kind != Syntax::Kind::kEndOfProgram) {
@@ -32,11 +33,11 @@ std::vector<Syntax::Token> Lexer::get_tokens() {
     if (token.kind != Syntax::Kind::kWhiteSpace && token.kind != Syntax::Kind::kLineComment &&
         token.kind != Syntax::Kind::kBlockComment && token.kind != Syntax::Kind::kNewline &&
         token.kind != Syntax::Kind::kEndOfFile && token.kind != Syntax::Kind::kEndOfProgram) {
-      tokens.push_back(token);
+      tokens->push_back(token);
     }
     token = find_next_token();
   }
-  return tokens;
+  return std::move(tokens);
 }
 
 char Lexer::get_current_char() {

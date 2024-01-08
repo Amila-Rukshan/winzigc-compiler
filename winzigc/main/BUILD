@@ -5,6 +5,7 @@ cc_binary(
     srcs = ["cmd.cc"],
     deps = [
         "@com_github_google_glog//:glog",
-        "//winzigc/frontend/lexer:lexer"
+        "//winzigc/frontend/lexer:lexer_lib",
+        "//winzigc/frontend/parser:parser_lib"
     ],
 )
