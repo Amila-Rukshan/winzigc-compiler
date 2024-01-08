@@ -55,9 +55,9 @@ private:
 
 class RepeatStatement : public Statement {
 public:
-  RepeatStatement(std::vector<std::unique_ptr<Statement>> statements,
-                  std::unique_ptr<Expression> condition)
-      : statements(std::move(statements)), condition(std::move(condition)) {}
+  RepeatStatement(std::unique_ptr<Expression> condition,
+                  std::vector<std::unique_ptr<Statement>> statements)
+      : condition(std::move(condition)), statements(std::move(statements)) {}
 
 private:
   std::unique_ptr<Expression> condition;

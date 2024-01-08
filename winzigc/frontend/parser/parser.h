@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "winzigc/frontend/syntax/token.h"
+#include "winzigc/frontend/ast/program.h"
 
 namespace WinZigC {
 namespace Frontend {
@@ -8,12 +9,19 @@ namespace Frontend {
 class Parser {
 public:
   Parser(std::unique_ptr<std::vector<Syntax::Token>> tokens) : tokens(std::move(tokens)) {}
+  std::unique_ptr<AST::Program> parse();
 
 private:
+  bool has_next_token();
+  Syntax::Kind peek_next_kind();
+  Syntax::Token peek_next_token();
+  void go_to_next_token();
+  Syntax::Token get_next_token();
+
+  std::unique_ptr<AST::Program> program;
   std::unique_ptr<std::vector<Syntax::Token>> tokens;
-  private:
-    std::unique_ptr<Syntax::Token> token_index;
-    std::unique_ptr<Syntax::Token> next_token;
+  int token_index;
+  std::unique_ptr<Syntax::Token> next_token;
 };
 
 } // namespace Frontend
