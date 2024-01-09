@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "winzigc/frontend/lexer/lexer.h"
 #include "winzigc/frontend/parser/parser.h"
@@ -36,6 +37,7 @@ int main(int argc, char** argv) {
   }
 
   WinZigC::Frontend::Parser parser(std::move(tokens));
+  auto program = parser.parse();
 
   return 0;
 }

@@ -1,8 +1,18 @@
 #include <memory>
+#include <string>
+#include <vector>
+#include <map>
+#include <utility>
 
 #include "winzigc/frontend/syntax/kind.h"
 #include "winzigc/frontend/parser/parser.h"
 #include "winzigc/frontend/syntax/token.h"
+#include "winzigc/frontend/ast/program.h"
+#include "winzigc/frontend/ast/expr.h"
+#include "winzigc/frontend/ast/var.h"
+#include "winzigc/frontend/ast/statement.h"
+#include "winzigc/frontend/ast/type.h"
+#include "winzigc/frontend/ast/function.h"
 
 #include "glog/logging.h"
 
@@ -12,6 +22,111 @@ namespace Frontend {
 Parser::Parser(std::unique_ptr<std::vector<Syntax::Token>> tokens) : tokens(std::move(tokens)) {
   token_index = 0;
   program = nullptr;
+}
+
+std::unique_ptr<AST::Program> Parser::parse() {
+  read(Syntax::Kind::kProgram);
+  std::string program_name = read(Syntax::Kind::kIdentifier);
+  read(Syntax::Kind::kColon);
+  // TODO: consts
+  // TODO: types
+  std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_dclns();
+  std::vector<std::unique_ptr<AST::Function>> functions;
+  std::vector<std::unique_ptr<AST::Statement>> statements = parse_body();
+
+  return std::make_unique<AST::Program>(program_name, std::move(var_dclns), std::move(functions),
+                                        std::move(statements));
+}
+
+// Dclns      ->  'var' (Dcln ';')+                                             => "dclns"
+//            ->                                                                => "dclns";
+std::vector<std::unique_ptr<AST::GlobalVariable>> Parser::parse_dclns() {
+  std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns;
+  if (current_token->kind == Syntax::Kind::kVar) {
+    read(Syntax::Kind::kVar);
+    parse_dcln(var_dclns);
+    read(Syntax::Kind::kSemiColon);
+    while (current_token->kind == Syntax::Kind::kIdentifier) {
+      parse_dcln(var_dclns);
+      read(Syntax::Kind::kSemiColon);
+    }
+  }
+  return var_dclns;
+}
+
+// Dcln       ->  Name list ',' ':' Name                                        => "var";
+void Parser::parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_dclns) {
+  std::vector<std::string> identifiers;
+  identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  while (current_token->kind != Syntax::Kind::kColon) {
+    read(Syntax::Kind::kComma);
+    identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  }
+  read(Syntax::Kind::kColon);
+  std::string type = read(Syntax::Kind::kIdentifier);
+  for (auto identifier : identifiers) {
+    var_dclns.push_back(std::make_unique<AST::GlobalVariable>(identifier, createType(type)));
+  }
+}
+
+// Body       ->  'begin' Statement list ';' 'end'                              => "block";
+std::vector<std::unique_ptr<AST::Statement>> Parser::parse_body() {
+  std::vector<std::unique_ptr<AST::Statement>> statements;
+  read(Syntax::Kind::kBegin);
+  parse_statement(statements);
+  while (current_token->kind == Syntax::Kind::kSemiColon) {
+    read(Syntax::Kind::kSemiColon);
+    parse_statement(statements);
+  }
+  // read(Syntax::Kind::kEnd);
+  return statements;
+}
+
+// Statement  ->  Assignment
+//            ->  'output' '(' OutExp list ',' ')'                              => "output"
+//            ->  'if' Expression 'then' Statement ('else' Statement)?          => "if"
+//            ->  'while' Expression 'do' Statement                             => "while"
+//            ->  'repeat' Statement list ';' 'until' Expression                => "repeat"
+//            ->  'for' '(' ForStat ';' ForExp ';' ForStat ')' Statement        => "for"
+//            ->  'loop' Statement list ';' 'pool'                              => "loop"
+//            ->  'case' Expression 'of' Caseclauses OtherwiseClause 'end'      => "case"
+//            ->  'read' '(' Name list ',' ')'                                  => "read"
+//            ->  'exit'                                                        => "exit"
+//            ->  'return' Expression                                           => "return"
+//            ->  Body
+//            ->                                                                => "ᐸnullᐳ"; 
+void Parser::parse_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
+  switch (current_token->kind) {
+    case Syntax::Kind::kIdentifier:
+      parse_assignment_statement(statements);
+      break;
+    default:
+      break;
+  }
+}
+
+// Assignment ->  Name ':=' Expression                                          => "assign"
+//            ->  Name ':=:' Name                                               => "swap"; 
+void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
+  std::string name = read(Syntax::Kind::kIdentifier);
+  switch (current_token->kind) {
+    case Syntax::Kind::kAssign:
+      read(Syntax::Kind::kAssign);
+      // std::unique_ptr<AST::Expression> expression = parse_expression();
+      // statements.push_back(std::make_unique<AST::AssignmentStatement>(name, std::move(expression)));
+  }
+}
+
+std::unique_ptr<AST::Type> Parser::createType(const std::string& type) {
+  if (type == "integer") {
+    return std::make_unique<AST::IntegerType>();
+  } else if (type == "boolean") {
+    return std::make_unique<AST::BooleanType>();
+  } else if (type == "void") {
+    return std::make_unique<AST::VoidType>();
+  } else {
+    throw std::invalid_argument("Invalid type string");
+  }
 }
 
 bool Parser::has_next_token() { return token_index < tokens->size(); }
@@ -37,24 +152,18 @@ Syntax::Token Parser::peek_next_token() {
 void Parser::go_to_next_token() {
   if (has_next_token()) {
     token_index++;
+    current_token = &tokens->at(token_index);
   } else {
     throw std::runtime_error("No more tokens to peek");
   }
 }
 
-Syntax::Token Parser::get_next_token() {
-  if (has_next_token()) {
-    return tokens->at(token_index++);
-  } else {
-    throw std::runtime_error("No more tokens to peek");
-    return Syntax::Token{Syntax::Kind::kUnknown, "", 0, 0};
-  }
-}
-
-void Parser::read(Syntax::Kind kind) {
+std::string Parser::read(Syntax::Kind kind) {
   if (has_next_token()) {
     if (tokens->at(token_index).kind == kind) {
-      token_index++;
+      std::string lexeme = tokens->at(token_index).lexeme;
+      go_to_next_token();
+      return lexeme;
     } else {
       LOG(ERROR) << "Expected token: " << kindToString.at(kind);
       LOG(ERROR) << "Actual token: " << kindToString.at(tokens->at(token_index).kind);
@@ -66,8 +175,6 @@ void Parser::read(Syntax::Kind kind) {
     throw std::runtime_error("No more tokens to peek");
   }
 }
-
-std::unique_ptr<AST::Program> Parser::parse() { return nullptr; }
 
 const std::map<Syntax::Kind, std::string> Parser::kindToString = {
     {Syntax::Kind::kIdentifier, "kIdentifier"},

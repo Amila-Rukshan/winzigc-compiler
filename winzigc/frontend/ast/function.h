@@ -1,5 +1,8 @@
+#pragma once
+
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "winzigc/frontend/ast/type.h"
 #include "winzigc/frontend/ast/statement.h"

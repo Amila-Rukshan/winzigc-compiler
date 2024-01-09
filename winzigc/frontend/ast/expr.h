@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <utility>
 
 namespace WinZigC {
 namespace Frontend {
@@ -45,6 +46,14 @@ private:
 class VariableExpression : public Expression {
 public:
   VariableExpression(std::string name) : name(name) {}
+
+private:
+  std::string name;
+};
+
+class IdentifierExpression : public Expression {
+public:
+  IdentifierExpression(std::string name) : name(name) {}
 
 private:
   std::string name;

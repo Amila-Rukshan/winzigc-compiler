@@ -1,5 +1,8 @@
+#pragma once
+
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "winzigc/frontend/ast/expr.h"
 
@@ -14,11 +17,11 @@ public:
 
 class AssignmentStatement : public Statement {
 public:
-  AssignmentStatement(std::string name, std::unique_ptr<Expression> expression)
-      : name(name), expression(std::move(expression)) {}
+  AssignmentStatement(std::unique_ptr<IdentifierExpression> name, std::unique_ptr<Expression> expression)
+      : name(std::move(name)), expression(std::move(expression)) {}
 
 private:
-  std::string name;
+  std::unique_ptr<IdentifierExpression> name;
   std::unique_ptr<Expression> expression;
 };
 
