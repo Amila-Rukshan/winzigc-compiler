@@ -94,26 +94,98 @@ std::vector<std::unique_ptr<AST::Statement>> Parser::parse_body() {
 //            ->  'exit'                                                        => "exit"
 //            ->  'return' Expression                                           => "return"
 //            ->  Body
-//            ->                                                                => "ᐸnullᐳ"; 
+//            ->                                                                => "ᐸnullᐳ";
 void Parser::parse_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
   switch (current_token->kind) {
-    case Syntax::Kind::kIdentifier:
-      parse_assignment_statement(statements);
-      break;
-    default:
-      break;
+  case Syntax::Kind::kIdentifier:
+    parse_assignment_statement(statements);
+    break;
+  default:
+    break;
   }
 }
 
 // Assignment ->  Name ':=' Expression                                          => "assign"
-//            ->  Name ':=:' Name                                               => "swap"; 
+//            ->  Name ':=:' Name                                               => "swap";
 void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
-  std::string name = read(Syntax::Kind::kIdentifier);
+  auto identifier_expr = std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+  std::unique_ptr<AST::Expression> expression;
   switch (current_token->kind) {
-    case Syntax::Kind::kAssign:
-      read(Syntax::Kind::kAssign);
-      // std::unique_ptr<AST::Expression> expression = parse_expression();
-      // statements.push_back(std::make_unique<AST::AssignmentStatement>(name, std::move(expression)));
+  case Syntax::Kind::kAssign:
+    read(Syntax::Kind::kAssign);
+    expression = parse_expression();
+    statements.push_back(std::make_unique<AST::AssignmentStatement>(std::move(identifier_expr), std::move(expression)));
+    break;
+  default:
+    throw std::runtime_error("Invalid assignment statement");
+    break;
+  }
+}
+
+std::unique_ptr<AST::Expression> Parser::parse_expression() {
+  auto expression_lhs = parse_primary();
+  if (!expression_lhs) {
+    return nullptr;
+  }
+  return parse_binary_rhs(0, std::move(expression_lhs));
+}
+
+std::unique_ptr<AST::Expression> Parser::parse_binary_rhs(int precedence,
+                                                          std::unique_ptr<AST::Expression> lhs) {
+  while (true) {
+    int token_precedence = get_token_precedence();
+    if (token_precedence < precedence) {
+      return lhs;
+    }
+    AST::BinaryOperation binary_operator = get_binary_operation(current_token->kind);
+    go_to_next_token();
+    std::unique_ptr<AST::Expression> rhs = parse_primary();
+    if (!rhs) {
+      return nullptr;
+    }
+    int next_precedence = get_token_precedence();
+    if (token_precedence < next_precedence) {
+      rhs = parse_binary_rhs(token_precedence + 1, std::move(rhs));
+      if (!rhs) {
+        return nullptr;
+      }
+    }
+    lhs = std::make_unique<AST::BinaryExpression>(binary_operator, std::move(lhs), std::move(rhs));
+  }
+}
+
+std::unique_ptr<AST::Expression> Parser::parse_primary() {
+  std::unique_ptr<AST::Expression> expr;
+  switch (current_token->kind) {
+  case Syntax::Kind::kIdentifier:
+    // TODO: handle function call expressions as well
+    return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+  case Syntax::Kind::kInteger:
+    return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
+  case Syntax::Kind::kOpenBracket:
+    read(Syntax::Kind::kOpenBracket);
+    expr = parse_expression();
+    read(Syntax::Kind::kCloseBracket);
+    return expr;
+  default:
+    throw std::runtime_error("Invalid primary expression");
+    return nullptr;
+  }
+}
+
+int Parser::get_token_precedence() {
+  if (kind_to_precedence.find(current_token->kind) != kind_to_precedence.end()) {
+    return kind_to_precedence.at(current_token->kind);
+  } else {
+    return -1;
+  }
+}
+
+AST::BinaryOperation Parser::get_binary_operation(Syntax::Kind kind) {
+  if (kind_to_binary_operation.find(kind) != kind_to_binary_operation.end()) {
+    return kind_to_binary_operation.at(kind);
+  } else {
+    throw std::invalid_argument("Invalid binary operation");
   }
 }
 
@@ -165,8 +237,8 @@ std::string Parser::read(Syntax::Kind kind) {
       go_to_next_token();
       return lexeme;
     } else {
-      LOG(ERROR) << "Expected token: " << kindToString.at(kind);
-      LOG(ERROR) << "Actual token: " << kindToString.at(tokens->at(token_index).kind);
+      LOG(ERROR) << "Expected token: " << kind_to_string.at(kind);
+      LOG(ERROR) << "Actual token: " << kind_to_string.at(tokens->at(token_index).kind);
       LOG(ERROR) << "line: " << tokens->at(token_index).line;
       LOG(ERROR) << "column: " << tokens->at(token_index).column;
       throw std::runtime_error("Unexpected token");
@@ -176,7 +248,40 @@ std::string Parser::read(Syntax::Kind kind) {
   }
 }
 
-const std::map<Syntax::Kind, std::string> Parser::kindToString = {
+const std::map<Syntax::Kind, AST::BinaryOperation> Parser::kind_to_binary_operation = {
+    {Syntax::Kind::kLessOrEqualOpr, AST::BinaryOperation::kLessThanOrEqual},
+    {Syntax::Kind::kNotEqualOpr, AST::BinaryOperation::kNotEqual},
+    {Syntax::Kind::kLessThanOpr, AST::BinaryOperation::kLessThan},
+    {Syntax::Kind::kGreaterOrEqualOpr, AST::BinaryOperation::kGreaterThanOrEqual},
+    {Syntax::Kind::kGreaterThanOpr, AST::BinaryOperation::kGreaterThan},
+    {Syntax::Kind::kEqualToOpr, AST::BinaryOperation::kEqual},
+    {Syntax::Kind::kModulusOpr, AST::BinaryOperation::kModulo},
+    {Syntax::Kind::kAndOpr, AST::BinaryOperation::kAnd},
+    {Syntax::Kind::kOrOpr, AST::BinaryOperation::kOr},
+    {Syntax::Kind::kPlus, AST::BinaryOperation::kAdd},
+    {Syntax::Kind::kMinus, AST::BinaryOperation::kSubtract},
+    {Syntax::Kind::kMultiply, AST::BinaryOperation::kMultiply},
+    {Syntax::Kind::kDivide, AST::BinaryOperation::kDivide},
+};
+
+const std::map<Syntax::Kind, int> Parser::kind_to_precedence = {
+    {Syntax::Kind::kMultiply, 60},
+    {Syntax::Kind::kDivide, 60},
+    {Syntax::Kind::kModulusOpr, 60},
+    {Syntax::Kind::kPlus, 50},
+    {Syntax::Kind::kMinus, 50},
+    {Syntax::Kind::kLessThanOpr, 40},
+    {Syntax::Kind::kLessOrEqualOpr, 40},
+    {Syntax::Kind::kGreaterThanOpr, 40},
+    {Syntax::Kind::kGreaterOrEqualOpr, 40},
+    {Syntax::Kind::kEqualToOpr, 40},
+    {Syntax::Kind::kNotEqualOpr, 40},
+    {Syntax::Kind::kAndOpr, 30},
+    {Syntax::Kind::kOrOpr, 20},
+    {Syntax::Kind::kNotOpr, 10},
+};
+
+const std::map<Syntax::Kind, std::string> Parser::kind_to_string = {
     {Syntax::Kind::kIdentifier, "kIdentifier"},
     {Syntax::Kind::kInteger, "kInteger"},
     {Syntax::Kind::kWhiteSpace, "kWhiteSpace"},

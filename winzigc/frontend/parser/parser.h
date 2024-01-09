@@ -19,6 +19,11 @@ public:
 
 private:
   std::vector<std::unique_ptr<AST::Statement>> parse_body();
+  std::unique_ptr<AST::Expression> parse_expression();
+  std::unique_ptr<AST::Expression> parse_primary();
+  std::unique_ptr<AST::Expression> parse_binary_rhs(int precedence, std::unique_ptr<AST::Expression> lhs);
+  int get_token_precedence();
+  AST::BinaryOperation get_binary_operation(Syntax::Kind kind);
   void parse_statement(std::vector<std::unique_ptr<AST::Statement>>& statements);
   void parse_assignment_statement(std::vector<std::unique_ptr<AST::Statement>>& statements);
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_dclns();
@@ -36,7 +41,9 @@ private:
   int token_index;
   Syntax::Token* current_token;
 
-  static const std::map<Syntax::Kind, std::string> kindToString;
+  static const std::map<Syntax::Kind, std::string> kind_to_string;
+  static const std::map<Syntax::Kind, int> kind_to_precedence;
+  static const std::map<Syntax::Kind, AST::BinaryOperation> kind_to_binary_operation;
 };
 
 } // namespace Frontend
