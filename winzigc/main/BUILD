@@ -6,6 +6,7 @@ cc_binary(
     deps = [
         "@com_github_google_glog//:glog",
         "//winzigc/frontend/lexer:lexer_lib",
-        "//winzigc/frontend/parser:parser_lib"
+        "//winzigc/frontend/parser:parser_lib",
+        "//winzigc/visitor:codegen_lib",
     ],
 )

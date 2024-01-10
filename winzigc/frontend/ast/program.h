@@ -21,6 +21,11 @@ public:
       : name(name), variables(std::move(vars)), functions(std::move(functions)),
         statements(std::move(statements)) {}
 
+  const std::string& get_name() const { return name; }
+  const std::vector<std::unique_ptr<GlobalVariable>>& get_variables() const { return variables; }
+  const std::vector<std::unique_ptr<Function>>& get_functions() const { return functions; }
+  const std::vector<std::unique_ptr<Expression>>& get_statements() const { return statements; }
+
 private:
   std::string name;
   std::vector<std::unique_ptr<GlobalVariable>> variables;

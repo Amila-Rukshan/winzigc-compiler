@@ -10,5 +10,8 @@ cc_library(
         "function.h",
         "program.h",
     ],
-    visibility = ["//winzigc/frontend/parser:__pkg__"],
+    visibility = [
+        "//winzigc/frontend/parser:__pkg__",
+        "//winzigc/visitor:__pkg__",
+    ],
 )

@@ -38,6 +38,7 @@ public:
 class IntegerExpression : public Expression {
 public:
   IntegerExpression(int value) : value(value) {}
+  int get_value() const { return value; }
 
 private:
   int value;
