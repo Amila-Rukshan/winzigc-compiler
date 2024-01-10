@@ -32,7 +32,7 @@ std::unique_ptr<AST::Program> Parser::parse() {
   // TODO: types
   std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_dclns();
   std::vector<std::unique_ptr<AST::Function>> functions;
-  std::vector<std::unique_ptr<AST::Statement>> statements = parse_body();
+  std::vector<std::unique_ptr<AST::Expression>> statements = parse_body();
 
   return std::make_unique<AST::Program>(program_name, std::move(var_dclns), std::move(functions),
                                         std::move(statements));
@@ -70,8 +70,8 @@ void Parser::parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_d
 }
 
 // Body       ->  'begin' Statement list ';' 'end'                              => "block";
-std::vector<std::unique_ptr<AST::Statement>> Parser::parse_body() {
-  std::vector<std::unique_ptr<AST::Statement>> statements;
+std::vector<std::unique_ptr<AST::Expression>> Parser::parse_body() {
+  std::vector<std::unique_ptr<AST::Expression>> statements;
   read(Syntax::Kind::kBegin);
   parse_statement(statements);
   while (current_token->kind == Syntax::Kind::kSemiColon) {
@@ -95,10 +95,13 @@ std::vector<std::unique_ptr<AST::Statement>> Parser::parse_body() {
 //            ->  'return' Expression                                           => "return"
 //            ->  Body
 //            ->                                                                => "ᐸnullᐳ";
-void Parser::parse_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
+void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   switch (current_token->kind) {
   case Syntax::Kind::kIdentifier:
     parse_assignment_statement(statements);
+    break;
+  case Syntax::Kind::kOutput:
+    parse_output_statement(statements);
     break;
   default:
     break;
@@ -107,19 +110,36 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Statement>>& state
 
 // Assignment ->  Name ':=' Expression                                          => "assign"
 //            ->  Name ':=:' Name                                               => "swap";
-void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Statement>>& statements) {
-  auto identifier_expr = std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+  auto identifier_expr =
+      std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
   std::unique_ptr<AST::Expression> expression;
   switch (current_token->kind) {
   case Syntax::Kind::kAssign:
     read(Syntax::Kind::kAssign);
     expression = parse_expression();
-    statements.push_back(std::make_unique<AST::AssignmentStatement>(std::move(identifier_expr), std::move(expression)));
+    statements.push_back(std::make_unique<AST::AssignmentExpression>(std::move(identifier_expr),
+                                                                     std::move(expression)));
     break;
   default:
     throw std::runtime_error("Invalid assignment statement");
     break;
   }
+}
+
+void Parser::parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+  std::string name = read(Syntax::Kind::kOutput); // TODO: make this printf for lib function
+  read(Syntax::Kind::kOpenBracket);
+  std::vector<std::unique_ptr<AST::Expression>> arguments;
+  if (current_token->kind != Syntax::Kind::kCloseBracket) {
+    arguments.push_back(parse_expression());
+    while (current_token->kind == Syntax::Kind::kComma) {
+      read(Syntax::Kind::kComma);
+      arguments.push_back(parse_expression());
+    }
+  }
+  read(Syntax::Kind::kCloseBracket);
+  statements.push_back(std::make_unique<AST::CallExpression>(name, std::move(arguments)));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
@@ -158,7 +178,20 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
   std::unique_ptr<AST::Expression> expr;
   switch (current_token->kind) {
   case Syntax::Kind::kIdentifier:
-    // TODO: handle function call expressions as well
+    if (peek_next_kind() == Syntax::Kind::kOpenBracket) {
+      std::string name = read(Syntax::Kind::kIdentifier);
+      read(Syntax::Kind::kOpenBracket);
+      std::vector<std::unique_ptr<AST::Expression>> arguments;
+      if (current_token->kind != Syntax::Kind::kCloseBracket) {
+        arguments.push_back(parse_expression());
+        while (current_token->kind == Syntax::Kind::kComma) {
+          read(Syntax::Kind::kComma);
+          arguments.push_back(parse_expression());
+        }
+      }
+      read(Syntax::Kind::kCloseBracket);
+      return std::make_unique<AST::CallExpression>(name, std::move(arguments));
+    }
     return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
   case Syntax::Kind::kInteger:
     return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
@@ -205,7 +238,7 @@ bool Parser::has_next_token() { return token_index < tokens->size(); }
 
 Syntax::Kind Parser::peek_next_kind() {
   if (has_next_token()) {
-    return tokens->at(token_index).kind;
+    return tokens->at(token_index + 1).kind;
   } else {
     throw std::runtime_error("No more tokens to peek");
     return Syntax::Kind::kUnknown;

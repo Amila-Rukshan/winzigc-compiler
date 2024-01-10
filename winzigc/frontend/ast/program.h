@@ -7,6 +7,7 @@
 
 #include "winzigc/frontend/ast/function.h"
 #include "winzigc/frontend/ast/var.h"
+#include "winzigc/frontend/ast/expr.h"
 
 namespace WinZigC {
 namespace Frontend {
@@ -16,7 +17,7 @@ class Program {
 public:
   Program(std::string name, std::vector<std::unique_ptr<GlobalVariable>> vars,
           std::vector<std::unique_ptr<Function>> functions,
-          std::vector<std::unique_ptr<Statement>> statements)
+          std::vector<std::unique_ptr<Expression>> statements)
       : name(name), variables(std::move(vars)), functions(std::move(functions)),
         statements(std::move(statements)) {}
 
@@ -24,7 +25,7 @@ private:
   std::string name;
   std::vector<std::unique_ptr<GlobalVariable>> variables;
   std::vector<std::unique_ptr<Function>> functions;
-  std::vector<std::unique_ptr<Statement>> statements;
+  std::vector<std::unique_ptr<Expression>> statements;
 };
 
 } // namespace AST

@@ -209,7 +209,7 @@ Syntax::Token Lexer::find_next_token() {
     } else if (lexeme == "end") {
       return Syntax::Token{Syntax::Kind::kEnd, "end", line, column};
     } else if (lexeme == "output") {
-      return Syntax::Token{Syntax::Kind::kEnd, "output", line, column};
+      return Syntax::Token{Syntax::Kind::kOutput, "output", line, column};
     } else if (lexeme == "if") {
       return Syntax::Token{Syntax::Kind::kIf, "if", line, column};
     } else if (lexeme == "then") {

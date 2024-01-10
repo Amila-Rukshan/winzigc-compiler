@@ -18,14 +18,16 @@ public:
   std::unique_ptr<AST::Program> parse();
 
 private:
-  std::vector<std::unique_ptr<AST::Statement>> parse_body();
+  std::vector<std::unique_ptr<AST::Expression>> parse_body();
   std::unique_ptr<AST::Expression> parse_expression();
   std::unique_ptr<AST::Expression> parse_primary();
-  std::unique_ptr<AST::Expression> parse_binary_rhs(int precedence, std::unique_ptr<AST::Expression> lhs);
+  std::unique_ptr<AST::Expression> parse_binary_rhs(int precedence,
+                                                    std::unique_ptr<AST::Expression> lhs);
   int get_token_precedence();
   AST::BinaryOperation get_binary_operation(Syntax::Kind kind);
-  void parse_statement(std::vector<std::unique_ptr<AST::Statement>>& statements);
-  void parse_assignment_statement(std::vector<std::unique_ptr<AST::Statement>>& statements);
+  void parse_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
+  void parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
+  void parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_dclns();
   void parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);
   std::unique_ptr<AST::Type> createType(const std::string& type);
