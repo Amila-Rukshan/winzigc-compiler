@@ -43,6 +43,7 @@ int main(int argc, char** argv) {
 
   WinZigC::Visitor::CodeGenVisitor codegen_visitor;
   codegen_visitor.codegen(*program);
+  codegen_visitor.print_llvm_ir();
 
   return 0;
 }
