@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "winzigc/visitor/visitor.h"
+#include "winzigc/frontend/ast/visitor.h"
 #include "winzigc/frontend/ast/program.h"
 
 #include "llvm/IR/IRBuilder.h"
@@ -15,7 +15,7 @@
 namespace WinZigC {
 namespace Visitor {
 
-class CodeGenVisitor : public Visitor {
+class CodeGenVisitor : public Frontend::AST::Visitor {
 public:
   CodeGenVisitor();
   ~CodeGenVisitor();
@@ -27,13 +27,18 @@ public:
   void codegen_main_body(const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements);
   void codegen_external_func_dclns();
 
-  llvm::Value* visit(const Frontend::AST::IntegerExpression expression) override;
-  llvm::Value* visit(const Frontend::AST::GlobalVariable expression) override;
-  llvm::Value* visit(const Frontend::AST::AssignmentExpression expression) override;
-  llvm::Value* visit(const Frontend::AST::BinaryExpression expression) override;
+  llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::VariableExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::CallExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::IdentifierExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::AssignmentExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::BinaryExpression& expression) override;
 
-  llvm::Type* visit(const Frontend::AST::IntegerType expression) override;
-  llvm::Type* visit(const Frontend::AST::BooleanType expression) override;
+  llvm::Value* visit(const Frontend::AST::GlobalVariable& expression) override;
+
+  llvm::Type* visit(const Frontend::AST::IntegerType& expression) override;
+  llvm::Type* visit(const Frontend::AST::BooleanType& expression) override;
+  llvm::Type* visit(const Frontend::AST::VoidType& expression) override;
 
 private:
   std::unique_ptr<llvm::LLVMContext> context;

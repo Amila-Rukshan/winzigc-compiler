@@ -14,19 +14,27 @@
 namespace WinZigC {
 namespace Visitor {
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IntegerExpression expression) {
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IntegerExpression& expression) {
   return llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), expression.get_value());
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable expression) {
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::VariableExpression& expression) {
   return nullptr;
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression expression) {
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CallExpression& expression) {
   return nullptr;
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression expression) {
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& expression) {
+  return nullptr;
+}
+
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& expression) {
+  return nullptr;
+}
+
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   return nullptr;
 }
 

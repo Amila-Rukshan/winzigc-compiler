@@ -3,7 +3,6 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "codegen_lib",
     hdrs = [ 
-        "visitor.h",
         "codegen_visitor.h",
         "@llvm-project//llvm:include/llvm/Transforms/InstCombine/InstCombine.h",
         "@llvm-project//llvm:include/llvm/Transforms/InstCombine/InstCombineWorklist.h",
@@ -17,9 +16,10 @@ cc_library(
         "@llvm-project//llvm:include/llvm/Transforms/Utils.h",
     ],
     srcs = [
+        "codegen_visitor.cc",
         "codegen_type.cc",
         "codegen_expression.cc",
-        "codegen_visitor.cc",
+        "codegen_var.cc",
     ],
     deps = [
         "@com_github_google_glog//:glog",

@@ -5,5 +5,8 @@ cc_library(
     hdrs = [
         "pure.h",
     ],
-    visibility = ["//winzigc/visitor:__pkg__"],
+    visibility = [
+        "//winzigc/visitor:__pkg__",
+        "//winzigc/frontend/ast:__pkg__",
+    ],
 )

@@ -4,9 +4,14 @@
 #include <memory>
 #include <utility>
 
+#include "winzigc/common/pure.h"
+#include "llvm/IR/Value.h"
+
 namespace WinZigC {
 namespace Frontend {
 namespace AST {
+
+class Visitor;
 
 enum class UnaryOperation {
   kMinus,
@@ -33,12 +38,14 @@ enum class BinaryOperation {
 class Expression {
 public:
   virtual ~Expression() = default;
+  virtual llvm::Value* accept(Visitor& visitor) const PURE;
 };
 
 class IntegerExpression : public Expression {
 public:
   IntegerExpression(int value) : value(value) {}
   int get_value() const { return value; }
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   int value;
@@ -47,6 +54,7 @@ private:
 class VariableExpression : public Expression {
 public:
   VariableExpression(std::string name) : name(name) {}
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   std::string name;
@@ -56,6 +64,7 @@ class CallExpression : public Expression {
 public:
   CallExpression(std::string name, std::vector<std::unique_ptr<Expression>> arguments)
       : name(name), arguments(std::move(arguments)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   std::string name;
@@ -65,6 +74,7 @@ private:
 class IdentifierExpression : public Expression {
 public:
   IdentifierExpression(std::string name) : name(name) {}
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   std::string name;
@@ -72,19 +82,13 @@ private:
 
 class AssignmentExpression : public Expression {
 public:
-  AssignmentExpression(std::unique_ptr<IdentifierExpression> name, std::unique_ptr<Expression> expression)
+  AssignmentExpression(std::unique_ptr<IdentifierExpression> name,
+                       std::unique_ptr<Expression> expression)
       : name(std::move(name)), expression(std::move(expression)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   std::unique_ptr<IdentifierExpression> name;
-  std::unique_ptr<Expression> expression;
-};
-
-class UnaryExpression : public Expression {
-public:
-  UnaryExpression(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}
-
-private:
   std::unique_ptr<Expression> expression;
 };
 
@@ -93,6 +97,7 @@ public:
   BinaryExpression(BinaryOperation operation, std::unique_ptr<Expression> left,
                    std::unique_ptr<Expression> right)
       : operation(operation), left(std::move(left)), right(std::move(right)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
 
 private:
   BinaryOperation operation;

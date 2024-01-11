@@ -7,12 +7,16 @@
 namespace WinZigC {
 namespace Visitor {
 
-llvm::Type* CodeGenVisitor::visit(const Frontend::AST::IntegerType expression) {
+llvm::Type* CodeGenVisitor::visit(const Frontend::AST::IntegerType& expression) {
   return llvm::Type::getInt32Ty(*context);
 }
 
-llvm::Type* CodeGenVisitor::visit(const Frontend::AST::BooleanType expression) {
+llvm::Type* CodeGenVisitor::visit(const Frontend::AST::BooleanType& expression) {
   return llvm::Type::getInt1Ty(*context);
+}
+
+llvm::Type* CodeGenVisitor::visit(const Frontend::AST::VoidType& expression) {
+  return llvm::Type::getVoidTy(*context);
 }
 
 } // namespace Visitor

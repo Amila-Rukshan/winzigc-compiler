@@ -9,7 +9,6 @@ begin
     i := (5 + 3) * 4;
     j := 3 * 7 - 3;
 	output(i);
-    j := myfunc(i, j);
 end 
 
 MyProg.

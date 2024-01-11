@@ -9,6 +9,17 @@ cc_library(
         "var.h",
         "function.h",
         "program.h",
+        "visitor.h",
+    ],
+    srcs = [
+        "expr.cc",
+        "type.cc",
+        "var.cc",
+    ],
+    deps = [
+        "@llvm-project//llvm:Core",
+        "@llvm-project//llvm:Support",
+        "//winzigc/common:pure_lib",
     ],
     visibility = [
         "//winzigc/frontend/parser:__pkg__",
