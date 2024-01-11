@@ -32,14 +32,16 @@ void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
 }
 
 void CodeGenVisitor::codegen_global_var_dclns(
-    const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars) {}
+    const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars) {
+  for (const auto& var : vars) {
+    var->accept(*this);
+  }
+}
 
 void CodeGenVisitor::codegen_main_body(
     const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements) {}
 
 void CodeGenVisitor::codegen_external_func_dclns() {}
-
-
 
 } // namespace Visitor
 } // namespace WinZigC

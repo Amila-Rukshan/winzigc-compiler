@@ -20,7 +20,8 @@ public:
   GlobalVariable(std::string name, std::unique_ptr<Type> type)
       : name(name), type(std::move(type)) {}
   virtual llvm::Value* accept(Visitor& visitor) const;
-
+  const std::string& get_name() const { return name; }
+  const Type& get_type() const { return *type; }
 private:
   std::string name;
   std::unique_ptr<Type> type;
