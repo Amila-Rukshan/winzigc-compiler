@@ -65,6 +65,8 @@ public:
   CallExpression(std::string name, std::vector<std::unique_ptr<Expression>> arguments)
       : name(name), arguments(std::move(arguments)) {}
   llvm::Value* accept(Visitor& visitor) const override;
+  const std::string& get_name() const { return name; }
+  const std::vector<std::unique_ptr<Expression>>& get_arguments() const { return arguments; }
 
 private:
   std::string name;

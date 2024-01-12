@@ -53,7 +53,11 @@ void CodeGenVisitor::codegen_main_body(
   builder->CreateRet(llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 0));
 }
 
-void CodeGenVisitor::codegen_external_func_dclns() {}
+void CodeGenVisitor::codegen_external_func_dclns() {
+  module->getOrInsertFunction(
+      "printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(*context),
+                                        llvm::Type::getInt8Ty(*context)->getPointerTo(), true));
+}
 
 } // namespace Visitor
 } // namespace WinZigC

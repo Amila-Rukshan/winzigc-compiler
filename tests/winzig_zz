@@ -7,8 +7,9 @@ var
 
 begin
     i := (5 + 3) * 4;
-    j := 3 * 7 - 3;
-	output(i);
+    j := 10 mod 3 * 5;
+    output(i);
+    output(j);
 end 
 
 MyProg.
