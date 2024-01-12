@@ -39,7 +39,19 @@ void CodeGenVisitor::codegen_global_var_dclns(
 }
 
 void CodeGenVisitor::codegen_main_body(
-    const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements) {}
+    const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements) {
+  llvm::FunctionType* func_type = llvm::FunctionType::get(llvm::Type::getInt32Ty(*context), false);
+  llvm::Function* main_func =
+      llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "main", module.get());
+  llvm::BasicBlock* entry_block = llvm::BasicBlock::Create(*context, "entry", main_func);
+  builder->SetInsertPoint(entry_block);
+
+  for (const auto& statement : statements) {
+    statement->accept(*this);
+  }
+
+  builder->CreateRet(llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 0));
+}
 
 void CodeGenVisitor::codegen_external_func_dclns() {}
 

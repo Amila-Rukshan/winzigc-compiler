@@ -31,10 +31,35 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& ex
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& expression) {
-  return nullptr;
+  llvm::GlobalVariable* var = module->getNamedGlobal(expression.get_name().get_name());
+  if (!var) {
+    std::cerr << "Unknown variable name" << std::endl;
+    return nullptr;
+  }
+  llvm::Value* value = expression.get_expression().accept(*this);
+  builder->CreateStore(value, var);
+  return value;
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
+  llvm::Value* lhs = expression.get_lhs().accept(*this);
+  llvm::Value* rhs = expression.get_rhs().accept(*this);
+
+  switch (expression.get_op()) {
+  case Frontend::AST::BinaryOperation::kAdd:
+    return builder->CreateAdd(lhs, rhs, "addtmp");
+  case Frontend::AST::BinaryOperation::kSubtract:
+    return builder->CreateSub(lhs, rhs, "subtmp");
+  case Frontend::AST::BinaryOperation::kMultiply:
+    return builder->CreateMul(lhs, rhs, "multmp");
+  case Frontend::AST::BinaryOperation::kDivide:
+    return builder->CreateSDiv(lhs, rhs, "divtmp");
+  case Frontend::AST::BinaryOperation::kModulo:
+    return builder->CreateSRem(lhs, rhs, "modtmp");
+  default:
+    std::cerr << "Unknown binary operation" << std::endl;
+    return nullptr;
+  }
   return nullptr;
 }
 

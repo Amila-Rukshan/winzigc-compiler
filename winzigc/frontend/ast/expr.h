@@ -75,6 +75,7 @@ class IdentifierExpression : public Expression {
 public:
   IdentifierExpression(std::string name) : name(name) {}
   llvm::Value* accept(Visitor& visitor) const override;
+  const std::string& get_name() const { return name; }
 
 private:
   std::string name;
@@ -86,6 +87,8 @@ public:
                        std::unique_ptr<Expression> expression)
       : name(std::move(name)), expression(std::move(expression)) {}
   llvm::Value* accept(Visitor& visitor) const override;
+  const IdentifierExpression& get_name() const { return *name; }
+  const Expression& get_expression() const { return *expression; }
 
 private:
   std::unique_ptr<IdentifierExpression> name;
@@ -98,6 +101,9 @@ public:
                    std::unique_ptr<Expression> right)
       : operation(operation), left(std::move(left)), right(std::move(right)) {}
   llvm::Value* accept(Visitor& visitor) const override;
+  BinaryOperation get_op() const { return operation; }
+  const Expression& get_lhs() const { return *left; }
+  const Expression& get_rhs() const { return *right; }
 
 private:
   BinaryOperation operation;
