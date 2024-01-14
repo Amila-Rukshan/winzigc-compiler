@@ -62,7 +62,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& ex
     std::cerr << "Unknown variable name" << std::endl;
     return nullptr;
   }
-  return var;
+  return builder->CreateLoad(var, expression.get_name());
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& expression) {

@@ -6,8 +6,8 @@ var
     b, k : boolean;
 
 begin
-    i := (5 + 3) * 4;
-    j := 10 mod 3 * 5;
+    i := 15 - 3 * i;
+    j := i + 1;
     output(i);
     output(j);
 end 

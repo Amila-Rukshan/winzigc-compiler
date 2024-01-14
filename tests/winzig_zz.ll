@@ -12,11 +12,16 @@ declare i32 @printf(i8*, ...)
 
 define i32 @main() {
 entry:
-  store i32 32, i32* @i, align 4
-  store i32 5, i32* @j, align 4
-  %0 = load i32, i32* @i, align 4
-  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %0)
-  %2 = load i32, i32* @j, align 4
-  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i32 %2)
+  %i = load i32, i32* @i, align 4
+  %multmp = mul i32 3, %i
+  %subtmp = sub i32 15, %multmp
+  store i32 %subtmp, i32* @i, align 4
+  %i1 = load i32, i32* @i, align 4
+  %addtmp = add i32 %i1, 1
+  store i32 %addtmp, i32* @j, align 4
+  %i2 = load i32, i32* @i, align 4
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %i2)
+  %j = load i32, i32* @j, align 4
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i32 %j)
   ret i32 0
 }
