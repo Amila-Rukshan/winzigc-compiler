@@ -6,10 +6,15 @@ var
     b, k : boolean;
 
 begin
+    read(i);
+    read(j);
+    output(i, j);
+    output(i + j);
     i := 15 - 3 * i;
     j := i + 7;
     j := 2 * i + j;
-    output(i, j, 2);
+    output(i, j);
+    output(i);
 end 
 
 MyProg.

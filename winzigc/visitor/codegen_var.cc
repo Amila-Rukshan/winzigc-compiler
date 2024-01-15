@@ -20,6 +20,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
   llvm::GlobalVariable* global_variable = new llvm::GlobalVariable(
       *module, default_value->getType(), false, llvm::GlobalValue::InternalLinkage,
       default_value, expression.get_name());
+  global_variables[llvm::StringRef(expression.get_name())] = global_variable;
   return global_variable;
 }
 

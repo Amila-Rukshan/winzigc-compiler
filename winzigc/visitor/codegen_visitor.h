@@ -26,6 +26,8 @@ public:
   codegen_global_var_dclns(const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars);
   void codegen_main_body(const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements);
   void codegen_external_func_dclns();
+  llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
+  llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
 
   llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::VariableExpression& expression) override;
@@ -45,6 +47,7 @@ private:
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::Module> module;
   std::map<std::string, llvm::AllocaInst*> named_values;
+  std::map<llvm::StringRef, llvm::GlobalVariable*> global_variables;
 };
 
 } // namespace Visitor

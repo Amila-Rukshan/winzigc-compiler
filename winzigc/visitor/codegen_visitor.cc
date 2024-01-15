@@ -57,6 +57,9 @@ void CodeGenVisitor::codegen_external_func_dclns() {
   module->getOrInsertFunction(
       "printf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(*context),
                                         llvm::Type::getInt8Ty(*context)->getPointerTo(), true));
+  module->getOrInsertFunction(
+      "scanf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(*context),
+                                       llvm::Type::getInt8Ty(*context)->getPointerTo(), true));
 }
 
 } // namespace Visitor

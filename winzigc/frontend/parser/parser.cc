@@ -103,6 +103,9 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
   case Syntax::Kind::kOutput:
     parse_output_statement(statements);
     break;
+  case Syntax::Kind::kRead:
+    parse_input_statement(statements);
+    break;
   default:
     break;
   }
@@ -129,6 +132,21 @@ void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Express
 
 void Parser::parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   std::string name = read(Syntax::Kind::kOutput); // TODO: make this printf for lib function
+  read(Syntax::Kind::kOpenBracket);
+  std::vector<std::unique_ptr<AST::Expression>> arguments;
+  if (current_token->kind != Syntax::Kind::kCloseBracket) {
+    arguments.push_back(parse_expression());
+    while (current_token->kind == Syntax::Kind::kComma) {
+      read(Syntax::Kind::kComma);
+      arguments.push_back(parse_expression());
+    }
+  }
+  read(Syntax::Kind::kCloseBracket);
+  statements.push_back(std::make_unique<AST::CallExpression>(name, std::move(arguments)));
+}
+
+void Parser::parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+  std::string name = read(Syntax::Kind::kRead);
   read(Syntax::Kind::kOpenBracket);
   std::vector<std::unique_ptr<AST::Expression>> arguments;
   if (current_token->kind != Syntax::Kind::kCloseBracket) {

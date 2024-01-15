@@ -28,6 +28,7 @@ private:
   void parse_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   void parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   void parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
+  void parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_dclns();
   void parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);
   std::unique_ptr<AST::Type> createType(const std::string& type);
