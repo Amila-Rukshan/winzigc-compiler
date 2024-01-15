@@ -36,8 +36,13 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CallExpression& expressi
   // TODO: check argument types and count
   std::vector<llvm::Value*> args;
   if (expression.get_name() == "output") {
-    llvm::Value* format_str = builder->CreateGlobalStringPtr("%d\n");
-    args.push_back(format_str);
+    std::string format_str = "%d";
+    for (int i = 1; i < expression.get_arguments().size(); ++i) {
+      format_str += " %d";
+    }
+    format_str += "\n";
+    llvm::Value* first_arg = builder->CreateGlobalStringPtr(format_str);
+    args.push_back(first_arg);
   }
   for (const auto& arg : expression.get_arguments()) {
     llvm::Value* arg_val = arg->accept(*this);
