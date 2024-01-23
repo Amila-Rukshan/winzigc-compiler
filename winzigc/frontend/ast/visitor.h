@@ -21,6 +21,7 @@ public:
   virtual llvm::Value* visit(const CallExpression& expression) PURE;
   virtual llvm::Value* visit(const IdentifierExpression& expression) PURE;
   virtual llvm::Value* visit(const AssignmentExpression& expression) PURE;
+  virtual llvm::Value* visit(const SwapExpression& expression) PURE;
   virtual llvm::Value* visit(const BinaryExpression& expression) PURE;
 
   virtual llvm::Value* visit(const GlobalVariable& expression) PURE;

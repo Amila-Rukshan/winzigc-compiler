@@ -116,6 +116,7 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
 void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   auto identifier_expr =
       std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+  std::unique_ptr<AST::IdentifierExpression> identifier_expr_rhs;
   std::unique_ptr<AST::Expression> expression;
   switch (current_token->kind) {
   case Syntax::Kind::kAssign:
@@ -123,6 +124,13 @@ void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Express
     expression = parse_expression();
     statements.push_back(std::make_unique<AST::AssignmentExpression>(std::move(identifier_expr),
                                                                      std::move(expression)));
+    break;
+  case Syntax::Kind::kSwap:
+    read(Syntax::Kind::kSwap);
+    identifier_expr_rhs =
+        std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+    statements.push_back(std::make_unique<AST::SwapExpression>(std::move(identifier_expr),
+                                                               std::move(identifier_expr_rhs)));
     break;
   default:
     throw std::runtime_error("Invalid assignment statement");

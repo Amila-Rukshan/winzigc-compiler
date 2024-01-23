@@ -97,6 +97,20 @@ private:
   std::unique_ptr<Expression> expression;
 };
 
+class SwapExpression : public Expression {
+public:
+  SwapExpression(std::unique_ptr<IdentifierExpression> lhs,
+                 std::unique_ptr<IdentifierExpression> rhs)
+      : lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const IdentifierExpression& get_lhs() const { return *lhs; }
+  const IdentifierExpression& get_rhs() const { return *rhs; }
+
+private:
+  std::unique_ptr<IdentifierExpression> lhs;
+  std::unique_ptr<IdentifierExpression> rhs;
+};
+
 class BinaryExpression : public Expression {
 public:
   BinaryExpression(BinaryOperation operation, std::unique_ptr<Expression> left,

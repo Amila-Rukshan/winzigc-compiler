@@ -131,6 +131,20 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& ex
   return value;
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::SwapExpression& expression) {
+  llvm::GlobalVariable* var1 = module->getNamedGlobal(expression.get_lhs().get_name());
+  llvm::GlobalVariable* var2 = module->getNamedGlobal(expression.get_rhs().get_name());
+  if (!var1 || !var2) {
+    LOG(ERROR) << "Unknown variable name";
+    return nullptr;
+  }
+  llvm::Value* value1 = builder->CreateLoad(var1);
+  llvm::Value* value2 = builder->CreateLoad(var2);
+  builder->CreateStore(value2, var1);
+  builder->CreateStore(value1, var2);
+  return nullptr;
+}
+
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   llvm::Value* lhs = expression.get_lhs().accept(*this);
   llvm::Value* rhs = expression.get_rhs().accept(*this);
