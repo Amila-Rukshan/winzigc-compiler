@@ -8,13 +8,10 @@ var
 begin
     read(i);
     read(j);
-    output(i, j);
-    output(i + j);
-    i := 15 - 3 * i;
-    j := i + 7;
+    output(i mod j <> 4);
+    i := 100 - i;
     j := 2 * i + j;
     output(i, j);
-    output(i);
-end 
+end
 
 MyProg.

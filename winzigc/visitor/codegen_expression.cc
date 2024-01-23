@@ -146,6 +146,22 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expres
     return builder->CreateSDiv(lhs, rhs, "divtmp");
   case Frontend::AST::BinaryOperation::kModulo:
     return builder->CreateSRem(lhs, rhs, "modtmp");
+  case Frontend::AST::BinaryOperation::kLessThan:
+    return builder->CreateICmpSLT(lhs, rhs, "lttmp");
+  case Frontend::AST::BinaryOperation::kLessThanOrEqual:
+    return builder->CreateICmpSLE(lhs, rhs, "letmp");
+  case Frontend::AST::BinaryOperation::kGreaterThan:
+    return builder->CreateICmpSGT(lhs, rhs, "gttmp");
+  case Frontend::AST::BinaryOperation::kGreaterThanOrEqual:
+    return builder->CreateICmpSGE(lhs, rhs, "getmp");
+  case Frontend::AST::BinaryOperation::kEqual:
+    return builder->CreateICmpEQ(lhs, rhs, "eqtmp");
+  case Frontend::AST::BinaryOperation::kNotEqual:
+    return builder->CreateICmpNE(lhs, rhs, "netmp");
+  case Frontend::AST::BinaryOperation::kAnd:
+    return builder->CreateAnd(lhs, rhs, "andtmp");
+  case Frontend::AST::BinaryOperation::kOr:
+    return builder->CreateOr(lhs, rhs, "ortmp");
   default:
     LOG(ERROR) << "Unknown binary operation";
     return nullptr;
