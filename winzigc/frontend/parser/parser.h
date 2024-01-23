@@ -29,9 +29,10 @@ private:
   void parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   void parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   void parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
+  void parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_dclns();
   void parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);
-  std::unique_ptr<AST::Type> createType(const std::string& type);
+  std::unique_ptr<AST::Type> create_type(const std::string& type);
   bool has_next_token();
   Syntax::Kind peek_next_kind();
   Syntax::Token peek_next_token();

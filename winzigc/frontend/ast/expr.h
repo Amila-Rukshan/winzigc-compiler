@@ -127,6 +127,28 @@ private:
   std::unique_ptr<Expression> right;
 };
 
+class IfExpression : public Expression {
+public:
+  IfExpression(std::unique_ptr<Expression> condition,
+               std::vector<std::unique_ptr<Expression>> then_statement,
+               std::vector<std::unique_ptr<Expression>> else_statement)
+      : condition(std::move(condition)), then_statement(std::move(then_statement)),
+        else_statement(std::move(else_statement)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const Expression& get_condition() const { return *condition; }
+  const std::vector<std::unique_ptr<Expression>>& get_then_statement() const {
+    return then_statement;
+  }
+  const std::vector<std::unique_ptr<Expression>>& get_else_statement() const {
+    return else_statement;
+  }
+
+private:
+  std::unique_ptr<Expression> condition;
+  std::vector<std::unique_ptr<Expression>> then_statement;
+  std::vector<std::unique_ptr<Expression>> else_statement;
+};
+
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC

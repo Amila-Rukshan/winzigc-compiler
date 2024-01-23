@@ -145,6 +145,47 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::SwapExpression& expressi
   return nullptr;
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression) {
+  llvm::Value* cond = expression.get_condition().accept(*this);
+  if (!cond) {
+    LOG(ERROR) << "Unknown condition";
+    return nullptr;
+  }
+
+  llvm::Function* parent_function = builder->GetInsertBlock()->getParent();
+  llvm::BasicBlock* then_block = llvm::BasicBlock::Create(*context, "then", parent_function);
+  llvm::BasicBlock* else_block = llvm::BasicBlock::Create(*context, "else");
+  llvm::BasicBlock* merge_block = llvm::BasicBlock::Create(*context, "ifcont");
+
+  builder->CreateCondBr(cond, then_block, else_block);
+
+  builder->SetInsertPoint(then_block);
+
+  llvm::Value* then_val = nullptr;
+  for (const auto& statement : expression.get_then_statement()) {
+    then_val = statement->accept(*this);
+  }
+
+  builder->CreateBr(merge_block);
+  then_block = builder->GetInsertBlock();
+
+  parent_function->getBasicBlockList().push_back(else_block);
+  builder->SetInsertPoint(else_block);
+
+  llvm::Value* else_val = nullptr;
+  for (const auto& statement : expression.get_else_statement()) {
+    else_val = statement->accept(*this);
+  }
+
+  builder->CreateBr(merge_block);
+  else_block = builder->GetInsertBlock();
+
+  parent_function->getBasicBlockList().push_back(merge_block);
+  builder->SetInsertPoint(merge_block);
+
+  return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
+}
+
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   llvm::Value* lhs = expression.get_lhs().accept(*this);
   llvm::Value* rhs = expression.get_rhs().accept(*this);

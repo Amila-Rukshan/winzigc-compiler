@@ -35,6 +35,7 @@ public:
   llvm::Value* visit(const Frontend::AST::IdentifierExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::AssignmentExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::SwapExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::IfExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::BinaryExpression& expression) override;
 
   llvm::Value* visit(const Frontend::AST::GlobalVariable& expression) override;

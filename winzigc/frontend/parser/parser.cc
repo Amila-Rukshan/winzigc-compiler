@@ -65,7 +65,7 @@ void Parser::parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_d
   read(Syntax::Kind::kColon);
   std::string type = read(Syntax::Kind::kIdentifier);
   for (auto identifier : identifiers) {
-    var_dclns.push_back(std::make_unique<AST::GlobalVariable>(identifier, createType(type)));
+    var_dclns.push_back(std::make_unique<AST::GlobalVariable>(identifier, create_type(type)));
   }
 }
 
@@ -78,7 +78,7 @@ std::vector<std::unique_ptr<AST::Expression>> Parser::parse_body() {
     read(Syntax::Kind::kSemiColon);
     parse_statement(statements);
   }
-  // read(Syntax::Kind::kEnd);
+  read(Syntax::Kind::kEnd);
   return statements;
 }
 
@@ -105,6 +105,9 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
     break;
   case Syntax::Kind::kRead:
     parse_input_statement(statements);
+    break;
+  case Syntax::Kind::kIf:
+    parse_if_statement(statements);
     break;
   default:
     break;
@@ -166,6 +169,21 @@ void Parser::parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>
   }
   read(Syntax::Kind::kCloseBracket);
   statements.push_back(std::make_unique<AST::CallExpression>(name, std::move(arguments)));
+}
+
+void Parser::parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+  read(Syntax::Kind::kIf);
+  std::unique_ptr<AST::Expression> expression = parse_expression();
+  read(Syntax::Kind::kThen);
+  std::vector<std::unique_ptr<AST::Expression>> if_block_statements;
+  parse_statement(if_block_statements);
+  std::vector<std::unique_ptr<AST::Expression>> else_block_statements;
+  if (current_token->kind == Syntax::Kind::kElse) {
+    read(Syntax::Kind::kElse);
+    parse_statement(else_block_statements);
+  }
+  statements.push_back(std::make_unique<AST::IfExpression>(
+      std::move(expression), std::move(if_block_statements), std::move(else_block_statements)));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
@@ -248,7 +266,7 @@ AST::BinaryOperation Parser::get_binary_operation(Syntax::Kind kind) {
   }
 }
 
-std::unique_ptr<AST::Type> Parser::createType(const std::string& type) {
+std::unique_ptr<AST::Type> Parser::create_type(const std::string& type) {
   if (type == "integer") {
     return std::make_unique<AST::IntegerType>();
   } else if (type == "boolean") {

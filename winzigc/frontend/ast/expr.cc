@@ -17,6 +17,8 @@ llvm::Value* IdentifierExpression::accept(Visitor& visitor) const { return visit
 
 llvm::Value* AssignmentExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* IfExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 llvm::Value* BinaryExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }

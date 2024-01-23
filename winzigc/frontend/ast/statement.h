@@ -15,24 +15,6 @@ public:
   virtual ~Statement() = default;
 };
 
-class AssignmentStatement : public Statement {
-public:
-  AssignmentStatement(std::unique_ptr<IdentifierExpression> name, std::unique_ptr<Expression> expression)
-      : name(std::move(name)), expression(std::move(expression)) {}
-
-private:
-  std::unique_ptr<IdentifierExpression> name;
-  std::unique_ptr<Expression> expression;
-};
-
-class OutputStatement : public Statement {
-public:
-  OutputStatement(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}
-
-private:
-  std::unique_ptr<Expression> expression;
-};
-
 class IfStatement : public Statement {
 public:
   IfStatement(std::unique_ptr<Expression> condition, std::unique_ptr<Statement> then_statement,
@@ -69,15 +51,15 @@ private:
 
 class ForStatement : public Statement {
 public:
-  ForStatement(std::unique_ptr<AssignmentStatement> start, std::unique_ptr<Expression> condition,
-               std::unique_ptr<AssignmentStatement> end, std::unique_ptr<Statement> statement)
+  ForStatement(std::unique_ptr<Expression> start, std::unique_ptr<Expression> condition,
+               std::unique_ptr<Expression> end, std::unique_ptr<Statement> statement)
       : start(std::move(start)), condition(std::move(condition)), end(std::move(end)),
         statement(std::move(statement)) {}
 
 private:
-  std::unique_ptr<AssignmentStatement> start;
+  std::unique_ptr<Expression> start;
   std::unique_ptr<Expression> condition;
-  std::unique_ptr<AssignmentStatement> end;
+  std::unique_ptr<Expression> end;
   std::unique_ptr<Statement> statement;
 };
 
