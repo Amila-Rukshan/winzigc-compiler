@@ -167,7 +167,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   }
   builder->CreateBr(merge_block);
   parent_function->getBasicBlockList().push_back(else_block);
-  
+
   builder->SetInsertPoint(else_block);
   llvm::Value* else_val = nullptr;
   for (const auto& statement : expression.get_else_statement()) {
@@ -175,10 +175,16 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   }
   builder->CreateBr(merge_block);
   parent_function->getBasicBlockList().push_back(merge_block);
-  
+
   builder->SetInsertPoint(merge_block);
 
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
+}
+
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
+  llvm::Value* return_val = expression.get_expression().accept(*this);
+  builder->CreateRet(return_val);
+  return nullptr;
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {

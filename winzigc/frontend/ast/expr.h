@@ -149,6 +149,16 @@ private:
   std::vector<std::unique_ptr<Expression>> else_statement;
 };
 
+class ReturnExpression : public Expression {
+public:
+  ReturnExpression(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const Expression& get_expression() const { return *expression; }
+
+private:
+  std::unique_ptr<Expression> expression;
+};
+
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC

@@ -186,6 +186,11 @@ void Parser::parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& s
       std::move(expression), std::move(if_block_statements), std::move(else_block_statements)));
 }
 
+void Parser::parse_return_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+  read(Syntax::Kind::kReturn);
+  statements.push_back(parse_expression());
+}
+
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
   auto expression_lhs = parse_primary();
   if (!expression_lhs) {
