@@ -18,10 +18,14 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
         llvm::ConstantInt::get(llvm::Type::getInt1Ty(*context), llvm::APInt(1, 0, true));
   }
   llvm::GlobalVariable* global_variable = new llvm::GlobalVariable(
-      *module, default_value->getType(), false, llvm::GlobalValue::InternalLinkage,
-      default_value, expression.get_name());
+      *module, default_value->getType(), false, llvm::GlobalValue::InternalLinkage, default_value,
+      expression.get_name());
   global_variables[llvm::StringRef(expression.get_name())] = global_variable;
   return global_variable;
+}
+
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expression) {
+  return nullptr;
 }
 
 } // namespace Visitor

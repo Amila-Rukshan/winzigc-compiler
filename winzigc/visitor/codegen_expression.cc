@@ -161,17 +161,15 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
 
   builder->SetInsertPoint(then_block);
 
-  llvm::Value* then_val = nullptr;
   for (const auto& statement : expression.get_then_statement()) {
-    then_val = statement->accept(*this);
+    statement->accept(*this);
   }
   builder->CreateBr(merge_block);
   parent_function->getBasicBlockList().push_back(else_block);
 
   builder->SetInsertPoint(else_block);
-  llvm::Value* else_val = nullptr;
   for (const auto& statement : expression.get_else_statement()) {
-    else_val = statement->accept(*this);
+    statement->accept(*this);
   }
   builder->CreateBr(merge_block);
   parent_function->getBasicBlockList().push_back(merge_block);

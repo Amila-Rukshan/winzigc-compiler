@@ -3,6 +3,7 @@
 #include "winzigc/frontend/ast/expr.h"
 #include "winzigc/frontend/ast/type.h"
 #include "winzigc/frontend/ast/var.h"
+#include "winzigc/frontend/ast/function.h"
 #include "winzigc/common/pure.h"
 
 #include "llvm/IR/Value.h"
@@ -27,6 +28,7 @@ public:
   virtual llvm::Value* visit(const BinaryExpression& expression) PURE;
 
   virtual llvm::Value* visit(const GlobalVariable& expression) PURE;
+  virtual llvm::Value* visit(const LocalVariable& expression) PURE;
 
   virtual llvm::Type* visit(const IntegerType& expression) PURE;
   virtual llvm::Type* visit(const BooleanType& expression) PURE;

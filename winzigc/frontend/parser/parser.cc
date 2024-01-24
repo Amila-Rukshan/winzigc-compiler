@@ -30,32 +30,34 @@ std::unique_ptr<AST::Program> Parser::parse() {
   read(Syntax::Kind::kColon);
   // TODO: consts
   // TODO: types
-  std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_dclns();
-  std::vector<std::unique_ptr<AST::Function>> functions;
+  std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_global_dclns();
+  std::vector<std::unique_ptr<AST::Function>> functions = parse_functions();
   std::vector<std::unique_ptr<AST::Expression>> statements = parse_body();
 
   return std::make_unique<AST::Program>(program_name, std::move(var_dclns), std::move(functions),
                                         std::move(statements));
 }
 
-// Dclns      ->  'var' (Dcln ';')+                                             => "dclns"
-//            ->                                                                => "dclns";
-std::vector<std::unique_ptr<AST::GlobalVariable>> Parser::parse_dclns() {
+// GlobalDclns      ->  'var' (GlobalDcln ';')+                                             =>
+// "global-dclns"
+//                  ->                                                                      =>
+//                  "global-dclns";
+std::vector<std::unique_ptr<AST::GlobalVariable>> Parser::parse_global_dclns() {
   std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns;
   if (current_token->kind == Syntax::Kind::kVar) {
     read(Syntax::Kind::kVar);
-    parse_dcln(var_dclns);
+    parse_global_dcln(var_dclns);
     read(Syntax::Kind::kSemiColon);
     while (current_token->kind == Syntax::Kind::kIdentifier) {
-      parse_dcln(var_dclns);
+      parse_global_dcln(var_dclns);
       read(Syntax::Kind::kSemiColon);
     }
   }
   return var_dclns;
 }
 
-// Dcln       ->  Name list ',' ':' Name                                        => "var";
-void Parser::parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_dclns) {
+// GlobalDcln      ->  Name list ',' ':' Name                                        => "var";
+void Parser::parse_global_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_dclns) {
   std::vector<std::string> identifiers;
   identifiers.push_back(read(Syntax::Kind::kIdentifier));
   while (current_token->kind != Syntax::Kind::kColon) {
@@ -66,6 +68,81 @@ void Parser::parse_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_d
   std::string type = read(Syntax::Kind::kIdentifier);
   for (auto identifier : identifiers) {
     var_dclns.push_back(std::make_unique<AST::GlobalVariable>(identifier, create_type(type)));
+  }
+}
+
+// LocalDclns      ->  'var' (LocalDcln ';')+                                   => "local-dclns"
+//                 ->                                                           => "local-dclns";
+std::vector<std::unique_ptr<AST::LocalVariable>> Parser::parse_local_dclns() {
+  std::vector<std::unique_ptr<AST::LocalVariable>> var_dclns;
+  if (current_token->kind == Syntax::Kind::kVar) {
+    read(Syntax::Kind::kVar);
+    parse_local_dcln(var_dclns);
+    read(Syntax::Kind::kSemiColon);
+    while (current_token->kind == Syntax::Kind::kIdentifier) {
+      parse_local_dcln(var_dclns);
+      read(Syntax::Kind::kSemiColon);
+    }
+  }
+  return var_dclns;
+}
+
+// LocalDcln       ->  Name list ',' ':' Name                                        => "var";
+void Parser::parse_local_dcln(std::vector<std::unique_ptr<AST::LocalVariable>>& var_dclns) {
+  std::vector<std::string> identifiers;
+  identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  while (current_token->kind != Syntax::Kind::kColon) {
+    read(Syntax::Kind::kComma);
+    identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  }
+  read(Syntax::Kind::kColon);
+  std::string type = read(Syntax::Kind::kIdentifier);
+  for (auto identifier : identifiers) {
+    var_dclns.push_back(std::make_unique<AST::LocalVariable>(identifier, create_type(type)));
+  }
+}
+
+// SubProgs   ->  Fcn*                                                          => "subprogs";
+std::vector<std::unique_ptr<AST::Function>> Parser::parse_functions() {
+  std::vector<std::unique_ptr<AST::Function>> functions;
+  while (current_token->kind == Syntax::Kind::kFunction) {
+    parse_function(functions);
+  }
+  return functions;
+}
+
+// Fcn        ->  'function' Name '(' Params ')' ':' Name
+//                ';' Consts Types LocalDclns Body Name ';'                     => "fcn";
+void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functions) {
+  read(Syntax::Kind::kFunction);
+  std::string function_identifier_first = read(Syntax::Kind::kIdentifier);
+  read(Syntax::Kind::kOpenBracket);
+  std::vector<std::unique_ptr<AST::LocalVariable>> params;
+  parse_params(params);
+  read(Syntax::Kind::kCloseBracket);
+  read(Syntax::Kind::kColon);
+  std::unique_ptr<AST::Type> return_type = create_type(read(Syntax::Kind::kIdentifier));
+  read(Syntax::Kind::kSemiColon);
+  std::vector<std::unique_ptr<AST::LocalVariable>> local_vars = parse_local_dclns();
+  std::vector<std::unique_ptr<AST::Expression>> statements = parse_body();
+  std::string function_identifier_second = read(Syntax::Kind::kIdentifier);
+  if (function_identifier_first != function_identifier_second) {
+    LOG(ERROR) << "function start name: " << function_identifier_first
+               << "function end name: " << function_identifier_second;
+    throw std::runtime_error("Function start and end names mismatch");
+  }
+  read(Syntax::Kind::kSemiColon);
+  functions.push_back(std::make_unique<AST::Function>(
+      std::move(function_identifier_first), std::move(return_type), std::move(params),
+      std::move(local_vars), std::move(statements)));
+}
+
+// Params     ->  LocalDcln list ';'                                            => "params";
+void Parser::parse_params(std::vector<std::unique_ptr<AST::LocalVariable>>& params) {
+  parse_local_dcln(params);
+  while (current_token->kind == Syntax::Kind::kSemiColon) {
+    read(Syntax::Kind::kSemiColon);
+    parse_local_dcln(params);
   }
 }
 
@@ -109,6 +186,8 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
   case Syntax::Kind::kIf:
     parse_if_statement(statements);
     break;
+  case Syntax::Kind::kReturn:
+    parse_return_statement(statements);
   default:
     break;
   }

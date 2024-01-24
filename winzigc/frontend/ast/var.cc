@@ -7,6 +7,8 @@ namespace AST {
 
 llvm::Value* GlobalVariable::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* LocalVariable::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC
