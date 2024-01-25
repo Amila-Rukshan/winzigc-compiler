@@ -9,6 +9,8 @@ namespace Syntax {
 enum class Kind {
   kIdentifier,
   kInteger,
+  kTrue,
+  kFalse,
   kWhiteSpace,
   kChar,
   kString,

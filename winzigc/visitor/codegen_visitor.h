@@ -30,6 +30,7 @@ public:
   llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
 
   llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::BooleanExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::VariableExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::CallExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::IdentifierExpression& expression) override;

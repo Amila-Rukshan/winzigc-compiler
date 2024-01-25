@@ -46,6 +46,7 @@ private:
   void go_to_next_token();
   Syntax::Token get_next_token();
   std::string read(Syntax::Kind kind);
+  bool get_bool(std::string lexeme);
 
   std::unique_ptr<AST::Program> program;
   std::unique_ptr<std::vector<Syntax::Token>> tokens;

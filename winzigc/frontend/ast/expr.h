@@ -51,6 +51,16 @@ private:
   int value;
 };
 
+class BooleanExpression : public Expression {
+public:
+  BooleanExpression(bool boolean_val) : boolean_val(boolean_val) {}
+  bool get_bool() const { return boolean_val; }
+  llvm::Value* accept(Visitor& visitor) const override;
+
+private:
+  bool boolean_val;
+};
+
 class VariableExpression : public Expression {
 public:
   VariableExpression(std::string name) : name(name) {}

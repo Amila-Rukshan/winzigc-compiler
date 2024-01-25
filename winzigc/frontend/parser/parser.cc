@@ -188,6 +188,7 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
     break;
   case Syntax::Kind::kReturn:
     parse_return_statement(statements);
+    break;
   default:
     break;
   }
@@ -267,7 +268,7 @@ void Parser::parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& s
 
 void Parser::parse_return_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   read(Syntax::Kind::kReturn);
-  statements.push_back(parse_expression());
+  statements.push_back(std::make_unique<AST::ReturnExpression>(parse_expression()));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
@@ -323,6 +324,10 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
     return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
   case Syntax::Kind::kInteger:
     return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
+  case Syntax::Kind::kTrue:
+    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kTrue)));
+  case Syntax::Kind::kFalse:
+    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kFalse)));
   case Syntax::Kind::kOpenBracket:
     read(Syntax::Kind::kOpenBracket);
     expr = parse_expression();
@@ -407,6 +412,16 @@ std::string Parser::read(Syntax::Kind kind) {
   } else {
     throw std::runtime_error("No more tokens to peek");
   }
+}
+
+bool Parser::get_bool(std::string lexeme) {
+  if (lexeme == "true") {
+    return true;
+  }
+  if (lexeme == "false") {
+    return false;
+  }
+  return false;
 }
 
 const std::map<Syntax::Kind, AST::BinaryOperation> Parser::kind_to_binary_operation = {

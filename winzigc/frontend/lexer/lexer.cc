@@ -258,6 +258,10 @@ Syntax::Token Lexer::find_next_token() {
       return Syntax::Token{Syntax::Kind::kOrdinalFunc, "ord", line, column};
     } else if (lexeme == "eof") {
       return Syntax::Token{Syntax::Kind::kEndOfFile, "eof", line, column};
+    } else if (lexeme == "true") {
+      return Syntax::Token{Syntax::Kind::kTrue, "true", line, column};
+    } else if (lexeme == "false") {
+      return Syntax::Token{Syntax::Kind::kFalse, "false", line, column};
     } else {
       return Syntax::Token{Syntax::Kind::kIdentifier, lexeme, line, column};
     }

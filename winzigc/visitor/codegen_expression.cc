@@ -19,6 +19,11 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IntegerExpression& expre
   return llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), expression.get_value());
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BooleanExpression& expression) {
+  return expression.get_bool() ? llvm::ConstantInt::getTrue(*context)
+                               : llvm::ConstantInt::getFalse(*context);
+}
+
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::VariableExpression& expression) {
   return nullptr;
 }
@@ -181,8 +186,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
   llvm::Value* return_val = expression.get_expression().accept(*this);
-  builder->CreateRet(return_val);
-  return nullptr;
+  return builder->CreateRet(return_val);
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
