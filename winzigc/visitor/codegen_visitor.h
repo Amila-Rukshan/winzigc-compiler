@@ -22,8 +22,13 @@ public:
 
   void print_llvm_ir() const;
   void codegen(const Frontend::AST::Program& program);
-  void
-  codegen_global_var_dclns(const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars);
+  void codegen_global_vars(const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars);
+
+  void codegen_func_dclns(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
+  llvm::FunctionType* codegen_func_dcln(const std::unique_ptr<Frontend::AST::Function>& function);
+  void codegen_func_defs(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
+  void codegen_func_def(const std::unique_ptr<Frontend::AST::Function>& function);
+
   void codegen_main_body(const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements);
   void codegen_external_func_dclns();
   llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
@@ -53,6 +58,7 @@ private:
   std::unique_ptr<llvm::Module> module;
   std::map<std::string, llvm::AllocaInst*> named_values;
   std::map<llvm::StringRef, llvm::GlobalVariable*> global_variables;
+  std::map<llvm::StringRef, llvm::AllocaInst*> local_variables;
 };
 
 } // namespace Visitor
