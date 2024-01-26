@@ -1,5 +1,6 @@
 #include "winzigc/visitor/codegen_visitor.h"
 
+#include "glog/logging.h"
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Constants.h"
 
@@ -25,6 +26,19 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expression) {
+  llvm::Type* param_type = expression.get_type().accept(*this);
+  llvm::AllocaInst* alloca = builder->CreateAlloca(param_type, nullptr, expression.get_name());
+  local_variables[llvm::StringRef(expression.get_name())] = alloca;
+  return nullptr;
+}
+
+llvm::Value* CodeGenVisitor::lookup_variable(std::string var_name) {
+  if (local_variables.find(llvm::StringRef(var_name)) != local_variables.end()) {
+    return local_variables[llvm::StringRef(var_name)];
+  } else if (global_variables.find(llvm::StringRef(var_name)) != global_variables.end()) {
+    return global_variables[llvm::StringRef(var_name)];
+  }
+  LOG(ERROR) << "Unknown variable: " << var_name;
   return nullptr;
 }
 

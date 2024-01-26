@@ -47,6 +47,7 @@ public:
 
   llvm::Value* visit(const Frontend::AST::LocalVariable& expression) override;
   llvm::Value* visit(const Frontend::AST::GlobalVariable& expression) override;
+  llvm::Value* lookup_variable(std::string var_name);
 
   llvm::Type* visit(const Frontend::AST::IntegerType& expression) override;
   llvm::Type* visit(const Frontend::AST::BooleanType& expression) override;

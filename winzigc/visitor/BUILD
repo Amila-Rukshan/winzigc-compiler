@@ -21,6 +21,7 @@ cc_library(
         "codegen_expression.cc",
         "codegen_var.cc",
         "codegen_function.cc",
+        "codegen_external.cc",
     ],
     deps = [
         "@com_github_google_glog//:glog",

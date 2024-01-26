@@ -30,14 +30,18 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
   llvm::BasicBlock* func_entry_block = llvm::BasicBlock::Create(*context, "entry", llvm_function);
   builder->SetInsertPoint(func_entry_block);
 
-  local_variables.clear();
   for (auto& param : llvm_function->args()) {
     int param_index = param.getArgNo();
-    std::string param_name = function->get_parameters().at(param_index)->get_name();
     llvm::Type* param_type = llvm_function->getFunctionType()->getParamType(param_index);
-    llvm::AllocaInst* alloca = builder->CreateAlloca(param_type, nullptr, param_name);
-    local_variables[llvm::StringRef(param_name)] = alloca;
+    llvm::AllocaInst* alloca = builder->CreateAlloca(
+        param_type, nullptr, function->get_parameters().at(param_index)->get_name());
+    local_variables[llvm::StringRef(function->get_parameters().at(param_index)->get_name())] =
+        alloca;
     builder->CreateStore(&param, alloca);
+  }
+
+  for (const auto& local_var : function->get_local_var_dclns()) {
+    local_var->accept(*this);
   }
 
   // TODO: create a common exit block which can be used by all control flows to jump with return
@@ -59,6 +63,7 @@ void CodeGenVisitor::codegen_func_defs(
     const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions) {
   for (const auto& function : functions) {
     codegen_func_def(function);
+    local_variables.clear();
   }
 }
 

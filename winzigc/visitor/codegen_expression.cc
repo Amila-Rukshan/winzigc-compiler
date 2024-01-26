@@ -57,67 +57,8 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CallExpression& expressi
   return builder->CreateCall(callee_func, args);
 }
 
-llvm::Value* CodeGenVisitor::codegen_read_call(const Frontend::AST::CallExpression& expression) {
-  llvm::Function* callee_func = module->getFunction("scanf");
-  if (!callee_func) {
-    LOG(ERROR) << "scanf function not found";
-    return nullptr;
-  }
-  std::vector<llvm::Value*> args;
-  args.push_back(builder->CreateGlobalStringPtr("%d"));
-
-  for (const auto& arg : expression.get_arguments()) {
-    if (const Frontend::AST::IdentifierExpression* var_identifier =
-            dynamic_cast<const Frontend::AST::IdentifierExpression*>(arg.get())) {
-      llvm::GlobalVariable* i_global =
-          global_variables[llvm::StringRef(var_identifier->get_name())];
-      if (!i_global) {
-        LOG(ERROR) << "Unknown global variable name";
-        return nullptr;
-      }
-      llvm::ConstantInt* zero = llvm::ConstantInt::getSigned(llvm::Type::getInt64Ty(*context), 0);
-      llvm::Value* i_ptr = builder->CreateInBoundsGEP(i_global, zero);
-      args.push_back(i_ptr);
-    } else {
-      LOG(ERROR) << "'read' called with non global variable";
-    }
-  }
-  return builder->CreateCall(callee_func, args);
-}
-
-llvm::Value* CodeGenVisitor::codegen_output_call(const Frontend::AST::CallExpression& expression) {
-  llvm::Function* callee_func = module->getFunction("printf");
-  if (!callee_func) {
-    LOG(ERROR) << "printf function not found";
-    return nullptr;
-  }
-  std::vector<llvm::Value*> args;
-  std::string format_str = "%d";
-  for (int i = 1; i < expression.get_arguments().size(); ++i) {
-    format_str += " %d";
-  }
-  format_str += "\n";
-  args.push_back(builder->CreateGlobalStringPtr(format_str));
-
-  for (const auto& arg : expression.get_arguments()) {
-    llvm::Value* arg_val = arg->accept(*this);
-    if (arg_val == nullptr) {
-      LOG(ERROR) << "Unknown argument";
-      return nullptr;
-    }
-    llvm::Type* arg_type = arg_val->getType();
-    if (arg_type->isPointerTy()) {
-      arg_val = builder->CreateLoad(arg_val);
-    }
-    args.push_back(arg_val);
-  }
-  return builder->CreateCall(callee_func, args);
-}
-
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& expression) {
-  // get value for the global variable
-  // TODO: check if the variable is declared or it is local
-  llvm::GlobalVariable* var = module->getNamedGlobal(expression.get_name());
+  llvm::Value* var = lookup_variable(expression.get_name());
   if (!var) {
     LOG(ERROR) << "Unknown variable name";
     return nullptr;
@@ -126,7 +67,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& ex
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& expression) {
-  llvm::GlobalVariable* var = module->getNamedGlobal(expression.get_name().get_name());
+  llvm::Value* var = lookup_variable(expression.get_name().get_name());
   if (!var) {
     LOG(ERROR) << "Unknown variable name";
     return nullptr;
@@ -137,8 +78,8 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& ex
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::SwapExpression& expression) {
-  llvm::GlobalVariable* var1 = module->getNamedGlobal(expression.get_lhs().get_name());
-  llvm::GlobalVariable* var2 = module->getNamedGlobal(expression.get_rhs().get_name());
+  llvm::Value* var1 = lookup_variable(expression.get_lhs().get_name());
+  llvm::Value* var2 = lookup_variable(expression.get_rhs().get_name());
   if (!var1 || !var2) {
     LOG(ERROR) << "Unknown variable name";
     return nullptr;
