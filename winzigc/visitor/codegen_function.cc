@@ -27,8 +27,16 @@ void CodeGenVisitor::codegen_func_dclns(
 
 void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Function>& function) {
   llvm::Function* llvm_function = module->getFunction(llvm::StringRef(function->get_name()));
-  llvm::BasicBlock* func_entry_block = llvm::BasicBlock::Create(*context, "entry", llvm_function);
-  builder->SetInsertPoint(func_entry_block);
+  llvm::BasicBlock* function_entry_block =
+      llvm::BasicBlock::Create(*context, "entry", llvm_function);
+  function_exit_block = llvm::BasicBlock::Create(*context, "exit");
+  builder->SetInsertPoint(function_entry_block);
+
+  // create a local variable with function name and return type
+  llvm::Type* return_type = function->get_return_type().accept(*this);
+  llvm::AllocaInst* return_alloca =
+      builder->CreateAlloca(return_type, nullptr, function->get_name());
+  local_variables[llvm::StringRef(function->get_name())] = return_alloca;
 
   for (auto& param : llvm_function->args()) {
     int param_index = param.getArgNo();
@@ -51,10 +59,13 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     return_value = expr->accept(*this);
   }
 
+  llvm_function->getBasicBlockList().push_back(function_exit_block);
+  builder->SetInsertPoint(function_exit_block);
   if (llvm_function->getReturnType()->isVoidTy()) {
     builder->CreateRetVoid();
   } else {
-    // builder->CreateRet(return_value);
+    llvm::Value* return_val = builder->CreateLoad(return_alloca);
+    builder->CreateRet(return_val);
   }
   // TODO: fianlly insert it at the end of the function
 }
@@ -64,6 +75,7 @@ void CodeGenVisitor::codegen_func_defs(
   for (const auto& function : functions) {
     codegen_func_def(function);
     local_variables.clear();
+    function_exit_block = nullptr;
   }
 }
 

@@ -10,6 +10,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/DCE.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
@@ -31,6 +32,8 @@ void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   codegen_func_dclns(program.get_functions());
   codegen_func_defs(program.get_functions());
   codegen_main_body(program.get_statements());
+  // TODO: temporary disabled to see how bitcode generates without optimizations
+  // run_optimizations(program.get_functions());
 }
 
 void CodeGenVisitor::codegen_global_vars(
@@ -62,6 +65,22 @@ void CodeGenVisitor::codegen_external_func_dclns() {
   module->getOrInsertFunction(
       "scanf", llvm::FunctionType::get(llvm::IntegerType::getInt32Ty(*context),
                                        llvm::Type::getInt8Ty(*context)->getPointerTo(), true));
+}
+
+void CodeGenVisitor::run_optimizations(
+    const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions) {
+  llvm::legacy::FunctionPassManager fpm(module.get());
+  fpm.add(llvm::createDeadCodeEliminationPass());
+  fpm.add(llvm::createInstructionCombiningPass());
+  fpm.add(llvm::createReassociatePass());
+  fpm.add(llvm::createGVNPass());
+  fpm.add(llvm::createCFGSimplificationPass());
+  fpm.doInitialization();
+  for (const auto& function : functions) {
+    fpm.run(*module->getFunction(function->get_name()));
+  }
+  llvm::Function* main_function = module->getFunction(llvm::StringRef("main"));
+  fpm.run(*main_function);
 }
 
 } // namespace Visitor

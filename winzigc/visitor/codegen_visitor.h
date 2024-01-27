@@ -34,6 +34,8 @@ public:
   llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
   llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
 
+  void run_optimizations(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
+
   llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::BooleanExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::VariableExpression& expression) override;
@@ -60,6 +62,7 @@ private:
   std::map<std::string, llvm::AllocaInst*> named_values;
   std::map<llvm::StringRef, llvm::GlobalVariable*> global_variables;
   std::map<llvm::StringRef, llvm::AllocaInst*> local_variables;
+  llvm::BasicBlock* function_exit_block;
 };
 
 } // namespace Visitor

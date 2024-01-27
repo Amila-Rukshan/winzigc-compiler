@@ -110,24 +110,31 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   for (const auto& statement : expression.get_then_statement()) {
     statement->accept(*this);
   }
-  builder->CreateBr(merge_block);
+  builder->CreateBr(function_exit_block);
   parent_function->getBasicBlockList().push_back(else_block);
 
   builder->SetInsertPoint(else_block);
   for (const auto& statement : expression.get_else_statement()) {
     statement->accept(*this);
   }
-  builder->CreateBr(merge_block);
-  parent_function->getBasicBlockList().push_back(merge_block);
+  builder->CreateBr(function_exit_block);
+  // parent_function->getBasicBlockList().push_back(merge_block);
 
-  builder->SetInsertPoint(merge_block);
+  // builder->SetInsertPoint(merge_block);
 
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
+  llvm::Function* parent_function = builder->GetInsertBlock()->getParent();
+  llvm::Value* return_var = lookup_variable(parent_function->getName().str());
+  if (!return_var) {
+    LOG(ERROR) << "Unknown return variable name";
+    return nullptr;
+  }
   llvm::Value* return_val = expression.get_expression().accept(*this);
-  return builder->CreateRet(return_val);
+  builder->CreateStore(return_val, return_var);
+  return nullptr;
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {

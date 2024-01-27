@@ -29,6 +29,9 @@ cc_library(
         "//winzigc/common:pure_lib",
         "@llvm-project//llvm:Core",
         "@llvm-project//llvm:Support",
+        "@llvm-project//llvm:TransformUtils",
+        "@llvm-project//llvm:Scalar",
+        "@llvm-project//llvm:InstCombine",
     ],
     visibility = ["//winzigc/main:__pkg__"],
 )
