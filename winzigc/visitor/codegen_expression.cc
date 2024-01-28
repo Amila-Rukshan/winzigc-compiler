@@ -103,24 +103,40 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   llvm::BasicBlock* else_block = llvm::BasicBlock::Create(*context, "else");
   llvm::BasicBlock* merge_block = llvm::BasicBlock::Create(*context, "ifcont");
 
+  // condition block instructions
   builder->CreateCondBr(cond, then_block, else_block);
 
+  // then block instructions
   builder->SetInsertPoint(then_block);
-
+  Frontend::AST::Expression* last_then_stmt;
   for (const auto& statement : expression.get_then_statement()) {
+    last_then_stmt = statement.get();
     statement->accept(*this);
   }
-  builder->CreateBr(function_exit_block);
+  // check if last_then_stmt is not a return statement
+  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_then_stmt)) {
+    builder->CreateBr(merge_block);
+  }
+
+  // else block instructions
   parent_function->getBasicBlockList().push_back(else_block);
-
   builder->SetInsertPoint(else_block);
+  Frontend::AST::Expression* last_else_stmt;
   for (const auto& statement : expression.get_else_statement()) {
+    last_else_stmt = statement.get();
     statement->accept(*this);
   }
-  builder->CreateBr(function_exit_block);
-  // parent_function->getBasicBlockList().push_back(merge_block);
+  // check if last_else_stmt is not a return statement
+  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_else_stmt)) {
+    builder->CreateBr(merge_block);
+  }
 
-  // builder->SetInsertPoint(merge_block);
+  // we need a merge block only when alleast one branch is not going to the fucntion exit block
+  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_then_stmt) ||
+      !dynamic_cast<Frontend::AST::ReturnExpression*>(last_else_stmt)) {
+    parent_function->getBasicBlockList().push_back(merge_block);
+    builder->SetInsertPoint(merge_block);
+  }
 
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
@@ -134,6 +150,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expres
   }
   llvm::Value* return_val = expression.get_expression().accept(*this);
   builder->CreateStore(return_val, return_var);
+  builder->CreateBr(function_exit_block);
   return nullptr;
 }
 
