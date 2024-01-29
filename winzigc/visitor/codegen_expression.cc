@@ -192,6 +192,31 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::RepeatUntilExpression& e
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::WhileExpression& expression) {
+  llvm::Function* function = builder->GetInsertBlock()->getParent();
+  llvm::BasicBlock* cond_block = llvm::BasicBlock::Create(*context, "while_cond", function);
+  llvm::BasicBlock* body_block = llvm::BasicBlock::Create(*context, "while_body");
+  llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(*context, "while_exit");
+
+  builder->CreateBr(cond_block);
+  builder->SetInsertPoint(cond_block);
+
+  llvm::Value* cond = expression.get_condition().accept(*this);
+  builder->CreateCondBr(cond, body_block, exit_block);
+
+  function->getBasicBlockList().push_back(body_block);
+  builder->SetInsertPoint(body_block);
+  for (const auto& statement : expression.get_body_statements()) {
+    statement->accept(*this);
+  }
+  builder->CreateBr(cond_block);
+
+  function->getBasicBlockList().push_back(exit_block);
+  builder->SetInsertPoint(exit_block);
+
+  return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
+}
+
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
   llvm::Function* parent_function = builder->GetInsertBlock()->getParent();
   llvm::Value* return_var = lookup_variable(parent_function->getName().str());

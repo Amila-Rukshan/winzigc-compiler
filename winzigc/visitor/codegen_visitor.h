@@ -46,6 +46,7 @@ public:
   llvm::Value* visit(const Frontend::AST::IfExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::ForExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::RepeatUntilExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::WhileExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::ReturnExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::BinaryExpression& expression) override;
 

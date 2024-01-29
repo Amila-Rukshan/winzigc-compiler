@@ -194,6 +194,9 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
   case Syntax::Kind::kRepeat:
     statements.push_back(parse_repeat_until_statement());
     break;
+  case Syntax::Kind::kWhile:
+    statements.push_back(parse_while_statement());
+    break;
   case Syntax::Kind::kBegin:
     parse_body(statements);
     break;
@@ -307,6 +310,16 @@ std::unique_ptr<AST::Expression> Parser::parse_repeat_until_statement() {
   std::unique_ptr<AST::Expression> condition = parse_expression();
   return std::make_unique<AST::RepeatUntilExpression>(std::move(condition),
                                                       std::move(repeat_body_statements));
+}
+
+std::unique_ptr<AST::Expression> Parser::parse_while_statement() {
+  read(Syntax::Kind::kWhile);
+  std::unique_ptr<AST::Expression> condition = parse_expression();
+  read(Syntax::Kind::kDo);
+  std::vector<std::unique_ptr<AST::Expression>> while_body_statements;
+  parse_statement(while_body_statements);
+  return std::make_unique<AST::WhileExpression>(std::move(condition),
+                                                std::move(while_body_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
