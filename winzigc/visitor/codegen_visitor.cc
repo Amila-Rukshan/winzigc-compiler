@@ -28,7 +28,7 @@ void CodeGenVisitor::print_llvm_ir() const { module->print(llvm::errs(), nullptr
 void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   module = std::make_unique<llvm::Module>(program.get_name(), *context);
   codegen_external_func_dclns();
-  codegen_global_vars(program.get_variables());
+  codegen_global_vars(program);
   codegen_func_dclns(program.get_functions());
   codegen_func_defs(program.get_functions());
   codegen_main_body(program.get_statements());
@@ -36,9 +36,9 @@ void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   // run_optimizations(program.get_functions());
 }
 
-void CodeGenVisitor::codegen_global_vars(
-    const std::vector<std::unique_ptr<Frontend::AST::GlobalVariable>>& vars) {
-  for (const auto& var : vars) {
+void CodeGenVisitor::codegen_global_vars(const Frontend::AST::Program& program) {
+  program.get_discard_variable()->accept(*this);
+  for (const auto& var : program.get_variables()) {
     var->accept(*this);
   }
 }

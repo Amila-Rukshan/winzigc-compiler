@@ -39,10 +39,8 @@ std::unique_ptr<AST::Program> Parser::parse() {
                                         std::move(statements));
 }
 
-// GlobalDclns      ->  'var' (GlobalDcln ';')+                                             =>
-// "global-dclns"
-//                  ->                                                                      =>
-//                  "global-dclns";
+// GlobalDclns      ->  'var' (GlobalDcln ';')+            =>  "global-dclns"
+//                  ->                                     =>  "global-dclns";
 std::vector<std::unique_ptr<AST::GlobalVariable>> Parser::parse_global_dclns() {
   std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns;
   if (current_token->kind == Syntax::Kind::kVar) {

@@ -140,7 +140,31 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ForExpression& expression) {
-  return nullptr;
+  llvm::Function* function = builder->GetInsertBlock()->getParent();
+
+  llvm::BasicBlock* cond_block = llvm::BasicBlock::Create(*context, "for_cond", function);
+  llvm::BasicBlock* body_block = llvm::BasicBlock::Create(*context, "for_body");
+  llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(*context, "for_exit");
+
+  expression.get_start_assignment().accept(*this);
+  builder->CreateBr(cond_block);
+
+  builder->SetInsertPoint(cond_block);
+  llvm::Value* cond = expression.get_condition().accept(*this);
+  builder->CreateCondBr(cond, body_block, exit_block);
+
+  function->getBasicBlockList().push_back(body_block);
+  builder->SetInsertPoint(body_block);
+  for (const auto& statement : expression.get_body_statements()) {
+    statement->accept(*this);
+  }
+  expression.get_end_assignment().accept(*this);
+  builder->CreateBr(cond_block);
+
+  function->getBasicBlockList().push_back(exit_block);
+  builder->SetInsertPoint(exit_block);
+
+  return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
