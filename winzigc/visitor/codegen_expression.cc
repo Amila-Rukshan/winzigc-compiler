@@ -102,38 +102,36 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   llvm::BasicBlock* then_block = llvm::BasicBlock::Create(*context, "then", parent_function);
   llvm::BasicBlock* else_block = llvm::BasicBlock::Create(*context, "else");
   llvm::BasicBlock* merge_block = llvm::BasicBlock::Create(*context, "ifcont");
+  bool add_merge_block = false;
 
   // condition block instructions
   builder->CreateCondBr(cond, then_block, else_block);
 
   // then block instructions
   builder->SetInsertPoint(then_block);
-  Frontend::AST::Expression* last_then_stmt;
   for (const auto& statement : expression.get_then_statement()) {
-    last_then_stmt = statement.get();
     statement->accept(*this);
   }
-  // check if last_then_stmt is not a return statement
-  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_then_stmt)) {
+  // final block branched from then block does not end with a terminator
+  if (!builder->GetInsertBlock()->getTerminator()) {
+    add_merge_block = true;
     builder->CreateBr(merge_block);
   }
 
   // else block instructions
   parent_function->getBasicBlockList().push_back(else_block);
   builder->SetInsertPoint(else_block);
-  Frontend::AST::Expression* last_else_stmt;
   for (const auto& statement : expression.get_else_statement()) {
-    last_else_stmt = statement.get();
     statement->accept(*this);
   }
-  // check if last_else_stmt is not a return statement
-  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_else_stmt)) {
+  // final block branched from else block does not end with a terminator
+  if (!builder->GetInsertBlock()->getTerminator()) {
+    add_merge_block = true;
     builder->CreateBr(merge_block);
   }
 
   // we need a merge block only when alleast one branch is not going to the fucntion exit block
-  if (!dynamic_cast<Frontend::AST::ReturnExpression*>(last_then_stmt) ||
-      !dynamic_cast<Frontend::AST::ReturnExpression*>(last_else_stmt)) {
+  if (add_merge_block) {
     parent_function->getBasicBlockList().push_back(merge_block);
     builder->SetInsertPoint(merge_block);
   }

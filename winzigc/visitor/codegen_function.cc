@@ -32,10 +32,10 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
   function_exit_block = llvm::BasicBlock::Create(*context, "exit");
   builder->SetInsertPoint(function_entry_block);
 
-  // create a local variable with function name and return type
   llvm::Type* return_type = function->get_return_type().accept(*this);
   llvm::AllocaInst* return_alloca =
       builder->CreateAlloca(return_type, nullptr, function->get_name());
+  builder->CreateStore(llvm::ConstantInt::get(return_type, 0), return_alloca);
   local_variables[llvm::StringRef(function->get_name())] = return_alloca;
 
   for (auto& param : llvm_function->args()) {
@@ -52,11 +52,12 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     local_var->accept(*this);
   }
 
-  // TODO: create a common exit block which can be used by all control flows to jump with return
-  // values
-  llvm::Value* return_value;
   for (const auto& expr : function->get_function_body_exprs()) {
-    return_value = expr->accept(*this);
+    expr->accept(*this);
+  }
+
+  if (!builder->GetInsertBlock()->getTerminator()) {
+    builder->CreateBr(function_exit_block);
   }
 
   llvm_function->getBasicBlockList().push_back(function_exit_block);
@@ -67,7 +68,6 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     llvm::Value* return_val = builder->CreateLoad(return_alloca);
     builder->CreateRet(return_val);
   }
-  // TODO: fianlly insert it at the end of the function
 }
 
 void CodeGenVisitor::codegen_func_defs(
