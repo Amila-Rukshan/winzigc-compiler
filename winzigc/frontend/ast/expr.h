@@ -179,6 +179,20 @@ private:
   std::vector<std::unique_ptr<Expression>> statements;
 };
 
+class RepeatUntilExpression : public Expression {
+public:
+  RepeatUntilExpression(std::unique_ptr<Expression> condition,
+                        std::vector<std::unique_ptr<Expression>> statements)
+      : condition(std::move(condition)), statements(std::move(statements)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const Expression& get_condition() const { return *condition; }
+  const std::vector<std::unique_ptr<Expression>>& get_body_statements() const { return statements; }
+
+private:
+  std::unique_ptr<Expression> condition;
+  std::vector<std::unique_ptr<Expression>> statements;
+};
+
 class ReturnExpression : public Expression {
 public:
   ReturnExpression(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}

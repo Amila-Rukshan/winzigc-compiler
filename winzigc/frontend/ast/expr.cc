@@ -23,6 +23,8 @@ llvm::Value* IfExpression::accept(Visitor& visitor) const { return visitor.visit
 
 llvm::Value* ForExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* RepeatUntilExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Value* ReturnExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
