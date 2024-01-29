@@ -21,6 +21,8 @@ llvm::Value* AssignmentExpression::accept(Visitor& visitor) const { return visit
 
 llvm::Value* IfExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* ForExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Value* ReturnExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }

@@ -159,6 +159,26 @@ private:
   std::vector<std::unique_ptr<Expression>> else_statement;
 };
 
+class ForExpression : public Expression {
+public:
+  ForExpression(std::unique_ptr<Expression> start_assignment, std::unique_ptr<Expression> condition,
+                std::unique_ptr<Expression> end_assignment,
+                std::vector<std::unique_ptr<Expression>> statements)
+      : start_assignment(std::move(start_assignment)), condition(std::move(condition)),
+        end_assignment(std::move(end_assignment)), statements(std::move(statements)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const Expression& get_start_assignment() const { return *start_assignment; }
+  const Expression& get_condition() const { return *condition; }
+  const Expression& get_end_assignment() const { return *end_assignment; }
+  const std::vector<std::unique_ptr<Expression>>& get_body_statements() const { return statements; }
+
+private:
+  std::unique_ptr<Expression> start_assignment;
+  std::unique_ptr<Expression> condition;
+  std::unique_ptr<Expression> end_assignment;
+  std::vector<std::unique_ptr<Expression>> statements;
+};
+
 class ReturnExpression : public Expression {
 public:
   ReturnExpression(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}

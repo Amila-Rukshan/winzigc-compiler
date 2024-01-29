@@ -18,7 +18,7 @@ public:
   std::unique_ptr<AST::Program> parse();
 
 private:
-  std::vector<std::unique_ptr<AST::Expression>> parse_body();
+  void parse_body(std::vector<std::unique_ptr<AST::Expression>>& statements);
   std::unique_ptr<AST::Expression> parse_expression();
   std::unique_ptr<AST::Expression> parse_primary();
   std::unique_ptr<AST::Expression> parse_binary_rhs(int precedence,
@@ -26,11 +26,14 @@ private:
   int get_token_precedence();
   AST::BinaryOperation get_binary_operation(Syntax::Kind kind);
   void parse_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
-  void parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
-  void parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
-  void parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
-  void parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
-  void parse_return_statement(std::vector<std::unique_ptr<AST::Expression>>& statements);
+
+  std::unique_ptr<AST::Expression> parse_assignment_statement();
+  std::unique_ptr<AST::Expression> parse_output_statement();
+  std::unique_ptr<AST::Expression> parse_read_statement();
+  std::unique_ptr<AST::Expression> parse_return_statement();
+  std::unique_ptr<AST::Expression> parse_if_statement();
+  std::unique_ptr<AST::Expression> parse_for_statement();
+
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_global_dclns();
   void parse_global_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);
   std::vector<std::unique_ptr<AST::Function>> parse_functions();

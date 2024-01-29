@@ -32,7 +32,8 @@ std::unique_ptr<AST::Program> Parser::parse() {
   // TODO: types
   std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_global_dclns();
   std::vector<std::unique_ptr<AST::Function>> functions = parse_functions();
-  std::vector<std::unique_ptr<AST::Expression>> statements = parse_body();
+  std::vector<std::unique_ptr<AST::Expression>> statements;
+  parse_body(statements);
 
   return std::make_unique<AST::Program>(program_name, std::move(var_dclns), std::move(functions),
                                         std::move(statements));
@@ -124,7 +125,9 @@ void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functio
   std::unique_ptr<AST::Type> return_type = create_type(read(Syntax::Kind::kIdentifier));
   read(Syntax::Kind::kSemiColon);
   std::vector<std::unique_ptr<AST::LocalVariable>> local_vars = parse_local_dclns();
-  std::vector<std::unique_ptr<AST::Expression>> statements = parse_body();
+  std::vector<std::unique_ptr<AST::Expression>> statements;
+  parse_body(statements);
+
   std::string function_identifier_second = read(Syntax::Kind::kIdentifier);
   if (function_identifier_first != function_identifier_second) {
     LOG(ERROR) << "function start name: " << function_identifier_first
@@ -147,8 +150,7 @@ void Parser::parse_params(std::vector<std::unique_ptr<AST::LocalVariable>>& para
 }
 
 // Body       ->  'begin' Statement list ';' 'end'                              => "block";
-std::vector<std::unique_ptr<AST::Expression>> Parser::parse_body() {
-  std::vector<std::unique_ptr<AST::Expression>> statements;
+void Parser::parse_body(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   read(Syntax::Kind::kBegin);
   parse_statement(statements);
   while (current_token->kind == Syntax::Kind::kSemiColon) {
@@ -156,7 +158,6 @@ std::vector<std::unique_ptr<AST::Expression>> Parser::parse_body() {
     parse_statement(statements);
   }
   read(Syntax::Kind::kEnd);
-  return statements;
 }
 
 // Statement  ->  Assignment
@@ -175,19 +176,25 @@ std::vector<std::unique_ptr<AST::Expression>> Parser::parse_body() {
 void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
   switch (current_token->kind) {
   case Syntax::Kind::kIdentifier:
-    parse_assignment_statement(statements);
+    statements.push_back(parse_assignment_statement());
     break;
   case Syntax::Kind::kOutput:
-    parse_output_statement(statements);
+    statements.push_back(parse_output_statement());
     break;
   case Syntax::Kind::kRead:
-    parse_input_statement(statements);
-    break;
-  case Syntax::Kind::kIf:
-    parse_if_statement(statements);
+    statements.push_back(parse_read_statement());
     break;
   case Syntax::Kind::kReturn:
-    parse_return_statement(statements);
+    statements.push_back(parse_return_statement());
+    break;
+  case Syntax::Kind::kIf:
+    statements.push_back(parse_if_statement());
+    break;
+  case Syntax::Kind::kFor:
+    statements.push_back(parse_for_statement());
+    break;
+  case Syntax::Kind::kBegin:
+    parse_body(statements);
     break;
   default:
     break;
@@ -196,7 +203,7 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
 
 // Assignment ->  Name ':=' Expression                                          => "assign"
 //            ->  Name ':=:' Name                                               => "swap";
-void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+std::unique_ptr<AST::Expression> Parser::parse_assignment_statement() {
   auto identifier_expr =
       std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
   std::unique_ptr<AST::IdentifierExpression> identifier_expr_rhs;
@@ -205,15 +212,15 @@ void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Express
   case Syntax::Kind::kAssign:
     read(Syntax::Kind::kAssign);
     expression = parse_expression();
-    statements.push_back(std::make_unique<AST::AssignmentExpression>(std::move(identifier_expr),
-                                                                     std::move(expression)));
+    return std::make_unique<AST::AssignmentExpression>(std::move(identifier_expr),
+                                                       std::move(expression));
     break;
   case Syntax::Kind::kSwap:
     read(Syntax::Kind::kSwap);
     identifier_expr_rhs =
         std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
-    statements.push_back(std::make_unique<AST::SwapExpression>(std::move(identifier_expr),
-                                                               std::move(identifier_expr_rhs)));
+    return std::make_unique<AST::SwapExpression>(std::move(identifier_expr),
+                                                 std::move(identifier_expr_rhs));
     break;
   default:
     throw std::runtime_error("Invalid assignment statement");
@@ -221,7 +228,7 @@ void Parser::parse_assignment_statement(std::vector<std::unique_ptr<AST::Express
   }
 }
 
-void Parser::parse_output_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+std::unique_ptr<AST::Expression> Parser::parse_output_statement() {
   std::string name = read(Syntax::Kind::kOutput); // TODO: make this printf for lib function
   read(Syntax::Kind::kOpenBracket);
   std::vector<std::unique_ptr<AST::Expression>> arguments;
@@ -233,10 +240,10 @@ void Parser::parse_output_statement(std::vector<std::unique_ptr<AST::Expression>
     }
   }
   read(Syntax::Kind::kCloseBracket);
-  statements.push_back(std::make_unique<AST::CallExpression>(name, std::move(arguments)));
+  return std::make_unique<AST::CallExpression>(name, std::move(arguments));
 }
 
-void Parser::parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+std::unique_ptr<AST::Expression> Parser::parse_read_statement() {
   std::string name = read(Syntax::Kind::kRead);
   read(Syntax::Kind::kOpenBracket);
   std::vector<std::unique_ptr<AST::Expression>> arguments;
@@ -248,10 +255,15 @@ void Parser::parse_input_statement(std::vector<std::unique_ptr<AST::Expression>>
     }
   }
   read(Syntax::Kind::kCloseBracket);
-  statements.push_back(std::make_unique<AST::CallExpression>(name, std::move(arguments)));
+  return std::make_unique<AST::CallExpression>(name, std::move(arguments));
 }
 
-void Parser::parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
+std::unique_ptr<AST::Expression> Parser::parse_return_statement() {
+  read(Syntax::Kind::kReturn);
+  return std::make_unique<AST::ReturnExpression>(parse_expression());
+}
+
+std::unique_ptr<AST::Expression> Parser::parse_if_statement() {
   read(Syntax::Kind::kIf);
   std::unique_ptr<AST::Expression> expression = parse_expression();
   read(Syntax::Kind::kThen);
@@ -262,13 +274,24 @@ void Parser::parse_if_statement(std::vector<std::unique_ptr<AST::Expression>>& s
     read(Syntax::Kind::kElse);
     parse_statement(else_block_statements);
   }
-  statements.push_back(std::make_unique<AST::IfExpression>(
-      std::move(expression), std::move(if_block_statements), std::move(else_block_statements)));
+  return std::make_unique<AST::IfExpression>(std::move(expression), std::move(if_block_statements),
+                                             std::move(else_block_statements));
 }
 
-void Parser::parse_return_statement(std::vector<std::unique_ptr<AST::Expression>>& statements) {
-  read(Syntax::Kind::kReturn);
-  statements.push_back(std::make_unique<AST::ReturnExpression>(parse_expression()));
+std::unique_ptr<AST::Expression> Parser::parse_for_statement() {
+  read(Syntax::Kind::kFor);
+  read(Syntax::Kind::kOpenBracket);
+  std::unique_ptr<AST::Expression> start_assignment = parse_assignment_statement();
+  read(Syntax::Kind::kSemiColon);
+  std::unique_ptr<AST::Expression> condition = parse_expression();
+  read(Syntax::Kind::kSemiColon);
+  std::unique_ptr<AST::Expression> end_assignment = parse_assignment_statement();
+  read(Syntax::Kind::kCloseBracket);
+  std::vector<std::unique_ptr<AST::Expression>> loop_body_statements;
+  parse_statement(loop_body_statements);
+  return std::make_unique<AST::ForExpression>(std::move(start_assignment), std::move(condition),
+                                              std::move(end_assignment),
+                                              std::move(loop_body_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {

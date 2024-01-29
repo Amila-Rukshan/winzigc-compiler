@@ -139,6 +139,10 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ForExpression& expression) {
+  return nullptr;
+}
+
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
   llvm::Function* parent_function = builder->GetInsertBlock()->getParent();
   llvm::Value* return_var = lookup_variable(parent_function->getName().str());
