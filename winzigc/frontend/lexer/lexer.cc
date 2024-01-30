@@ -33,7 +33,7 @@ std::unique_ptr<std::vector<Syntax::Token>> Lexer::get_tokens() {
     // ignore comments, newlines, whitespaces, and end of file, end of program tokens
     if (token.kind != Syntax::Kind::kWhiteSpace && token.kind != Syntax::Kind::kLineComment &&
         token.kind != Syntax::Kind::kBlockComment && token.kind != Syntax::Kind::kNewline &&
-        token.kind != Syntax::Kind::kEndOfFile && token.kind != Syntax::Kind::kEndOfProgram) {
+        token.kind != Syntax::Kind::kEndOfProgram) {
       tokens->push_back(token);
     }
     token = find_next_token();

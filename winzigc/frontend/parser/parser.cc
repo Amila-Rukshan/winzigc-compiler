@@ -379,6 +379,9 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
     return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kTrue)));
   case Syntax::Kind::kFalse:
     return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kFalse)));
+  case Syntax::Kind::kEndOfFile:
+    read(Syntax::Kind::kEndOfFile);
+    return std::make_unique<AST::BooleanExpression>(false);
   case Syntax::Kind::kOpenBracket:
     read(Syntax::Kind::kOpenBracket);
     expr = parse_expression();
