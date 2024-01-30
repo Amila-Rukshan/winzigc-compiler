@@ -33,6 +33,8 @@ llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.vis
 
 llvm::Value* BinaryExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* UnaryExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC

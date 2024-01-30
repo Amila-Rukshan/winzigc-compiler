@@ -137,6 +137,19 @@ private:
   std::unique_ptr<Expression> right;
 };
 
+class UnaryExpression : public Expression {
+public:
+  UnaryExpression(UnaryOperation operation, std::unique_ptr<Expression> expression)
+      : operation(operation), expression(std::move(expression)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  UnaryOperation get_op() const { return operation; }
+  const Expression& get_expression() const { return *expression; }
+
+private:
+  UnaryOperation operation;
+  std::unique_ptr<Expression> expression;
+};
+
 class IfExpression : public Expression {
 public:
   IfExpression(std::unique_ptr<Expression> condition,

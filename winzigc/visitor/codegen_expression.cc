@@ -268,5 +268,21 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expres
   return nullptr;
 }
 
+llvm::Value* CodeGenVisitor::visit(const Frontend::AST::UnaryExpression& expression) {
+  llvm::Value* operand = expression.get_expression().accept(*this);
+  switch (expression.get_op()) {
+  case Frontend::AST::UnaryOperation::kMinus:
+    return builder->CreateNeg(operand, "negtmp");
+  case Frontend::AST::UnaryOperation::kPlus:
+    return operand;
+  case Frontend::AST::UnaryOperation::kNot:
+    return builder->CreateNot(operand, "nottmp");
+  default:
+    LOG(ERROR) << "Unknown unary operation";
+    return nullptr;
+  }
+  return nullptr;
+}
+
 } // namespace Visitor
 } // namespace WinZigC
