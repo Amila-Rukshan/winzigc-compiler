@@ -27,6 +27,7 @@ public:
   virtual llvm::Value* visit(const ForExpression& expression) PURE;
   virtual llvm::Value* visit(const RepeatUntilExpression& expression) PURE;
   virtual llvm::Value* visit(const WhileExpression& expression) PURE;
+  virtual llvm::Value* visit(const CaseExpression& expression) PURE;
   virtual llvm::Value* visit(const ReturnExpression& expression) PURE;
   virtual llvm::Value* visit(const BinaryExpression& expression) PURE;
   virtual llvm::Value* visit(const UnaryExpression& expression) PURE;

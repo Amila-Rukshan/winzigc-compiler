@@ -322,6 +322,16 @@ std::unique_ptr<AST::Expression> Parser::parse_while_statement() {
                                                 std::move(while_body_statements));
 }
 
+std::unique_ptr<AST::Expression> Parser::parse_case_statement() {
+  read(Syntax::Kind::kCase);
+  std::unique_ptr<AST::Expression> expression = parse_expression();
+  read(Syntax::Kind::kOf);
+  std::vector<std::pair<AST::CaseValue, std::vector<std::unique_ptr<AST::Expression>>>>
+      case_clauses;
+
+  return nullptr;
+}
+
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
   auto expression_lhs = parse_primary();
   if (!expression_lhs) {

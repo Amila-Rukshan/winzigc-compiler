@@ -35,6 +35,7 @@ private:
   std::unique_ptr<AST::Expression> parse_for_statement();
   std::unique_ptr<AST::Expression> parse_repeat_until_statement();
   std::unique_ptr<AST::Expression> parse_while_statement();
+  std::unique_ptr<AST::Expression> parse_case_statement();
 
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_global_dclns();
   void parse_global_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);

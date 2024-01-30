@@ -41,6 +41,9 @@ public:
   virtual llvm::Value* accept(Visitor& visitor) const PURE;
 };
 
+using CaseValue = std::variant<std::unique_ptr<Expression>,
+                               std::pair<std::unique_ptr<Expression>, std::unique_ptr<Expression>>>;
+
 class IntegerExpression : public Expression {
 public:
   IntegerExpression(int value) : value(value) {}
@@ -195,6 +198,29 @@ public:
 private:
   std::unique_ptr<Expression> condition;
   std::vector<std::unique_ptr<Expression>> statements;
+};
+
+class CaseExpression : public Expression {
+public:
+  CaseExpression(std::unique_ptr<Expression> expression,
+                 std::vector<std::pair<CaseValue, std::vector<std::unique_ptr<Expression>>>> cases,
+                 std::vector<std::unique_ptr<Expression>> otherwise_clause)
+      : expression(std::move(expression)), cases(std::move(cases)),
+        otherwise_clause(std::move(otherwise_clause)) {}
+  llvm::Value* accept(Visitor& visitor) const override;
+  const Expression& get_expression() const { return *expression; }
+  const std::vector<std::pair<CaseValue, std::vector<std::unique_ptr<Expression>>>>&
+  get_cases() const {
+    return cases;
+  }
+  const std::vector<std::unique_ptr<Expression>>& get_otherwise_clause() const {
+    return otherwise_clause;
+  }
+
+private:
+  std::unique_ptr<Expression> expression;
+  std::vector<std::pair<CaseValue, std::vector<std::unique_ptr<Expression>>>> cases;
+  std::vector<std::unique_ptr<Expression>> otherwise_clause;
 };
 
 class ReturnExpression : public Expression {

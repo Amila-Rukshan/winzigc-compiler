@@ -25,6 +25,8 @@ llvm::Value* RepeatUntilExpression::accept(Visitor& visitor) const { return visi
 
 llvm::Value* WhileExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* CaseExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Value* ReturnExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
