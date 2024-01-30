@@ -61,15 +61,6 @@ private:
   bool boolean_val;
 };
 
-class VariableExpression : public Expression {
-public:
-  VariableExpression(std::string name) : name(name) {}
-  llvm::Value* accept(Visitor& visitor) const override;
-
-private:
-  std::string name;
-};
-
 class CallExpression : public Expression {
 public:
   CallExpression(std::string name, std::vector<std::unique_ptr<Expression>> arguments)

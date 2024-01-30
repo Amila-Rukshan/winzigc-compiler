@@ -24,10 +24,6 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BooleanExpression& expre
                                : llvm::ConstantInt::getFalse(*context);
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::VariableExpression& expression) {
-  return nullptr;
-}
-
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CallExpression& expression) {
   if (expression.get_name() == "output") {
     return codegen_output_call(expression);
