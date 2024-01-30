@@ -318,7 +318,7 @@ Syntax::Token Lexer::find_next_token() {
   } else if (get_current_char() == '.' && get_char_at(position + 1) == '.') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kCaseExp, "..", line, column};
+    return Syntax::Token{Syntax::Kind::kCaseRange, "..", line, column};
   } else if (get_current_char() == '<' && get_char_at(position + 1) == '=') {
     position += 2;
     column += 2;

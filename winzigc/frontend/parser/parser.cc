@@ -197,6 +197,9 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
   case Syntax::Kind::kWhile:
     statements.push_back(parse_while_statement());
     break;
+  case Syntax::Kind::kCase:
+    statements.push_back(parse_case_statement());
+    break;
   case Syntax::Kind::kBegin:
     parse_body(statements);
     break;
@@ -326,10 +329,81 @@ std::unique_ptr<AST::Expression> Parser::parse_case_statement() {
   read(Syntax::Kind::kCase);
   std::unique_ptr<AST::Expression> expression = parse_expression();
   read(Syntax::Kind::kOf);
-  std::vector<std::pair<AST::CaseValue, std::vector<std::unique_ptr<AST::Expression>>>>
-      case_clauses;
+  std::vector<AST::CaseClause> case_clauses;
+  parse_case_clauses(case_clauses);
+  std::vector<std::unique_ptr<AST::Expression>> otherwise_statements;
+  parse_otherwise_clause(otherwise_statements);
+  read(Syntax::Kind::kEnd);
+  return std::make_unique<AST::CaseExpression>(std::move(expression), std::move(case_clauses),
+                                               std::move(otherwise_statements));
+}
 
-  return nullptr;
+// Caseclauses      ->  (Caseclause ';')+;
+void Parser::parse_case_clauses(std::vector<AST::CaseClause>& case_clauses) {
+  case_clauses.push_back(parse_case_clause());
+  read(Syntax::Kind::kSemiColon);
+  while (current_token->kind == Syntax::Kind::kInteger ||
+         current_token->kind == Syntax::Kind::kTrue ||
+         current_token->kind == Syntax::Kind::kFalse ||
+         current_token->kind == Syntax::Kind::kIdentifier) {
+    case_clauses.push_back(parse_case_clause());
+    read(Syntax::Kind::kSemiColon);
+  }
+}
+
+// Caseclause        ->  CaseExpression ':' Statement   => "case_clause";
+AST::CaseClause Parser::parse_case_clause() {
+  AST::CaseValue case_value = parse_case_value();
+  read(Syntax::Kind::kColon);
+  std::vector<std::unique_ptr<AST::Expression>> case_block_statements;
+  parse_statement(case_block_statements);
+  return std::make_pair(std::move(case_value), std::move(case_block_statements));
+}
+
+// CaseExpression   ->  ConstValue
+//                  ->  ConstValue '..' ConstValue      => "..";
+AST::CaseValue Parser::parse_case_value() {
+  std::unique_ptr<AST::Expression> const_val_start = parse_const_value();
+  std::unique_ptr<AST::Expression> const_val_end;
+  if (current_token->kind == Syntax::Kind::kCaseRange) {
+    read(Syntax::Kind::kCaseRange);
+    const_val_end = parse_const_value();
+  }
+  if (const_val_end) {
+    return std::make_pair(std::move(const_val_start), std::move(const_val_end));
+  }
+  return std::move(const_val_start);
+}
+
+// OtherwiseClause  ->  'otherwise' Statement          => "otherwise"
+//                  ->  ;
+void Parser::parse_otherwise_clause(
+    std::vector<std::unique_ptr<AST::Expression>>& otherwise_statements) {
+  if (current_token->kind == Syntax::Kind::kOtherwise) {
+    read(Syntax::Kind::kOtherwise);
+    parse_statement(otherwise_statements);
+  }
+}
+
+// ConstValue       ->  'ᐸintegerᐳ'
+//                  ->  'ᐸcharᐳ'
+//                  ->  '<true>'
+//                  ->  '<false>'
+//                  ->  '<identifier>';
+std::unique_ptr<AST::Expression> Parser::parse_const_value() {
+  switch (current_token->kind) {
+  case Syntax::Kind::kInteger:
+    return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
+  case Syntax::Kind::kTrue:
+    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kTrue)));
+  case Syntax::Kind::kFalse:
+    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kFalse)));
+  case Syntax::Kind::kIdentifier:
+    return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+  default:
+    throw std::runtime_error("Invalid const value");
+    break;
+  }
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_expression() {
@@ -557,7 +631,7 @@ const std::map<Syntax::Kind, std::string> Parser::kind_to_string = {
     {Syntax::Kind::kDo, "kDo"},
     {Syntax::Kind::kCase, "kCase"},
     {Syntax::Kind::kOf, "kOf"},
-    {Syntax::Kind::kCaseExp, "kCaseExp"},
+    {Syntax::Kind::kCaseRange, "kCaseRange"},
     {Syntax::Kind::kOtherwise, "kOtherwise"},
     {Syntax::Kind::kRepeat, "kRepeat"},
     {Syntax::Kind::kFor, "kFor"},

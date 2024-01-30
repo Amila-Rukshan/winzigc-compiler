@@ -35,7 +35,7 @@ enum class Kind {
   kDo,                //  do
   kCase,              //  case
   kOf,                //  of
-  kCaseExp,           //  ..
+  kCaseRange,         //  ..
   kOtherwise,         //  otherwise
   kRepeat,            //  repeat
   kFor,               //  for
