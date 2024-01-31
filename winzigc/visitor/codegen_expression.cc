@@ -214,7 +214,47 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::WhileExpression& express
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expression) {
-  return nullptr;
+  llvm::Function* function = builder->GetInsertBlock()->getParent();
+  llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(*context, "case_exit");
+  bool add_exit_block = false;
+
+  llvm::Value* switch_val = expression.get_expression().accept(*this);
+  llvm::SwitchInst* switch_inst =
+      builder->CreateSwitch(switch_val, exit_block, expression.get_cases().size());
+
+  for (size_t i = 0; i < expression.get_cases().size(); i++) {
+    const Frontend::AST::CaseClause& case_clause = expression.get_cases()[i];
+    std::string blockName = "case_" + std::to_string(i);
+    llvm::BasicBlock* case_block = llvm::BasicBlock::Create(*context, blockName, function);
+
+    const auto& case_value = case_clause.first;
+    Frontend::AST::Expression* value_expr = nullptr;
+    if (std::holds_alternative<std::unique_ptr<Frontend::AST::Expression>>(case_value)) {
+      value_expr = std::get<std::unique_ptr<Frontend::AST::Expression>>(case_value).get();
+    } else {
+      LOG(ERROR) << "Not implemented! 'range case value'";
+    }
+    llvm::Value* llvm_case_value = value_expr->accept(*this);
+    llvm::ConstantInt* const_int = llvm::dyn_cast<llvm::ConstantInt>(llvm_case_value);
+    switch_inst->addCase(const_int, case_block);
+
+    builder->SetInsertPoint(case_block);
+    for (const auto& statement : case_clause.second) {
+      statement->accept(*this);
+    }
+
+    if (!builder->GetInsertBlock()->getTerminator()) {
+      add_exit_block = true;
+      builder->CreateBr(exit_block);
+    }
+  }
+
+  if (add_exit_block) {
+    function->getBasicBlockList().push_back(exit_block);
+    builder->SetInsertPoint(exit_block);
+  }
+
+  return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
