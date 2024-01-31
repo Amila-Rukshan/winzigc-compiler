@@ -509,6 +509,8 @@ std::unique_ptr<AST::Type> Parser::create_type(const std::string& type) {
     return std::make_unique<AST::IntegerType>();
   } else if (type == "boolean") {
     return std::make_unique<AST::BooleanType>();
+  } else if (type == "char") {
+    return std::make_unique<AST::CharacterType>();
   } else if (type == "void") {
     return std::make_unique<AST::VoidType>();
   } else {

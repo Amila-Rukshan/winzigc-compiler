@@ -13,10 +13,9 @@ llvm::Value* CodeGenVisitor::codegen_read_call(const Frontend::AST::CallExpressi
     LOG(ERROR) << "scanf function not found";
     return nullptr;
   }
-  std::vector<llvm::Value*> args;
-  args.push_back(builder->CreateGlobalStringPtr("%d"));
 
   for (const auto& arg : expression.get_arguments()) {
+    std::vector<llvm::Value*> args;
     if (const Frontend::AST::IdentifierExpression* var_identifier =
             dynamic_cast<const Frontend::AST::IdentifierExpression*>(arg.get())) {
       llvm::Value* var = lookup_variable(var_identifier->get_name());
@@ -27,14 +26,66 @@ llvm::Value* CodeGenVisitor::codegen_read_call(const Frontend::AST::CallExpressi
       llvm::ConstantInt* zero = llvm::ConstantInt::getSigned(llvm::Type::getInt64Ty(*context), 0);
       llvm::Value* i_ptr = builder->CreateInBoundsGEP(var, zero);
       args.push_back(i_ptr);
+
+      if (var->getType()->isPointerTy() &&
+          var->getType()->getPointerElementType()->isIntegerTy(32)) {
+        args.insert(args.begin(), builder->CreateGlobalStringPtr("%d"));
+      } else if (var->getType()->isPointerTy() &&
+                 var->getType()->getPointerElementType()->isIntegerTy(8)) {
+        args.insert(args.begin(), builder->CreateGlobalStringPtr("%c"));
+      } else {
+        LOG(ERROR) << "Unsupported variable type";
+        return nullptr;
+      }
+
+      builder->CreateCall(callee_func, args);
     } else {
       LOG(ERROR) << "'read' called with non global variable";
     }
   }
-  return builder->CreateCall(callee_func, args);
+  return nullptr;
 }
 
 llvm::Value* CodeGenVisitor::codegen_output_call(const Frontend::AST::CallExpression& expression) {
+  if (expression.get_arguments().size() > 1) {
+    codegen_output_many_call(expression);
+    return nullptr;
+  }
+  llvm::Function* callee_func = module->getFunction("printf");
+  if (!callee_func) {
+    LOG(ERROR) << "printf function not found";
+    return nullptr;
+  }
+  std::vector<llvm::Value*> args;
+
+  for (const auto& arg : expression.get_arguments()) {
+    llvm::Value* arg_val = arg->accept(*this);
+    if (arg_val == nullptr) {
+      LOG(ERROR) << "Unknown argument";
+      return nullptr;
+    }
+    llvm::Type* arg_type = arg_val->getType();
+    if (arg_type->isIntegerTy(8)) {
+      args.push_back(builder->CreateGlobalStringPtr("%c\n"));
+      if (arg_type->isPointerTy()) {
+        arg_val = builder->CreateLoad(arg_val);
+      }
+      args.push_back(arg_val);
+    } else {
+      args.push_back(builder->CreateGlobalStringPtr("%d\n"));
+      if (arg_type->isPointerTy()) {
+        arg_val = builder->CreateLoad(arg_val);
+      }
+      args.push_back(arg_val);
+    }
+    builder->CreateCall(callee_func, args);
+    args.clear();
+  }
+  return nullptr;
+}
+
+llvm::Value*
+CodeGenVisitor::codegen_output_many_call(const Frontend::AST::CallExpression& expression) {
   llvm::Function* callee_func = module->getFunction("printf");
   if (!callee_func) {
     LOG(ERROR) << "printf function not found";

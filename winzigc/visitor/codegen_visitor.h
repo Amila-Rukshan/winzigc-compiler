@@ -33,6 +33,7 @@ public:
   void codegen_external_func_dclns();
   llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
   llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
+  llvm::Value* codegen_output_many_call(const Frontend::AST::CallExpression& expression);
 
   void run_optimizations(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
 
