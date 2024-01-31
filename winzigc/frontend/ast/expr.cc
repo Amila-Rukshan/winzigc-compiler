@@ -11,6 +11,8 @@ llvm::Value* IntegerExpression::accept(Visitor& visitor) const { return visitor.
 
 llvm::Value* BooleanExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Value* CharacterExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Value* CallExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 llvm::Value* IdentifierExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }

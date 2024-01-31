@@ -15,6 +15,10 @@ llvm::Type* CodeGenVisitor::visit(const Frontend::AST::BooleanType& expression) 
   return llvm::Type::getInt1Ty(*context);
 }
 
+llvm::Type* CodeGenVisitor::visit(const Frontend::AST::CharacterType& expression) {
+  return llvm::Type::getInt8Ty(*context);
+}
+
 llvm::Type* CodeGenVisitor::visit(const Frontend::AST::VoidType& expression) {
   return llvm::Type::getVoidTy(*context);
 }

@@ -65,6 +65,16 @@ private:
   bool boolean_val;
 };
 
+class CharacterExpression : public Expression {
+public:
+  CharacterExpression(char character) : character(character) {}
+  char get_character() const { return character; }
+  llvm::Value* accept(Visitor& visitor) const override;
+
+private:
+  char character;
+};
+
 class CallExpression : public Expression {
 public:
   CallExpression(std::string name, std::vector<std::unique_ptr<Expression>> arguments)

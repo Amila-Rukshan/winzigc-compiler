@@ -19,6 +19,8 @@ public:
 
   virtual llvm::Value* visit(const IntegerExpression& expression) PURE;
   virtual llvm::Value* visit(const BooleanExpression& expression) PURE;
+  virtual llvm::Value* visit(const CharacterExpression& expression) PURE;
+
   virtual llvm::Value* visit(const CallExpression& expression) PURE;
   virtual llvm::Value* visit(const IdentifierExpression& expression) PURE;
   virtual llvm::Value* visit(const AssignmentExpression& expression) PURE;
@@ -37,6 +39,7 @@ public:
 
   virtual llvm::Type* visit(const IntegerType& expression) PURE;
   virtual llvm::Type* visit(const BooleanType& expression) PURE;
+  virtual llvm::Type* visit(const CharacterType& expression) PURE;
   virtual llvm::Type* visit(const VoidType& expression) PURE;
 };
 

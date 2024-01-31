@@ -38,6 +38,8 @@ public:
 
   llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::BooleanExpression& expression) override;
+  llvm::Value* visit(const Frontend::AST::CharacterExpression& expression) override;
+
   llvm::Value* visit(const Frontend::AST::CallExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::IdentifierExpression& expression) override;
   llvm::Value* visit(const Frontend::AST::AssignmentExpression& expression) override;
@@ -57,6 +59,7 @@ public:
 
   llvm::Type* visit(const Frontend::AST::IntegerType& expression) override;
   llvm::Type* visit(const Frontend::AST::BooleanType& expression) override;
+  llvm::Type* visit(const Frontend::AST::CharacterType& expression) override;
   llvm::Type* visit(const Frontend::AST::VoidType& expression) override;
 
 private:

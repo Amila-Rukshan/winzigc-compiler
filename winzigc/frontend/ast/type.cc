@@ -9,6 +9,8 @@ llvm::Type* IntegerType::accept(Visitor& visitor) const { return visitor.visit(*
 
 llvm::Type* BooleanType::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
+llvm::Type* CharacterType::accept(Visitor& visitor) const { return visitor.visit(*this); }
+
 llvm::Type* VoidType::accept(Visitor& visitor) const { return visitor.visit(*this); }
 
 } // namespace AST

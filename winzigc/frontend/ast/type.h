@@ -32,6 +32,12 @@ public:
   virtual llvm::Type* accept(Visitor& visitor) const override;
 };
 
+class CharacterType : public Type {
+public:
+  CharacterType() = default;
+  virtual llvm::Type* accept(Visitor& visitor) const override;
+};
+
 class VoidType : public Type {
 public:
   VoidType() = default;
