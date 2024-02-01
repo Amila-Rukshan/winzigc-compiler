@@ -75,6 +75,8 @@ private:
   std::map<std::string, llvm::AllocaInst*> named_values;
   std::map<llvm::StringRef, llvm::GlobalVariable*> global_variables;
   std::map<llvm::StringRef, llvm::AllocaInst*> local_variables;
+  std::map<std::string, int32_t> local_user_def_type_consts;
+  std::map<std::string, int32_t> global_user_def_type_consts;
   llvm::BasicBlock* function_exit_block;
 };
 

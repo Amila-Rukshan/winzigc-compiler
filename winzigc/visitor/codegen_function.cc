@@ -79,6 +79,7 @@ void CodeGenVisitor::codegen_func_defs(
   for (const auto& function : functions) {
     codegen_func_def(function);
     local_variables.clear();
+    local_user_def_type_consts.clear();
     function_exit_block = nullptr;
   }
 }

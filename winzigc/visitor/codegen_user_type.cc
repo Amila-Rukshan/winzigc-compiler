@@ -15,6 +15,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalUserTypeDef& expre
         *module, const_value->getType(), true, llvm::GlobalValue::InternalLinkage, const_value,
         expression.get_value_names().at(value_index));
     global_variables[llvm::StringRef(expression.get_value_names().at(value_index))] = global_const;
+    global_user_def_type_consts[expression.get_value_names().at(value_index)] = value_index;
   }
   return nullptr;
 }
@@ -27,6 +28,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalUserTypeDef& expres
                                                      expression.get_value_names().at(value_index));
     builder->CreateStore(const_value, alloca);
     local_variables[llvm::StringRef(expression.get_value_names().at(value_index))] = alloca;
+    local_user_def_type_consts[expression.get_value_names().at(value_index)] = value_index;
   }
   return nullptr;
 }

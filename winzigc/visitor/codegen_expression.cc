@@ -238,7 +238,26 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expressi
     } else {
       LOG(ERROR) << "Not implemented! 'range case value'";
     }
-    llvm::Value* llvm_case_value = value_expr->accept(*this);
+
+    llvm::Value* llvm_case_value = nullptr;
+    if (const Frontend::AST::IdentifierExpression* const_identifier =
+            dynamic_cast<const Frontend::AST::IdentifierExpression*>(value_expr)) {
+      std::string case_identifier = const_identifier->get_name();
+      uint32_t case_value = 0;
+      if (local_user_def_type_consts.find(case_identifier) != local_user_def_type_consts.end()) {
+        case_value = local_user_def_type_consts[case_identifier];
+      } else if (global_user_def_type_consts.find(case_identifier) !=
+                 global_user_def_type_consts.end()) {
+        case_value = global_user_def_type_consts[case_identifier];
+      } else {
+        LOG(ERROR) << "Unknown case value";
+        return nullptr;
+      }
+      llvm_case_value = llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), case_value);
+    } else {
+      llvm_case_value = value_expr->accept(*this);
+    }
+
     llvm::ConstantInt* const_int = llvm::dyn_cast<llvm::ConstantInt>(llvm_case_value);
     switch_inst->addCase(const_int, case_block);
 
@@ -256,6 +275,8 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expressi
   if (add_exit_block) {
     function->getBasicBlockList().push_back(exit_block);
     builder->SetInsertPoint(exit_block);
+  } else {
+    switch_inst->setDefaultDest(function_exit_block);
   }
 
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
@@ -322,9 +343,11 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::UnaryExpression& express
   case Frontend::AST::UnaryOperation::kNot:
     return builder->CreateNot(operand, "nottmp");
   case Frontend::AST::UnaryOperation::kSucc:
-    return builder->CreateAdd(operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "addtmp");
+    return builder->CreateAdd(
+        operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "addtmp");
   case Frontend::AST::UnaryOperation::kPred:
-    return builder->CreateSub(operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "subtmp");
+    return builder->CreateSub(
+        operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "subtmp");
   default:
     LOG(ERROR) << "Unknown unary operation";
     return nullptr;
