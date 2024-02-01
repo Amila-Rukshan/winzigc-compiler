@@ -48,6 +48,10 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     builder->CreateStore(&param, alloca);
   }
 
+  for (const auto& type_def : function->get_type_defs()) {
+    type_def->accept(*this);
+  }
+
   for (const auto& local_var : function->get_local_var_dclns()) {
     local_var->accept(*this);
   }

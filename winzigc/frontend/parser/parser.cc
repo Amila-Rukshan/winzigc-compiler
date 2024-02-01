@@ -28,13 +28,15 @@ std::unique_ptr<AST::Program> Parser::parse() {
   std::string program_name = read(Syntax::Kind::kIdentifier);
   read(Syntax::Kind::kColon);
   // TODO: consts
-  // TODO: types
+  std::vector<std::unique_ptr<AST::GlobalUserTypeDef>> global_type_defs =
+      parse_global_user_type_defs();
   std::vector<std::unique_ptr<AST::GlobalVariable>> var_dclns = parse_global_dclns();
   std::vector<std::unique_ptr<AST::Function>> functions = parse_functions();
   std::vector<std::unique_ptr<AST::Expression>> statements;
   parse_body(statements);
 
-  return std::make_unique<AST::Program>(program_name, std::move(var_dclns), std::move(functions),
+  return std::make_unique<AST::Program>(program_name, std::move(global_type_defs),
+                                        std::move(var_dclns), std::move(functions),
                                         std::move(statements));
 }
 
@@ -100,10 +102,76 @@ void Parser::parse_local_dcln(std::vector<std::unique_ptr<AST::LocalVariable>>& 
   }
 }
 
-// SubProgs   ->  Fcn*                                                          => "subprogs";
+// GlobalTypes      ->  'type' (GlobalType ';')+                       => "global-type-defs"
+//                  ->                                                 => "global-type-defs";
+std::vector<std::unique_ptr<AST::GlobalUserTypeDef>> Parser::parse_global_user_type_defs() {
+  std::vector<std::unique_ptr<AST::GlobalUserTypeDef>> type_defs;
+  if (current_token->kind == Syntax::Kind::kType) {
+    read(Syntax::Kind::kType);
+    parse_global_user_type_def(type_defs);
+    read(Syntax::Kind::kSemiColon);
+    while (current_token->kind == Syntax::Kind::kIdentifier) {
+      parse_global_user_type_def(type_defs);
+      read(Syntax::Kind::kSemiColon);
+    }
+  }
+  return type_defs;
+}
+
+// GlobalType       ->  Name '=' LitList                               => "global-type";
+void Parser::parse_global_user_type_def(
+    std::vector<std::unique_ptr<AST::GlobalUserTypeDef>>& type_defs) {
+  std::string type_name = read(Syntax::Kind::kIdentifier);
+  read(Syntax::Kind::kEqualToOpr);
+  std::vector<std::string> literal_list = parse_literal_list();
+  type_defs.push_back(std::make_unique<AST::GlobalUserTypeDef>(type_name, literal_list));
+  global_user_types.push_back(type_name);
+}
+
+// LocalTypes      ->  'type' (LocalType ';')+                         => "local-type-defs"
+//                 ->                                                  => "local-type-defs";
+std::vector<std::unique_ptr<AST::LocalUserTypeDef>> Parser::parse_local_user_type_defs() {
+  std::vector<std::unique_ptr<AST::LocalUserTypeDef>> type_defs;
+  if (current_token->kind == Syntax::Kind::kType) {
+    read(Syntax::Kind::kType);
+    parse_local_user_type_def(type_defs);
+    read(Syntax::Kind::kSemiColon);
+    while (current_token->kind == Syntax::Kind::kIdentifier) {
+      parse_local_user_type_def(type_defs);
+      read(Syntax::Kind::kSemiColon);
+    }
+  }
+  return type_defs;
+}
+
+// LocalType       ->  Name '=' LitList                                => "local-type";
+void Parser::parse_local_user_type_def(
+    std::vector<std::unique_ptr<AST::LocalUserTypeDef>>& type_defs) {
+  std::string type_name = read(Syntax::Kind::kIdentifier);
+  read(Syntax::Kind::kEqualToOpr);
+  std::vector<std::string> literal_list = parse_literal_list();
+  type_defs.push_back(std::make_unique<AST::LocalUserTypeDef>(type_name, literal_list));
+  local_user_types.push_back(type_name);
+}
+
+// LitList    ->  '(' Name list ',' ')'                                => "lit";
+std::vector<std::string> Parser::parse_literal_list() {
+  std::vector<std::string> literals;
+  read(Syntax::Kind::kOpenBracket);
+  literals.push_back(read(Syntax::Kind::kIdentifier));
+  while (current_token->kind != Syntax::Kind::kCloseBracket) {
+    read(Syntax::Kind::kComma);
+    literals.push_back(read(Syntax::Kind::kIdentifier));
+  }
+  read(Syntax::Kind::kCloseBracket);
+  return literals;
+}
+
+// SubProgs   ->  Fcn*                                                 => "subprogs";
 std::vector<std::unique_ptr<AST::Function>> Parser::parse_functions() {
   std::vector<std::unique_ptr<AST::Function>> functions;
   while (current_token->kind == Syntax::Kind::kFunction) {
+    local_user_types.clear();
     parse_function(functions);
   }
   return functions;
@@ -121,6 +189,8 @@ void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functio
   read(Syntax::Kind::kColon);
   std::unique_ptr<AST::Type> return_type = create_type(read(Syntax::Kind::kIdentifier));
   read(Syntax::Kind::kSemiColon);
+  std::vector<std::unique_ptr<AST::LocalUserTypeDef>> local_type_defs =
+      parse_local_user_type_defs();
   std::vector<std::unique_ptr<AST::LocalVariable>> local_vars = parse_local_dclns();
   std::vector<std::unique_ptr<AST::Expression>> statements;
   parse_body(statements);
@@ -134,7 +204,7 @@ void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functio
   read(Syntax::Kind::kSemiColon);
   functions.push_back(std::make_unique<AST::Function>(
       std::move(function_identifier_first), std::move(return_type), std::move(params),
-      std::move(local_vars), std::move(statements)));
+      std::move(local_type_defs), std::move(local_vars), std::move(statements)));
 }
 
 // Params     ->  LocalDcln list ';'                                            => "params";
@@ -510,6 +580,12 @@ std::unique_ptr<AST::Type> Parser::create_type(const std::string& type) {
     return std::make_unique<AST::BooleanType>();
   } else if (type == "char") {
     return std::make_unique<AST::CharacterType>();
+  } else if (std::find(local_user_types.begin(), local_user_types.end(), type) !=
+             local_user_types.end()) {
+    return std::make_unique<AST::UserType>();
+  } else if (std::find(global_user_types.begin(), global_user_types.end(), type) !=
+             global_user_types.end()) {
+    return std::make_unique<AST::UserType>();
   } else {
     throw std::invalid_argument("Invalid type string");
   }

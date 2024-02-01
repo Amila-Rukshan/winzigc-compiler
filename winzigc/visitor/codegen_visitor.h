@@ -22,6 +22,8 @@ public:
 
   void print_llvm_ir() const;
   void codegen(const Frontend::AST::Program& program);
+  void codegen_global_user_types(
+      const std::vector<std::unique_ptr<Frontend::AST::GlobalUserTypeDef>>& user_types);
   void codegen_global_vars(const Frontend::AST::Program& program);
 
   void codegen_func_dclns(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);

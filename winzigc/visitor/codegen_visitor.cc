@@ -28,12 +28,20 @@ void CodeGenVisitor::print_llvm_ir() const { module->print(llvm::errs(), nullptr
 void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   module = std::make_unique<llvm::Module>(program.get_name(), *context);
   codegen_external_func_dclns();
+  codegen_global_user_types(program.get_user_types());
   codegen_global_vars(program);
   codegen_func_dclns(program.get_functions());
   codegen_func_defs(program.get_functions());
   codegen_main_body(program.get_statements());
   // TODO: temporary disabled to see how bitcode generates without optimizations
   // run_optimizations(program.get_functions());
+}
+
+void CodeGenVisitor::codegen_global_user_types(
+    const std::vector<std::unique_ptr<Frontend::AST::GlobalUserTypeDef>>& user_types) {
+  for (const auto& user_type : user_types) {
+    user_type->accept(*this);
+  }
 }
 
 void CodeGenVisitor::codegen_global_vars(const Frontend::AST::Program& program) {

@@ -21,6 +21,10 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
                  dynamic_cast<const Frontend::AST::CharacterType*>(&expression.get_type())) {
     default_value =
         llvm::ConstantInt::get(llvm::Type::getInt8Ty(*context), llvm::APInt(8, 0, true));
+  } else if (const Frontend::AST::UserType* integer_type =
+                 dynamic_cast<const Frontend::AST::UserType*>(&expression.get_type())) {
+    default_value =
+        llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), llvm::APInt(32, 0, true));
   } else {
     LOG(ERROR) << "Unable to generate default value for unknown type";
     return nullptr;

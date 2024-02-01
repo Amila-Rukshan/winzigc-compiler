@@ -45,11 +45,18 @@ private:
 
   std::vector<std::unique_ptr<AST::GlobalVariable>> parse_global_dclns();
   void parse_global_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& variables);
-  std::vector<std::unique_ptr<AST::Function>> parse_functions();
   std::vector<std::unique_ptr<AST::LocalVariable>> parse_local_dclns();
   void parse_local_dcln(std::vector<std::unique_ptr<AST::LocalVariable>>& variables);
-  void parse_params(std::vector<std::unique_ptr<AST::LocalVariable>>& params);
+
+  std::vector<std::unique_ptr<AST::GlobalUserTypeDef>> parse_global_user_type_defs();
+  void parse_global_user_type_def(std::vector<std::unique_ptr<AST::GlobalUserTypeDef>>& type_defs);
+  std::vector<std::unique_ptr<AST::LocalUserTypeDef>> parse_local_user_type_defs();
+  void parse_local_user_type_def(std::vector<std::unique_ptr<AST::LocalUserTypeDef>>& type_defs);
+  std::vector<std::string> parse_literal_list();
+
+  std::vector<std::unique_ptr<AST::Function>> parse_functions();
   void parse_function(std::vector<std::unique_ptr<AST::Function>>& functions);
+  void parse_params(std::vector<std::unique_ptr<AST::LocalVariable>>& params);
 
   std::unique_ptr<AST::Type> create_type(const std::string& type);
   bool has_next_token();
