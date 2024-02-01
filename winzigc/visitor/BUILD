@@ -18,6 +18,7 @@ cc_library(
     srcs = [
         "codegen_visitor.cc",
         "codegen_type.cc",
+        "codegen_user_type.cc",
         "codegen_expression.cc",
         "codegen_var.cc",
         "codegen_function.cc",

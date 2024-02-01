@@ -5,6 +5,7 @@ cc_library(
     hdrs = [
         "expr.h",
         "type.h",
+        "user_type.h",
         "var.h",
         "function.h",
         "program.h",
@@ -13,6 +14,7 @@ cc_library(
     srcs = [
         "expr.cc",
         "type.cc",
+        "user_type.cc",
         "var.cc",
     ],
     deps = [

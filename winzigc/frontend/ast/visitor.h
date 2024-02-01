@@ -2,6 +2,7 @@
 
 #include "winzigc/frontend/ast/expr.h"
 #include "winzigc/frontend/ast/type.h"
+#include "winzigc/frontend/ast/user_type.h"
 #include "winzigc/frontend/ast/var.h"
 #include "winzigc/frontend/ast/function.h"
 #include "winzigc/common/pure.h"
@@ -37,9 +38,13 @@ public:
   virtual llvm::Value* visit(const GlobalVariable& expression) PURE;
   virtual llvm::Value* visit(const LocalVariable& expression) PURE;
 
+  virtual llvm::Value* visit(const GlobalUserTypeDef& expression) PURE;
+  virtual llvm::Value* visit(const LocalUserTypeDef& expression) PURE;
+
   virtual llvm::Type* visit(const IntegerType& expression) PURE;
   virtual llvm::Type* visit(const BooleanType& expression) PURE;
   virtual llvm::Type* visit(const CharacterType& expression) PURE;
+  virtual llvm::Type* visit(const UserType& expression) PURE;
 };
 
 } // namespace AST

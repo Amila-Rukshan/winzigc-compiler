@@ -19,5 +19,9 @@ llvm::Type* CodeGenVisitor::visit(const Frontend::AST::CharacterType& expression
   return llvm::Type::getInt8Ty(*context);
 }
 
+llvm::Type* CodeGenVisitor::visit(const Frontend::AST::UserType& expression) {
+  return llvm::Type::getInt32Ty(*context);
+}
+
 } // namespace Visitor
 } // namespace WinZigC

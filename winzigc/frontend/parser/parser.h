@@ -64,6 +64,8 @@ private:
   std::unique_ptr<std::vector<Syntax::Token>> tokens;
   int token_index;
   Syntax::Token* current_token;
+  std::vector<std::string> global_user_types;
+  std::vector<std::string> local_user_types;
 
   static const std::map<Syntax::Kind, std::string> kind_to_string;
   static const std::map<Syntax::Kind, int> kind_to_precedence;

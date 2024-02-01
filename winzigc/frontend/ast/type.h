@@ -38,6 +38,12 @@ public:
   virtual llvm::Type* accept(Visitor& visitor) const override;
 };
 
+class UserType : public Type {
+public:
+  UserType() = default;
+  virtual llvm::Type* accept(Visitor& visitor) const override;
+};
+
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC
