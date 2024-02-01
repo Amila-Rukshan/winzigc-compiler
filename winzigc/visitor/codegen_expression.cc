@@ -232,34 +232,56 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expressi
     llvm::BasicBlock* case_block = llvm::BasicBlock::Create(*context, blockName, function);
 
     const auto& case_value = case_clause.first;
-    Frontend::AST::Expression* value_expr = nullptr;
     if (std::holds_alternative<std::unique_ptr<Frontend::AST::Expression>>(case_value)) {
-      value_expr = std::get<std::unique_ptr<Frontend::AST::Expression>>(case_value).get();
-    } else {
-      LOG(ERROR) << "Not implemented! 'range case value'";
-    }
-
-    llvm::Value* llvm_case_value = nullptr;
-    if (const Frontend::AST::IdentifierExpression* const_identifier =
-            dynamic_cast<const Frontend::AST::IdentifierExpression*>(value_expr)) {
-      std::string case_identifier = const_identifier->get_name();
-      uint32_t case_value = 0;
-      if (local_user_def_type_consts.find(case_identifier) != local_user_def_type_consts.end()) {
-        case_value = local_user_def_type_consts[case_identifier];
-      } else if (global_user_def_type_consts.find(case_identifier) !=
-                 global_user_def_type_consts.end()) {
-        case_value = global_user_def_type_consts[case_identifier];
+      Frontend::AST::Expression* value_expr =
+          std::get<std::unique_ptr<Frontend::AST::Expression>>(case_value).get();
+      llvm::Value* llvm_case_value = nullptr;
+      if (const Frontend::AST::IdentifierExpression* const_identifier =
+              dynamic_cast<const Frontend::AST::IdentifierExpression*>(value_expr)) {
+        std::string case_identifier = const_identifier->get_name();
+        uint32_t case_value = 0;
+        if (local_user_def_type_consts.find(case_identifier) != local_user_def_type_consts.end()) {
+          case_value = local_user_def_type_consts[case_identifier];
+        } else if (global_user_def_type_consts.find(case_identifier) !=
+                   global_user_def_type_consts.end()) {
+          case_value = global_user_def_type_consts[case_identifier];
+        } else {
+          LOG(ERROR) << "Unknown case value";
+          return nullptr;
+        }
+        llvm_case_value =
+            llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), case_value);
       } else {
-        LOG(ERROR) << "Unknown case value";
-        return nullptr;
+        llvm_case_value = value_expr->accept(*this);
       }
-      llvm_case_value = llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), case_value);
-    } else {
-      llvm_case_value = value_expr->accept(*this);
-    }
+      llvm::ConstantInt* const_int = llvm::dyn_cast<llvm::ConstantInt>(llvm_case_value);
+      switch_inst->addCase(const_int, case_block);
+    } else if (std::holds_alternative<std::pair<std::unique_ptr<Frontend::AST::Expression>,
+                                                std::unique_ptr<Frontend::AST::Expression>>>(
+                   case_value)) {
+      auto& exprPair = std::get<std::pair<std::unique_ptr<Frontend::AST::Expression>,
+                                          std::unique_ptr<Frontend::AST::Expression>>>(case_value);
+      Frontend::AST::Expression* first_value_expr = exprPair.first.get();
+      Frontend::AST::Expression* second_value_expr = exprPair.second.get();
 
-    llvm::ConstantInt* const_int = llvm::dyn_cast<llvm::ConstantInt>(llvm_case_value);
-    switch_inst->addCase(const_int, case_block);
+      int first_value = 0;
+      int second_value = 0;
+
+      if (const Frontend::AST::IntegerExpression* first_int_expr =
+              dynamic_cast<const Frontend::AST::IntegerExpression*>(first_value_expr)) {
+        first_value = first_int_expr->get_value();
+      }
+      if (const Frontend::AST::IntegerExpression* second_int_expr =
+              dynamic_cast<const Frontend::AST::IntegerExpression*>(second_value_expr)) {
+        second_value = second_int_expr->get_value();
+      }
+      for (int i = first_value; i <= second_value; i++) {
+        llvm::Value* llvm_case_value =
+            llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), i);
+        llvm::ConstantInt* const_int = llvm::dyn_cast<llvm::ConstantInt>(llvm_case_value);
+        switch_inst->addCase(const_int, case_block);
+      }
+    }
 
     builder->SetInsertPoint(case_block);
     for (const auto& statement : case_clause.second) {
@@ -272,11 +294,10 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expressi
     }
   }
 
-  if (add_exit_block) {
-    function->getBasicBlockList().push_back(exit_block);
-    builder->SetInsertPoint(exit_block);
-  } else {
-    switch_inst->setDefaultDest(function_exit_block);
+  function->getBasicBlockList().push_back(exit_block);
+  builder->SetInsertPoint(exit_block);
+  for (const auto& statement : expression.get_otherwise_clause()) {
+    statement->accept(*this);
   }
 
   return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(*context));
