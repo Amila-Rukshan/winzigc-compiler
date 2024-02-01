@@ -17,6 +17,8 @@ enum class UnaryOperation {
   kMinus,
   kPlus,
   kNot,
+  kSucc,
+  kPred,
 };
 
 enum class BinaryOperation {

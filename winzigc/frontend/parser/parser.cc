@@ -551,6 +551,14 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
   case Syntax::Kind::kNotOpr:
     read(Syntax::Kind::kNotOpr);
     return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kNot, parse_primary());
+  case Syntax::Kind::kSuccessor:
+    read(Syntax::Kind::kSuccessor);
+    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kSucc,
+                                                  parse_primary());
+  case Syntax::Kind::kPredecessor:
+    read(Syntax::Kind::kPredecessor);
+    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kPred,
+                                                  parse_primary());                                             
   default:
     throw std::runtime_error("Invalid primary expression");
     return nullptr;

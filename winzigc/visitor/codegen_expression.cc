@@ -321,6 +321,10 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::UnaryExpression& express
     return operand;
   case Frontend::AST::UnaryOperation::kNot:
     return builder->CreateNot(operand, "nottmp");
+  case Frontend::AST::UnaryOperation::kSucc:
+    return builder->CreateAdd(operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "addtmp");
+  case Frontend::AST::UnaryOperation::kPred:
+    return builder->CreateSub(operand, llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), 1), "subtmp");
   default:
     LOG(ERROR) << "Unknown unary operation";
     return nullptr;
