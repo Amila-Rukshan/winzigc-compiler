@@ -38,12 +38,6 @@ public:
   virtual llvm::Type* accept(Visitor& visitor) const override;
 };
 
-class VoidType : public Type {
-public:
-  VoidType() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const override;
-};
-
 } // namespace AST
 } // namespace Frontend
 } // namespace WinZigC

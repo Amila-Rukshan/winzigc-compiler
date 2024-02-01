@@ -61,7 +61,6 @@ public:
   llvm::Type* visit(const Frontend::AST::IntegerType& expression) override;
   llvm::Type* visit(const Frontend::AST::BooleanType& expression) override;
   llvm::Type* visit(const Frontend::AST::CharacterType& expression) override;
-  llvm::Type* visit(const Frontend::AST::VoidType& expression) override;
 
 private:
   std::unique_ptr<llvm::LLVMContext> context;

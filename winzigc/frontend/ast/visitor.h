@@ -40,7 +40,6 @@ public:
   virtual llvm::Type* visit(const IntegerType& expression) PURE;
   virtual llvm::Type* visit(const BooleanType& expression) PURE;
   virtual llvm::Type* visit(const CharacterType& expression) PURE;
-  virtual llvm::Type* visit(const VoidType& expression) PURE;
 };
 
 } // namespace AST

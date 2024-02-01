@@ -10,7 +10,6 @@
 #include "winzigc/frontend/ast/program.h"
 #include "winzigc/frontend/ast/expr.h"
 #include "winzigc/frontend/ast/var.h"
-#include "winzigc/frontend/ast/statement.h"
 #include "winzigc/frontend/ast/type.h"
 #include "winzigc/frontend/ast/function.h"
 
@@ -511,8 +510,6 @@ std::unique_ptr<AST::Type> Parser::create_type(const std::string& type) {
     return std::make_unique<AST::BooleanType>();
   } else if (type == "char") {
     return std::make_unique<AST::CharacterType>();
-  } else if (type == "void") {
-    return std::make_unique<AST::VoidType>();
   } else {
     throw std::invalid_argument("Invalid type string");
   }

@@ -4,7 +4,6 @@ cc_library(
     name = "ast_lib",
     hdrs = [
         "expr.h",
-        "statement.h",
         "type.h",
         "var.h",
         "function.h",
