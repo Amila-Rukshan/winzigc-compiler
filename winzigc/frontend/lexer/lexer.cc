@@ -7,7 +7,6 @@
 #include "winzigc/frontend/lexer/lexer.h"
 
 #include "glog/logging.h"
-#include "llvm/ADT/APFloat.h"
 
 namespace WinZigC {
 
@@ -22,7 +21,6 @@ Lexer::Lexer(const std::string& source) {
 }
 
 std::unique_ptr<std::vector<Syntax::Token>> Lexer::get_tokens() {
-  llvm::APFloat f(0.0);
   Syntax::Token token = find_next_token();
   while (token.kind != Syntax::Kind::kEndOfProgram) {
     if (token.kind == Syntax::Kind::kUnknown) {
@@ -253,9 +251,9 @@ Syntax::Token Lexer::find_next_token() {
     } else if (lexeme == "pred") {
       return Syntax::Token{Syntax::Kind::kPredecessor, "pred", line, column};
     } else if (lexeme == "chr") {
-      return Syntax::Token{Syntax::Kind::kCharFunc, "chr", line, column};
+      return Syntax::Token{Syntax::Kind::kChr, "chr", line, column};
     } else if (lexeme == "ord") {
-      return Syntax::Token{Syntax::Kind::kOrdinalFunc, "ord", line, column};
+      return Syntax::Token{Syntax::Kind::kOrd, "ord", line, column};
     } else if (lexeme == "eof") {
       return Syntax::Token{Syntax::Kind::kEndOfFile, "eof", line, column};
     } else if (lexeme == "true") {

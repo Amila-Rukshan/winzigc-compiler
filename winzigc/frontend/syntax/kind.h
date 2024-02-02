@@ -56,8 +56,8 @@ enum class Kind {
   kRead,              //  read
   kSuccessor,         //  succ
   kPredecessor,       //  pred
-  kCharFunc,          //  chr
-  kOrdinalFunc,       //  ord
+  kChr,               //  chr
+  kOrd,               //  ord
   kEndOfFile,         //  eof
   kColon,             //  :
   kSemiColon,         //  ;

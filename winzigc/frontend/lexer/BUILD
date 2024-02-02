@@ -10,5 +10,8 @@ cc_library(
         "@com_github_google_glog//:glog",
         "//winzigc/frontend/syntax:token_lib"
     ],
-    visibility = ["//winzigc/main:__pkg__"],
+    visibility = [
+        "//winzigc/main:__pkg__",
+        "//test/frontend/lexer:__pkg__",
+    ],
 )

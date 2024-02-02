@@ -11,6 +11,7 @@ cc_library(
     deps = [":kind_lib"],
     visibility = [
         "//winzigc/frontend/lexer:__pkg__",
-        "//winzigc/frontend/parser:__pkg__"
+        "//winzigc/frontend/parser:__pkg__",
+        "//test/frontend/lexer:__pkg__",
     ],
 )
