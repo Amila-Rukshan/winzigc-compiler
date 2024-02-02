@@ -18,7 +18,7 @@ All local variable memory allocations are cleaned up when the function exits.
 
 ## Features
 
-### Built in types
+### Built-in types
 
 - `integer` - 32 bit. 
     >If your input or the program processes intermediate values that do not fit into 32 bits, unexpected results may occur.
@@ -27,7 +27,7 @@ All local variable memory allocations are cleaned up when the function exits.
     >No Unicode characters.
 - `boolean` - Think of it as 1 bit. You can assign `true` and `false` values.
 
-### User defined types
+### User types
 
 Users can define enumetated types:
 ```
@@ -78,9 +78,10 @@ Winzigc supports two ways to change the return value:
 
 ### Buit-in functions
 
-`read`   - Read user input from the command line. 
+- `read`   - Read user input from the command line. 
          >Note: Enter is considered as input when reading a char.
-`output` - Write output to the command line.
+
+- `output` - Write output to the command line.
 
 ### Commeting code
 
