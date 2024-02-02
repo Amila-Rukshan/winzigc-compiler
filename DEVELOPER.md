@@ -42,3 +42,14 @@ This will compile the winzigc in with debug options and use the `./example-progr
 
 ### Run tests
 
+#### Lexer tests
+
+```
+bazel test --cxxopt=-std=c++17 --test_output=all //test/frontend/lexer:lexer_test
+```
+
+#### Parser tests
+
+```
+bazel test --cxxopt=-std=c++17 --test_output=all //test/frontend/parser:parser_test
+```
