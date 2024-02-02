@@ -1,6 +1,7 @@
 ## Winzigc programming language
 
 This project includes the code for the language specified by [winzigc language spectification](/SPECIFICATION.md).
+It generates [LLVM](https://llvm.org/) bitcode for the Winzigc program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
 
 ## Memeory allocation
 
@@ -98,3 +99,16 @@ Winzigc supports two ways to change the return value:
     Second line of the comment
 ingore this as well }
 ```
+
+## Control flows
+
+### Branching
+
+- `if-else` two-way branching
+- `case` multi-way branching
+
+### Looping
+
+- `for` looping
+- `while` looping
+- `repeat-until` looping

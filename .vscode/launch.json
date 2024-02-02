@@ -8,7 +8,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/winzigc/main/cmd",
       "args": [
-        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/tests/winzig_zz"
+        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/example-programs/winzig_zz"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",

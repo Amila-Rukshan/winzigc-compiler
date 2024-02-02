@@ -9,7 +9,7 @@
 
 #### Debug build
 
-In the root of the project run bazel build command to build the winzigc binary:
+In the root of the project, run the Bazel build command to build the Winzigc binary:
 ```
 bazel build --cxxopt='-std=c++17' //winzigc/main:cmd --strip=never -c dbg --sandbox_debug --spawn_strategy=local
 ```
@@ -20,22 +20,25 @@ bazel build --cxxopt='-std=c++17' //winzigc/main:cmd --strip=never -c dbg --sand
 bazel build --cxxopt='-std=c++17' //winzigc/main:cmd -c opt
 ```
 
-### Run
+### Compile and run a winzigc program
 
-To compile a winzigc program, run the following command. 
+To compile and run a Winzigc program (in the `example-programs` directory), run the following command.
+```
+sh scripts/compile-and-run.sh <program_name>
+```
 ```
 sh scripts/compile-and-run.sh winzig_zz
 ```
 
-- It will first run the above winzigc binary agaist the sample program in `./tests/winzig_zz` and emit llvm bitcode in text format to `./tests/winzig_zz.ll`.
-- Then clang backend will generate the binary for your machine architecture to `./tests/winzig_zz_binary` file.
+- It will first run the above Winzigc binary for the sample program in `./example-programs/winzig_zz` and emit LLVM bitcode in text format to `./example-programs/winzig_zz.ll`.
+- Then Clang backend will generate the binary for your machine architecture into `./example-programs/winzig_zz_binary` file.
 - Then it will start executing the above binary.
 
 
-### Lauch debug in vscode
+### Lauch debugger in vscode
 
-Debugger configuration is setup in `.vscode/launch.json`. Just click the "(lldb) Launch Debug" option in the vscode Run and Debug view.
-This will compile the winzigc in with debug options and use the `./tests/winzig_zz` program in the arguments.
+Debugger configuration is set up in `.vscode/launch.json`. Just click the "(lldb) Launch Debug" option in the vscode Run and Debug view.
+This will compile the winzigc in with debug options and use the `./example-programs/winzig_zz` program in the arguments.
 
 ### Run tests
 
