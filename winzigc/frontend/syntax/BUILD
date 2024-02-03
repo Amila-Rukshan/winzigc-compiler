@@ -13,5 +13,6 @@ cc_library(
         "//winzigc/frontend/lexer:__pkg__",
         "//winzigc/frontend/parser:__pkg__",
         "//test/frontend/lexer:__pkg__",
+        "//test/frontend/parser:__pkg__",
     ],
 )

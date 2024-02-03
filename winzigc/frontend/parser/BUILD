@@ -9,5 +9,8 @@ cc_library(
         "//winzigc/frontend/syntax:token_lib",
         "//winzigc/frontend/ast:ast_lib",
     ],
-    visibility = ["//winzigc/main:__pkg__"],
+    visibility = [
+        "//winzigc/main:__pkg__",
+        "//test/frontend/parser:__pkg__",
+    ],
 )
