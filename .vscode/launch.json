@@ -8,8 +8,69 @@
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/winzigc/main/cmd",
       "args": [
-        "/Users/amilarukshansenadheera/Desktop/Projcts/winzigc-compiler/example-programs/winzig_zz"
+        "-opt",
+        "${workspaceFolder}/example-programs/winzig_zz",
       ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [
+        {
+          "name": "GLOG_logtostderr",
+          "value": "1"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Debug Lexer Test",
+      "preLaunchTask": "Bazel Lexer Test (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bazel-bin/test/frontend/lexer/lexer_test",
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [
+        {
+          "name": "GLOG_logtostderr",
+          "value": "1"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Debug Parser Test",
+      "preLaunchTask": "Bazel Parser Test (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bazel-bin/test/frontend/parser/parser_test",
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [
+        {
+          "name": "GLOG_logtostderr",
+          "value": "1"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Debug Integration Test",
+      "preLaunchTask": "Bazel Integration Test (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bazel-bin/test/integration/integration_test",
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
       "environment": [

@@ -12,5 +12,38 @@
         "isDefault": true
       }
     },
+    {
+      "label": "Bazel Lexer Test (Debug)",
+      "type": "shell",
+      "osx": {
+        "command": "bazel build --cxxopt='-std=c++17' //test/frontend/lexer:lexer_test --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Bazel Parser Test (Debug)",
+      "type": "shell",
+      "osx": {
+        "command": "bazel build --cxxopt='-std=c++17' //test/frontend/parser:parser_test --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Bazel Integration Test (Debug)",
+      "type": "shell",
+      "osx": {
+        "command": "bazel build --cxxopt='-std=c++17' //test/integration:integration_test --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
   ]
 }

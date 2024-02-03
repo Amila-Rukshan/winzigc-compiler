@@ -53,3 +53,7 @@ bazel test --cxxopt=-std=c++17 --test_output=all //test/frontend/lexer:lexer_tes
 ```
 bazel test --cxxopt=-std=c++17 --test_output=all //test/frontend/parser:parser_test
 ```
+
+### Integration tests
+
+Launch "Debug Integration Tests" from the debug options list in vscode debug view.

@@ -17,13 +17,23 @@
 namespace WinZigC {
 namespace Visitor {
 
-CodeGenVisitor::CodeGenVisitor()
-    : context(std::make_unique<llvm::LLVMContext>()),
+CodeGenVisitor::CodeGenVisitor(bool optimize)
+    : optimize(optimize), context(std::make_unique<llvm::LLVMContext>()),
       builder(std::make_unique<llvm::IRBuilder<>>(*context)) {}
 
 CodeGenVisitor::~CodeGenVisitor() {}
 
-void CodeGenVisitor::print_llvm_ir() const { module->print(llvm::errs(), nullptr); }
+void CodeGenVisitor::print_llvm_ir(std::string output_path) const {
+  std::error_code error;
+  llvm::raw_fd_ostream dest(output_path + ".ll", error);
+
+  if (error) {
+    llvm::errs() << "Could not open file: " << error.message();
+    return;
+  }
+
+  module->print(dest, nullptr);
+}
 
 void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   module = std::make_unique<llvm::Module>(program.get_name(), *context);
@@ -33,8 +43,9 @@ void CodeGenVisitor::codegen(const Frontend::AST::Program& program) {
   codegen_func_dclns(program.get_functions());
   codegen_func_defs(program.get_functions());
   codegen_main_body(program.get_statements());
-  // TODO: temporary disabled to see how bitcode generates without optimizations
-  // run_optimizations(program.get_functions());
+  if (optimize) {
+    run_optimizations(program.get_functions());
+  }
 }
 
 void CodeGenVisitor::codegen_global_user_types(

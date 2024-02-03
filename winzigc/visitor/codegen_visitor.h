@@ -17,10 +17,10 @@ namespace Visitor {
 
 class CodeGenVisitor : public Frontend::AST::Visitor {
 public:
-  CodeGenVisitor();
+  CodeGenVisitor(bool optimize = false);
   ~CodeGenVisitor();
 
-  void print_llvm_ir() const;
+  void print_llvm_ir(std::string output_path = "") const;
   void codegen(const Frontend::AST::Program& program);
   void codegen_global_user_types(
       const std::vector<std::unique_ptr<Frontend::AST::GlobalUserTypeDef>>& user_types);
@@ -69,6 +69,7 @@ public:
   llvm::Type* visit(const Frontend::AST::UserType& expression) override;
 
 private:
+  bool optimize;
   std::unique_ptr<llvm::LLVMContext> context;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::Module> module;

@@ -16,8 +16,9 @@ fi
 
 winzigc_prog_path="$(pwd)/example-programs/$winzigc_prog_name"
 
-./bazel-bin/winzigc/main/cmd "$winzigc_prog_path" \
-    &>"$winzigc_prog_path".ll
+export GLOG_logtostderr=1
+
+./bazel-bin/winzigc/main/cmd -opt "$winzigc_prog_path"
 
 check_exit_status "Failed to generate llvm bitcode!"
 
