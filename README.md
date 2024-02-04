@@ -1,7 +1,15 @@
 ## Winzigc programming language
 
 This project includes the code for the language specified by [winzigc language spectification](/SPECIFICATION.md).
-It generates [LLVM](https://llvm.org/) bitcode for the Winzigc program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
+It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
+
+## Give me some example programs!
+
+You can find a set of example programs in [example-programs](/example-programs) and optimized and non optimized control flow graphs for the corresponding programs in [cfg](/cfg).
+
+## How to run a program?
+
+Visit [developer guide](DEVELOPER.md).
 
 ## Memeory allocation
 
@@ -111,56 +119,56 @@ ingore this as well }
 ### Branching
 
 - `if-else` two-way branching
-    ```
-    if n > 0 then
-        return (n + fact(sum(n-1)))
-    else return (0)
-    ```
+  ```
+  if n > 0 then
+      return (n + fact(sum(n-1)))
+  else return (0)
+  ```
 - `case` multi-way branching
-    ```
-    case R of
-        Composite: output ('C');
-        Prime:	   output ('P');
-        TooBig:    output ('B');
-    end
-    ```
+  ```
+  case R of
+      Composite:  output ('C');
+      Prime:      output ('P');
+      TooBig:     output ('B');
+  end
+  ```
 
 ### Looping
 
 - `for` looping
-    ```
-    for (i:=1; i<=7; i:=i+1)
-    begin
-        output (fibonacci(i))
-    end
-    ```
+  ```
+  for (i:=1; i<=7; i:=i+1)
+  begin
+      output (fibonacci(i))
+  end
+  ```
 - `while` looping
-    ```
-    while ((c = '+') or (c = '-')) do begin
-        if (c = '+') then begin
-            d:=GetNext(3);
-            v := v + T(3);
-        end
-        else begin { c = '-' }
-            d:=GetNext(3);
-            v := v - T(3)
-        end;
-    end;
-    ```
+  ```
+  while ((c = '+') or (c = '-')) do begin
+      if (c = '+') then begin
+          d:=GetNext(3);
+          v := v + T(3);
+      end
+      else begin { c = '-' }
+          d:=GetNext(3);
+          v := v - T(3)
+      end;
+  end;
+  ```
 - `repeat-until` looping
-    ```
-    repeat
-        read(i);
-        d:=Factor(i)
-    until i <= 0
-    ```
+  ```
+  repeat
+      read(i);
+      d:=Factor(i)
+  until i <= 0
+  ```
 
 ### Operators
 
 #### Assignment
 
-- `':='` - Assignment
-- `':=:'` - Swap assignment
+- `:=` - Assignment
+- `:=:` - Swap assignment
 
 #### Binary
 
