@@ -1,0 +1,34 @@
+{
+	A Program to calculate The Greatest Common Divisor
+	iterative and recursive versions
+}
+
+program gcd:
+
+var
+    a, b : integer; 
+
+function GCD_Iterative ( m, n : integer ) : integer;
+begin
+	while m <> n do
+		if m > n then
+			m := m - n
+		else
+			n := n - m;
+	return m
+end GCD_Iterative;
+
+function GCD_Recursive ( m, n : integer ) : integer;
+begin
+	if n = 0 then
+		return m
+	else
+		return GCD_Recursive(n, m mod n)
+end GCD_Recursive;
+
+begin
+	read(a);
+	read(b);
+	if a > 0 and b > 0 then
+		output(GCD_Recursive(a,b))
+end gcd.

@@ -32,6 +32,7 @@ static const std::map<int, ProgramTest> program_test = {
     {22, {"", "13 -2 \n-2 -2 \n0\n13 -1 \n"}},
     {23, {"", "13 -2 10 43 \n-2 10 -2 43 \n1\n13 -2 10 11 \n"}},
     {25, {"", "13 -2 \n-2 -2 \n0\n13 -1 \n"}},
+    {26, {"128\n96\n", "32\n"}},
 };
 
 std::string exec_binary(const char* cmd) {
@@ -48,7 +49,7 @@ std::string exec_binary(const char* cmd) {
 }
 
 TEST(IntegrationTest, GenerateBitcodeAndBinary) {
-  for (int i = 1; i <= 25; ++i) {
+  for (int i = 1; i <= 26; ++i) {
     std::ostringstream oss;
     oss << std::setw(2) << std::setfill('0') << i;
     std::filesystem::path current_path = std::filesystem::current_path();

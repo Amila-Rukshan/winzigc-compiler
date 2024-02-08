@@ -21,7 +21,7 @@ generate_cfg() {
     cd "$curr_dir" || exit
 }
 
-for i in {1..25}; do
+for i in {1..26}; do
     winzig_prog_name=$(printf "winzig_%02d" "$i")
     curr_dir="$(pwd)"
     winzigc_prog_path="$(pwd)/example-programs/$winzig_prog_name"
