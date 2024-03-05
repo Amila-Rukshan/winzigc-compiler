@@ -1,4 +1,4 @@
-# winzigc
+# WinZigC
 
 ## Token Definitions
 

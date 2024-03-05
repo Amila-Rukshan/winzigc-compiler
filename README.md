@@ -1,6 +1,6 @@
-## Winzigc programming language
+## WinZigC programming language
 
-This project includes the code for the language specified by [winzigc language spectification](/SPECIFICATION.md).
+This tree includes the code for a compiler for the language specified by [WinZigC language spectification](/SPECIFICATION.md).
 It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
 
 ## Give me some example programs!
@@ -13,7 +13,7 @@ Visit [developer guide](DEVELOPER.md).
 
 ## Memeory allocation
 
-No heap, we stay on stack till the program exits. So no pointer arithmetic for heap.
+We stay in stack memory (within functions) and global static memory (program-global memory) until the program exits. Therefore, there is no heap memory allocation or access.
 
 ### Global variables
 
@@ -78,7 +78,7 @@ d := MyPrintFunc(12, 'c', true);
 
 ### Return value of a function
 
-Winzigc supports two ways to change the return value:
+WinZigC supports two ways to change the return value:
 
 - Assign a value to the function name:
   ```
@@ -93,7 +93,8 @@ Winzigc supports two ways to change the return value:
 
 ### Buit-in functions
 
-- `read` - Read user input from the command line. >Note: Enter is considered as input when reading a char.
+- `read` - Read user input from the command line. 
+  > Note: [Enter] key press is considered as input when reading to a _char_.
 
 - `output` - Write output to the command line.
 
@@ -177,19 +178,19 @@ ingore this as well }
 - `mod` - Modulus
 - `+` - Addition
 - `-` - Subtraction
-- `<` - Lesser than
+- `<` - Less than
 - `<=` - Less than or equal to
 - `>` - Greater than
 - `>=` - Greater than or equal to
 - `=` - Equal to
 - `<>` - Not equal to
-- `and` - Logical and
-- `or` - Logical or
+- `and` - Logical _and_
+- `or` - Logical _or_
 
 #### Unary
 
-- `not` - Logical not
+- `not` - Logical _not_
 - `-` - Negative
 - `+` - Positive
-- `succ(..)` - Successive value (++ operator semantics as in other languages)
-- `pred(..)` - Predecessor value (-- operator semantics as in other languages)
+- `succ(..)` - Successive value (`++` operator semantics as in other languages)
+- `pred(..)` - Predecessor value (`--` operator semantics as in other languages)
