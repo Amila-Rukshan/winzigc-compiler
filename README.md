@@ -1,7 +1,7 @@
 ## WinZigC programming language
 
 This tree includes the code for a compiler for the language specified by [WinZigC language spectification](/SPECIFICATION.md).
-It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
+It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend. Have a read on the related blog post [The journey of implementing the WinZigC programming language](https://developerdiary.me/the-journey-of-implementing-the-winzigc-programming-language/).
 
 ## Give me some example programs!
 
@@ -11,7 +11,7 @@ You can find a set of example programs in [example-programs](/example-programs) 
 
 Visit [developer guide](DEVELOPER.md).
 
-## Memeory allocation
+## Memory allocation
 
 We stay in stack memory (within functions) and global static memory (program-global memory) until the program exits. Therefore, there is no heap memory allocation or access.
 
