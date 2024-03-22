@@ -26,12 +26,15 @@ int main(int argc, char** argv) {
   init_logger_once(argv[0]);
 
   bool optimize = false;
+  bool debug = false;
   std::string program_path;
 
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
     if (arg == "-opt") {
       optimize = true;
+    } else if (arg == "-dbg") {
+      debug = true;
     } else {
       program_path = arg;
     }
@@ -57,8 +60,8 @@ int main(int argc, char** argv) {
   WinZigC::Frontend::Parser parser(std::move(tokens));
   auto program = parser.parse();
 
-  WinZigC::Visitor::CodeGenVisitor codegen_visitor(optimize);
-  codegen_visitor.codegen(*program);
+  WinZigC::Visitor::CodeGenVisitor codegen_visitor(optimize, debug);
+  codegen_visitor.codegen(*program, program_path);
   codegen_visitor.print_llvm_ir(program_path);
 
   return 0;

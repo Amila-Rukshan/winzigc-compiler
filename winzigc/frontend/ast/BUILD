@@ -10,6 +10,7 @@ cc_library(
         "function.h",
         "program.h",
         "visitor.h",
+        "location.h",
     ],
     srcs = [
         "expr.cc",

@@ -1,27 +1,30 @@
 #pragma once
 
 #include <map>
+#include <stack>
 
 #include "winzigc/frontend/ast/visitor.h"
 #include "winzigc/frontend/ast/program.h"
 
+#include "llvm/IR/DIBuilder.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include "glog/logging.h"
 
 namespace WinZigC {
 namespace Visitor {
 
 class CodeGenVisitor : public Frontend::AST::Visitor {
 public:
-  CodeGenVisitor(bool optimize = false);
+  CodeGenVisitor(bool optimize = false, bool debug = false);
   ~CodeGenVisitor();
 
   void print_llvm_ir(std::string output_path = "") const;
-  void codegen(const Frontend::AST::Program& program);
+  void codegen(const Frontend::AST::Program& program, std::string program_path);
   void codegen_global_user_types(
       const std::vector<std::unique_ptr<Frontend::AST::GlobalUserTypeDef>>& user_types);
   void codegen_global_vars(const Frontend::AST::Program& program);
@@ -68,17 +71,29 @@ public:
   llvm::Type* visit(const Frontend::AST::CharacterType& expression) override;
   llvm::Type* visit(const Frontend::AST::UserType& expression) override;
 
+  /* Debug Information Start */
+  llvm::DISubroutineType*
+  debug_create_function_type(const std::unique_ptr<Frontend::AST::Function>& function);
+  llvm::DIBasicType* debug_get_type(const Frontend::AST::Type& type);
+
+  void emit_location(const Frontend::AST::Expression* expression);
+  /* Debug Information End   */
+
 private:
   bool optimize;
+  bool debug;
   std::unique_ptr<llvm::LLVMContext> context;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::Module> module;
-  std::map<std::string, llvm::AllocaInst*> named_values;
   std::map<llvm::StringRef, llvm::GlobalVariable*> global_variables;
   std::map<llvm::StringRef, llvm::AllocaInst*> local_variables;
   std::map<std::string, int32_t> local_user_def_type_consts;
   std::map<std::string, int32_t> global_user_def_type_consts;
   llvm::BasicBlock* function_exit_block;
+
+  std::unique_ptr<llvm::DIBuilder> debug_builder;
+  llvm::DICompileUnit* compile_unit;
+  std::stack<llvm::DIScope*> lexical_blocks;
 };
 
 } // namespace Visitor

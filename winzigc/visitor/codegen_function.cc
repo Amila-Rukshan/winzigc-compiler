@@ -32,6 +32,28 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
   function_exit_block = llvm::BasicBlock::Create(*context, "exit");
   builder->SetInsertPoint(function_entry_block);
 
+  /* Debug Information Start */
+  llvm::DIFile* unit;
+  llvm::DISubprogram* sub_program;
+  unsigned line_number;
+  if (debug) {
+    unit = debug_builder->createFile(compile_unit->getFilename(), compile_unit->getDirectory());
+    llvm::DIScope* function_context = unit;
+    line_number = function->get_line();
+    unsigned scope_line = line_number;
+    sub_program = debug_builder->createFunction(
+        function_context, function->get_name(), llvm::StringRef(), unit, line_number,
+        debug_create_function_type(function), scope_line, llvm::DINode::FlagPrototyped,
+        llvm::DISubprogram::SPFlagDefinition);
+    llvm_function->setSubprogram(sub_program);
+    lexical_blocks.push(sub_program);
+    // Unset the location for the prologue emission (leading instructions with no
+    // location in a function are considered part of the prologue and the debugger
+    // will run past them when breaking on a function)
+    emit_location(nullptr);
+  }
+  /* Debug Information End   */
+
   llvm::Type* return_type = function->get_return_type().accept(*this);
   llvm::AllocaInst* return_alloca =
       builder->CreateAlloca(return_type, nullptr, function->get_name());
@@ -45,6 +67,18 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
         param_type, nullptr, function->get_parameters().at(param_index)->get_name());
     local_variables[llvm::StringRef(function->get_parameters().at(param_index)->get_name())] =
         alloca;
+    /* Debug Information Start */
+    if (debug) {
+      llvm::DILocalVariable* debug_param = debug_builder->createParameterVariable(
+          sub_program, function->get_parameters().at(param_index)->get_name(), param_index + 1,
+          unit, line_number, debug_get_type(function->get_parameters().at(param_index)->get_type()),
+          true);
+      debug_builder->insertDeclare(
+          alloca, debug_param, debug_builder->createExpression(),
+          llvm::DILocation::get(sub_program->getContext(), line_number, 0, sub_program),
+          builder->GetInsertBlock());
+    }
+    /* Debug Information End   */
     builder->CreateStore(&param, alloca);
   }
 
@@ -72,6 +106,11 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     llvm::Value* return_val = builder->CreateLoad(return_alloca);
     builder->CreateRet(return_val);
   }
+  /* Debug Information Start */
+  if (debug) {
+    lexical_blocks.pop();
+  }
+  /* Debug Information End   */
 }
 
 void CodeGenVisitor::codegen_func_defs(
@@ -83,6 +122,18 @@ void CodeGenVisitor::codegen_func_defs(
     function_exit_block = nullptr;
   }
 }
+
+/* Debug Information Start */
+llvm::DISubroutineType* CodeGenVisitor::debug_create_function_type(
+    const std::unique_ptr<Frontend::AST::Function>& function) {
+  llvm::SmallVector<llvm::Metadata*, 8> element_types;
+  element_types.push_back(debug_get_type(function->get_return_type()));
+  for (const auto& param : function->get_parameters()) {
+    element_types.push_back(debug_get_type(param->get_type()));
+  }
+  return debug_builder->createSubroutineType(debug_builder->getOrCreateTypeArray(element_types));
+}
+/* Debug Information End   */
 
 } // namespace Visitor
 } // namespace WinZigC

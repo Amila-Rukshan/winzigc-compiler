@@ -15,7 +15,7 @@ namespace AST {
 
 class Function {
 public:
-  Function(std::string name, std::unique_ptr<Type> return_type,
+  Function(int line, std::string name, std::unique_ptr<Type> return_type,
            std::vector<std::unique_ptr<LocalVariable>> parameters,
            std::vector<std::unique_ptr<LocalUserTypeDef>> type_defs,
            std::vector<std::unique_ptr<LocalVariable>> local_var_dclns,
@@ -24,6 +24,7 @@ public:
         type_defs(std::move(type_defs)), local_var_dclns(std::move(local_var_dclns)),
         function_body_exprs(std::move(function_body_exprs)) {}
   const std::string& get_name() const { return name; }
+  const int get_line() const { return line; }
   const Type& get_return_type() const { return *return_type; }
   const std::vector<std::unique_ptr<LocalVariable>>& get_parameters() const { return parameters; }
   const std::vector<std::unique_ptr<LocalVariable>>& get_local_var_dclns() const {
@@ -35,6 +36,7 @@ public:
   }
 
 private:
+  int line;
   std::string name;
   std::unique_ptr<Type> return_type;
   std::vector<std::unique_ptr<LocalVariable>> parameters;

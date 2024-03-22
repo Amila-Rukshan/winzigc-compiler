@@ -8,7 +8,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/winzigc/main/cmd",
       "args": [
-        "-opt",
+        "-dbg",
         "${workspaceFolder}/example-programs/winzig_zz",
       ],
       "stopAtEntry": false,
@@ -23,6 +23,19 @@
       "MIMode": "lldb",
       "sourceFileMap": {
         ".": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "WinZigC Program Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/example-programs/winzig_zz.c_binary",
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}/example-programs"
       }
     },
     {

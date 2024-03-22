@@ -16,19 +16,23 @@ namespace WinZigC {
 namespace Visitor {
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IntegerExpression& expression) {
+  emit_location(&expression);
   return llvm::ConstantInt::getSigned(llvm::Type::getInt32Ty(*context), expression.get_value());
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BooleanExpression& expression) {
+  emit_location(&expression);
   return expression.get_bool() ? llvm::ConstantInt::getTrue(*context)
                                : llvm::ConstantInt::getFalse(*context);
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CharacterExpression& expression) {
+  emit_location(&expression);
   return llvm::ConstantInt::getSigned(llvm::Type::getInt8Ty(*context), expression.get_character());
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CallExpression& expression) {
+  emit_location(&expression);
   if (expression.get_name() == "output") {
     return codegen_output_call(expression);
   } else if (expression.get_name() == "read") {
@@ -63,6 +67,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IdentifierExpression& ex
     LOG(ERROR) << "Unknown variable name";
     return nullptr;
   }
+  emit_location(&expression);
   return builder->CreateLoad(var, expression.get_name());
 }
 
@@ -73,6 +78,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::AssignmentExpression& ex
     return nullptr;
   }
   llvm::Value* value = expression.get_expression().accept(*this);
+  emit_location(&expression);
   builder->CreateStore(value, var);
   return value;
 }
@@ -86,12 +92,14 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::SwapExpression& expressi
   }
   llvm::Value* value1 = builder->CreateLoad(var1);
   llvm::Value* value2 = builder->CreateLoad(var2);
+  emit_location(&expression);
   builder->CreateStore(value2, var1);
   builder->CreateStore(value1, var2);
   return nullptr;
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression) {
+  emit_location(&expression);
   llvm::Value* cond = expression.get_condition().accept(*this);
   if (!cond) {
     LOG(ERROR) << "Unknown condition";
@@ -140,6 +148,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::IfExpression& expression
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ForExpression& expression) {
+  emit_location(&expression);
   llvm::Function* function = builder->GetInsertBlock()->getParent();
 
   llvm::BasicBlock* cond_block = llvm::BasicBlock::Create(*context, "for_cond", function);
@@ -168,6 +177,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ForExpression& expressio
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::RepeatUntilExpression& expression) {
+  emit_location(&expression);
   llvm::Function* function = builder->GetInsertBlock()->getParent();
   llvm::BasicBlock* body_block = llvm::BasicBlock::Create(*context, "repeat_body", function);
   llvm::BasicBlock* cond_block = llvm::BasicBlock::Create(*context, "repeat_cond");
@@ -193,6 +203,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::RepeatUntilExpression& e
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::WhileExpression& expression) {
+  emit_location(&expression);
   llvm::Function* function = builder->GetInsertBlock()->getParent();
   llvm::BasicBlock* cond_block = llvm::BasicBlock::Create(*context, "while_cond", function);
   llvm::BasicBlock* body_block = llvm::BasicBlock::Create(*context, "while_body");
@@ -218,6 +229,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::WhileExpression& express
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expression) {
+  emit_location(&expression);
   llvm::Function* function = builder->GetInsertBlock()->getParent();
   llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(*context, "case_exit");
   bool add_exit_block = false;
@@ -304,6 +316,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expressi
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
+  emit_location(&expression);
   llvm::Function* parent_function = builder->GetInsertBlock()->getParent();
   llvm::Value* return_var = lookup_variable(parent_function->getName().str());
   if (!return_var) {
@@ -317,6 +330,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::ReturnExpression& expres
 }
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
+  emit_location(&expression);
   llvm::Value* lhs = expression.get_lhs().accept(*this);
   llvm::Value* rhs = expression.get_rhs().accept(*this);
 
@@ -356,6 +370,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::BinaryExpression& expres
 
 llvm::Value* CodeGenVisitor::visit(const Frontend::AST::UnaryExpression& expression) {
   llvm::Value* operand = expression.get_expression().accept(*this);
+  emit_location(&expression);
   switch (expression.get_op()) {
   case Frontend::AST::UnaryOperation::kMinus:
     return builder->CreateNeg(operand, "negtmp");

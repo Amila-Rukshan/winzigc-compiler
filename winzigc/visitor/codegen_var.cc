@@ -32,6 +32,16 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
   llvm::GlobalVariable* global_variable = new llvm::GlobalVariable(
       *module, default_value->getType(), false, llvm::GlobalValue::InternalLinkage, default_value,
       expression.get_name());
+  /* Debug Information Start */
+  if (debug) {
+    llvm::DIFile* unit =
+        debug_builder->createFile(compile_unit->getFilename(), compile_unit->getDirectory());
+    llvm::DIBasicType* basic_type = debug_get_type(expression.get_type());
+    llvm::DIType* type = debug_get_type(expression.get_type());
+    llvm::DIGlobalVariableExpression* var_expr = debug_builder->createGlobalVariableExpression(
+        compile_unit, expression.get_name(), expression.get_name(), unit, 1, type, true);
+  }
+  /* Debug Information End   */
   global_variables[llvm::StringRef(expression.get_name())] = global_variable;
   return global_variable;
 }

@@ -7,7 +7,7 @@ It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compi
 
 You can find a set of example programs in [example-programs](/example-programs) and optimized and non optimized control flow graphs for the corresponding programs in [cfg](/cfg).
 
-## How to run a program?
+## How to run/debug a WinZigC program?
 
 Visit [developer guide](DEVELOPER.md).
 

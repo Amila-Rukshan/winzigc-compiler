@@ -9,6 +9,7 @@
 #include "winzigc/frontend/ast/var.h"
 #include "winzigc/frontend/ast/expr.h"
 #include "winzigc/frontend/ast/user_type.h"
+#include "winzigc/frontend/ast/location.h"
 
 namespace WinZigC {
 namespace Frontend {
@@ -22,8 +23,8 @@ public:
           std::vector<std::unique_ptr<Expression>> statements)
       : name(name), user_types(std::move(user_types)), variables(std::move(vars)),
         functions(std::move(functions)), statements(std::move(statements)) {
-    discard_variable =
-        std::make_unique<GlobalVariable>(std::string("d"), std::make_unique<IntegerType>());
+    discard_variable = std::make_unique<GlobalVariable>(SourceLocation{0, 0}, std::string("d"),
+                                                        std::make_unique<IntegerType>());
   }
 
   const std::string& get_name() const { return name; }

@@ -5,6 +5,8 @@
 #include <utility>
 
 #include "winzigc/common/pure.h"
+#include "winzigc/frontend/ast/location.h"
+
 #include "llvm/IR/Value.h"
 
 namespace WinZigC {
@@ -39,8 +41,14 @@ enum class BinaryOperation {
 
 class Expression {
 public:
+  Expression(SourceLocation location = {0, 0}) : location(location) {}
   virtual ~Expression() = default;
   virtual llvm::Value* accept(Visitor& visitor) const PURE;
+  int get_line() const { return location.line; }
+  int get_column() const { return location.column; }
+
+private:
+  SourceLocation location;
 };
 
 using CaseValue = std::variant<std::unique_ptr<Expression>,
@@ -49,7 +57,7 @@ using CaseClause = std::pair<AST::CaseValue, std::vector<std::unique_ptr<AST::Ex
 
 class IntegerExpression : public Expression {
 public:
-  IntegerExpression(int value) : value(value) {}
+  IntegerExpression(SourceLocation location, int value) : Expression(location), value(value) {}
   int get_value() const { return value; }
   llvm::Value* accept(Visitor& visitor) const override;
 
@@ -59,7 +67,8 @@ private:
 
 class BooleanExpression : public Expression {
 public:
-  BooleanExpression(bool boolean_val) : boolean_val(boolean_val) {}
+  BooleanExpression(SourceLocation location, bool boolean_val)
+      : Expression(location), boolean_val(boolean_val) {}
   bool get_bool() const { return boolean_val; }
   llvm::Value* accept(Visitor& visitor) const override;
 
@@ -69,7 +78,8 @@ private:
 
 class CharacterExpression : public Expression {
 public:
-  CharacterExpression(char character) : character(character) {}
+  CharacterExpression(SourceLocation location, char character)
+      : Expression(location), character(character) {}
   char get_character() const { return character; }
   llvm::Value* accept(Visitor& visitor) const override;
 
@@ -79,8 +89,9 @@ private:
 
 class CallExpression : public Expression {
 public:
-  CallExpression(std::string name, std::vector<std::unique_ptr<Expression>> arguments)
-      : name(name), arguments(std::move(arguments)) {}
+  CallExpression(SourceLocation location, std::string name,
+                 std::vector<std::unique_ptr<Expression>> arguments)
+      : Expression(location), name(name), arguments(std::move(arguments)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const std::string& get_name() const { return name; }
   const std::vector<std::unique_ptr<Expression>>& get_arguments() const { return arguments; }
@@ -92,7 +103,8 @@ private:
 
 class IdentifierExpression : public Expression {
 public:
-  IdentifierExpression(std::string name) : name(name) {}
+  IdentifierExpression(SourceLocation location, std::string name)
+      : Expression(location), name(name) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const std::string& get_name() const { return name; }
 
@@ -102,9 +114,9 @@ private:
 
 class AssignmentExpression : public Expression {
 public:
-  AssignmentExpression(std::unique_ptr<IdentifierExpression> name,
+  AssignmentExpression(SourceLocation location, std::unique_ptr<IdentifierExpression> name,
                        std::unique_ptr<Expression> expression)
-      : name(std::move(name)), expression(std::move(expression)) {}
+      : Expression(location), name(std::move(name)), expression(std::move(expression)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const IdentifierExpression& get_name() const { return *name; }
   const Expression& get_expression() const { return *expression; }
@@ -116,9 +128,9 @@ private:
 
 class SwapExpression : public Expression {
 public:
-  SwapExpression(std::unique_ptr<IdentifierExpression> lhs,
+  SwapExpression(SourceLocation location, std::unique_ptr<IdentifierExpression> lhs,
                  std::unique_ptr<IdentifierExpression> rhs)
-      : lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+      : Expression(location), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const IdentifierExpression& get_lhs() const { return *lhs; }
   const IdentifierExpression& get_rhs() const { return *rhs; }
@@ -130,9 +142,10 @@ private:
 
 class BinaryExpression : public Expression {
 public:
-  BinaryExpression(BinaryOperation operation, std::unique_ptr<Expression> left,
-                   std::unique_ptr<Expression> right)
-      : operation(operation), left(std::move(left)), right(std::move(right)) {}
+  BinaryExpression(SourceLocation location, BinaryOperation operation,
+                   std::unique_ptr<Expression> left, std::unique_ptr<Expression> right)
+      : Expression(location), operation(operation), left(std::move(left)), right(std::move(right)) {
+  }
   llvm::Value* accept(Visitor& visitor) const override;
   BinaryOperation get_op() const { return operation; }
   const Expression& get_lhs() const { return *left; }
@@ -146,8 +159,9 @@ private:
 
 class UnaryExpression : public Expression {
 public:
-  UnaryExpression(UnaryOperation operation, std::unique_ptr<Expression> expression)
-      : operation(operation), expression(std::move(expression)) {}
+  UnaryExpression(SourceLocation location, UnaryOperation operation,
+                  std::unique_ptr<Expression> expression)
+      : Expression(location), operation(operation), expression(std::move(expression)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   UnaryOperation get_op() const { return operation; }
   const Expression& get_expression() const { return *expression; }
@@ -159,11 +173,11 @@ private:
 
 class IfExpression : public Expression {
 public:
-  IfExpression(std::unique_ptr<Expression> condition,
+  IfExpression(SourceLocation location, std::unique_ptr<Expression> condition,
                std::vector<std::unique_ptr<Expression>> then_statement,
                std::vector<std::unique_ptr<Expression>> else_statement)
-      : condition(std::move(condition)), then_statement(std::move(then_statement)),
-        else_statement(std::move(else_statement)) {}
+      : Expression(location), condition(std::move(condition)),
+        then_statement(std::move(then_statement)), else_statement(std::move(else_statement)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_condition() const { return *condition; }
   const std::vector<std::unique_ptr<Expression>>& get_then_statement() const {
@@ -181,11 +195,12 @@ private:
 
 class ForExpression : public Expression {
 public:
-  ForExpression(std::unique_ptr<Expression> start_assignment, std::unique_ptr<Expression> condition,
-                std::unique_ptr<Expression> end_assignment,
+  ForExpression(SourceLocation location, std::unique_ptr<Expression> start_assignment,
+                std::unique_ptr<Expression> condition, std::unique_ptr<Expression> end_assignment,
                 std::vector<std::unique_ptr<Expression>> statements)
-      : start_assignment(std::move(start_assignment)), condition(std::move(condition)),
-        end_assignment(std::move(end_assignment)), statements(std::move(statements)) {}
+      : Expression(location), start_assignment(std::move(start_assignment)),
+        condition(std::move(condition)), end_assignment(std::move(end_assignment)),
+        statements(std::move(statements)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_start_assignment() const { return *start_assignment; }
   const Expression& get_condition() const { return *condition; }
@@ -201,9 +216,9 @@ private:
 
 class RepeatUntilExpression : public Expression {
 public:
-  RepeatUntilExpression(std::unique_ptr<Expression> condition,
+  RepeatUntilExpression(SourceLocation location, std::unique_ptr<Expression> condition,
                         std::vector<std::unique_ptr<Expression>> statements)
-      : condition(std::move(condition)), statements(std::move(statements)) {}
+      : Expression(location), condition(std::move(condition)), statements(std::move(statements)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_condition() const { return *condition; }
   const std::vector<std::unique_ptr<Expression>>& get_body_statements() const { return statements; }
@@ -215,9 +230,10 @@ private:
 
 class CaseExpression : public Expression {
 public:
-  CaseExpression(std::unique_ptr<Expression> expression, std::vector<CaseClause> cases,
+  CaseExpression(SourceLocation location, std::unique_ptr<Expression> expression,
+                 std::vector<CaseClause> cases,
                  std::vector<std::unique_ptr<Expression>> otherwise_clause)
-      : expression(std::move(expression)), cases(std::move(cases)),
+      : Expression(location), expression(std::move(expression)), cases(std::move(cases)),
         otherwise_clause(std::move(otherwise_clause)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_expression() const { return *expression; }
@@ -234,7 +250,8 @@ private:
 
 class ReturnExpression : public Expression {
 public:
-  ReturnExpression(std::unique_ptr<Expression> expression) : expression(std::move(expression)) {}
+  ReturnExpression(SourceLocation location, std::unique_ptr<Expression> expression)
+      : Expression(location), expression(std::move(expression)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_expression() const { return *expression; }
 
@@ -244,9 +261,9 @@ private:
 
 class WhileExpression : public Expression {
 public:
-  WhileExpression(std::unique_ptr<Expression> condition,
+  WhileExpression(SourceLocation location, std::unique_ptr<Expression> condition,
                   std::vector<std::unique_ptr<Expression>> statements)
-      : condition(std::move(condition)), statements(std::move(statements)) {}
+      : Expression(location), condition(std::move(condition)), statements(std::move(statements)) {}
   llvm::Value* accept(Visitor& visitor) const override;
   const Expression& get_condition() const { return *condition; }
   const std::vector<std::unique_ptr<Expression>>& get_body_statements() const { return statements; }

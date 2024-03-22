@@ -58,16 +58,19 @@ std::vector<std::unique_ptr<AST::GlobalVariable>> Parser::parse_global_dclns() {
 
 // GlobalDcln      ->  Name list ',' ':' Name                                        => "var";
 void Parser::parse_global_dcln(std::vector<std::unique_ptr<AST::GlobalVariable>>& var_dclns) {
-  std::vector<std::string> identifiers;
-  identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  std::vector<std::pair<AST::SourceLocation, std::string>> identifiers;
+  identifiers.push_back(
+      {{current_token->line, current_token->column}, read(Syntax::Kind::kIdentifier)});
   while (current_token->kind != Syntax::Kind::kColon) {
     read(Syntax::Kind::kComma);
-    identifiers.push_back(read(Syntax::Kind::kIdentifier));
+    identifiers.push_back(
+        {{current_token->line, current_token->column}, read(Syntax::Kind::kIdentifier)});
   }
   read(Syntax::Kind::kColon);
   std::string type = read(Syntax::Kind::kIdentifier);
-  for (auto identifier : identifiers) {
-    var_dclns.push_back(std::make_unique<AST::GlobalVariable>(identifier, create_type(type)));
+  for (const auto& [location, identifier] : identifiers) {
+    var_dclns.push_back(
+        std::make_unique<AST::GlobalVariable>(location, identifier, create_type(type)));
   }
 }
 
@@ -89,16 +92,19 @@ std::vector<std::unique_ptr<AST::LocalVariable>> Parser::parse_local_dclns() {
 
 // LocalDcln       ->  Name list ',' ':' Name                                        => "var";
 void Parser::parse_local_dcln(std::vector<std::unique_ptr<AST::LocalVariable>>& var_dclns) {
-  std::vector<std::string> identifiers;
-  identifiers.push_back(read(Syntax::Kind::kIdentifier));
+  std::vector<std::pair<AST::SourceLocation, std::string>> identifiers;
+  identifiers.push_back(
+      {{current_token->line, current_token->column}, read(Syntax::Kind::kIdentifier)});
   while (current_token->kind != Syntax::Kind::kColon) {
     read(Syntax::Kind::kComma);
-    identifiers.push_back(read(Syntax::Kind::kIdentifier));
+    identifiers.push_back(
+        {{current_token->line, current_token->column}, read(Syntax::Kind::kIdentifier)});
   }
   read(Syntax::Kind::kColon);
   std::string type = read(Syntax::Kind::kIdentifier);
-  for (auto identifier : identifiers) {
-    var_dclns.push_back(std::make_unique<AST::LocalVariable>(identifier, create_type(type)));
+  for (const auto& [location, identifier] : identifiers) {
+    var_dclns.push_back(
+        std::make_unique<AST::LocalVariable>(location, identifier, create_type(type)));
   }
 }
 
@@ -180,6 +186,7 @@ std::vector<std::unique_ptr<AST::Function>> Parser::parse_functions() {
 // Fcn        ->  'function' Name '(' Params ')' ':' Name
 //                ';' Consts Types LocalDclns Body Name ';'                     => "fcn";
 void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functions) {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kFunction);
   std::string function_identifier_first = read(Syntax::Kind::kIdentifier);
   read(Syntax::Kind::kOpenBracket);
@@ -203,8 +210,8 @@ void Parser::parse_function(std::vector<std::unique_ptr<AST::Function>>& functio
   }
   read(Syntax::Kind::kSemiColon);
   functions.push_back(std::make_unique<AST::Function>(
-      std::move(function_identifier_first), std::move(return_type), std::move(params),
-      std::move(local_type_defs), std::move(local_vars), std::move(statements)));
+      location.line, std::move(function_identifier_first), std::move(return_type),
+      std::move(params), std::move(local_type_defs), std::move(local_vars), std::move(statements)));
 }
 
 // Params     ->  LocalDcln list ';'                                            => "params";
@@ -280,22 +287,25 @@ void Parser::parse_statement(std::vector<std::unique_ptr<AST::Expression>>& stat
 // Assignment ->  Name ':=' Expression                                          => "assign"
 //            ->  Name ':=:' Name                                               => "swap";
 std::unique_ptr<AST::Expression> Parser::parse_assignment_statement() {
-  auto identifier_expr =
-      std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+  AST::SourceLocation identifier_location = {current_token->line, current_token->column};
+  auto identifier_expr = std::make_unique<AST::IdentifierExpression>(
+      identifier_location, read(Syntax::Kind::kIdentifier));
   std::unique_ptr<AST::IdentifierExpression> identifier_expr_rhs;
+  AST::SourceLocation identifier_right_location;
   std::unique_ptr<AST::Expression> expression;
   switch (current_token->kind) {
   case Syntax::Kind::kAssign:
     read(Syntax::Kind::kAssign);
     expression = parse_expression();
-    return std::make_unique<AST::AssignmentExpression>(std::move(identifier_expr),
-                                                       std::move(expression));
+    return std::make_unique<AST::AssignmentExpression>(
+        identifier_location, std::move(identifier_expr), std::move(expression));
     break;
   case Syntax::Kind::kSwap:
     read(Syntax::Kind::kSwap);
-    identifier_expr_rhs =
-        std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
-    return std::make_unique<AST::SwapExpression>(std::move(identifier_expr),
+    identifier_right_location = {current_token->line, current_token->column};
+    identifier_expr_rhs = std::make_unique<AST::IdentifierExpression>(
+        identifier_right_location, read(Syntax::Kind::kIdentifier));
+    return std::make_unique<AST::SwapExpression>(identifier_location, std::move(identifier_expr),
                                                  std::move(identifier_expr_rhs));
     break;
   default:
@@ -305,6 +315,7 @@ std::unique_ptr<AST::Expression> Parser::parse_assignment_statement() {
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_output_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   std::string name = read(Syntax::Kind::kOutput); // TODO: make this printf for lib function
   read(Syntax::Kind::kOpenBracket);
   std::vector<std::unique_ptr<AST::Expression>> arguments;
@@ -316,10 +327,11 @@ std::unique_ptr<AST::Expression> Parser::parse_output_statement() {
     }
   }
   read(Syntax::Kind::kCloseBracket);
-  return std::make_unique<AST::CallExpression>(name, std::move(arguments));
+  return std::make_unique<AST::CallExpression>(location, name, std::move(arguments));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_read_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   std::string name = read(Syntax::Kind::kRead);
   read(Syntax::Kind::kOpenBracket);
   std::vector<std::unique_ptr<AST::Expression>> arguments;
@@ -331,15 +343,17 @@ std::unique_ptr<AST::Expression> Parser::parse_read_statement() {
     }
   }
   read(Syntax::Kind::kCloseBracket);
-  return std::make_unique<AST::CallExpression>(name, std::move(arguments));
+  return std::make_unique<AST::CallExpression>(location, name, std::move(arguments));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_return_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kReturn);
-  return std::make_unique<AST::ReturnExpression>(parse_expression());
+  return std::make_unique<AST::ReturnExpression>(location, parse_expression());
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_if_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kIf);
   std::unique_ptr<AST::Expression> expression = parse_expression();
   read(Syntax::Kind::kThen);
@@ -350,11 +364,13 @@ std::unique_ptr<AST::Expression> Parser::parse_if_statement() {
     read(Syntax::Kind::kElse);
     parse_statement(else_block_statements);
   }
-  return std::make_unique<AST::IfExpression>(std::move(expression), std::move(if_block_statements),
+  return std::make_unique<AST::IfExpression>(location, std::move(expression),
+                                             std::move(if_block_statements),
                                              std::move(else_block_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_for_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kFor);
   read(Syntax::Kind::kOpenBracket);
   std::unique_ptr<AST::Expression> start_assignment = parse_assignment_statement();
@@ -365,12 +381,13 @@ std::unique_ptr<AST::Expression> Parser::parse_for_statement() {
   read(Syntax::Kind::kCloseBracket);
   std::vector<std::unique_ptr<AST::Expression>> loop_body_statements;
   parse_statement(loop_body_statements);
-  return std::make_unique<AST::ForExpression>(std::move(start_assignment), std::move(condition),
-                                              std::move(end_assignment),
+  return std::make_unique<AST::ForExpression>(location, std::move(start_assignment),
+                                              std::move(condition), std::move(end_assignment),
                                               std::move(loop_body_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_repeat_until_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kRepeat);
   std::vector<std::unique_ptr<AST::Expression>> repeat_body_statements;
   parse_statement(repeat_body_statements);
@@ -380,21 +397,23 @@ std::unique_ptr<AST::Expression> Parser::parse_repeat_until_statement() {
   }
   read(Syntax::Kind::kUntil);
   std::unique_ptr<AST::Expression> condition = parse_expression();
-  return std::make_unique<AST::RepeatUntilExpression>(std::move(condition),
+  return std::make_unique<AST::RepeatUntilExpression>(location, std::move(condition),
                                                       std::move(repeat_body_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_while_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kWhile);
   std::unique_ptr<AST::Expression> condition = parse_expression();
   read(Syntax::Kind::kDo);
   std::vector<std::unique_ptr<AST::Expression>> while_body_statements;
   parse_statement(while_body_statements);
-  return std::make_unique<AST::WhileExpression>(std::move(condition),
+  return std::make_unique<AST::WhileExpression>(location, std::move(condition),
                                                 std::move(while_body_statements));
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_case_statement() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   read(Syntax::Kind::kCase);
   std::unique_ptr<AST::Expression> expression = parse_expression();
   read(Syntax::Kind::kOf);
@@ -403,8 +422,8 @@ std::unique_ptr<AST::Expression> Parser::parse_case_statement() {
   std::vector<std::unique_ptr<AST::Expression>> otherwise_statements;
   parse_otherwise_clause(otherwise_statements);
   read(Syntax::Kind::kEnd);
-  return std::make_unique<AST::CaseExpression>(std::move(expression), std::move(case_clauses),
-                                               std::move(otherwise_statements));
+  return std::make_unique<AST::CaseExpression>(
+      location, std::move(expression), std::move(case_clauses), std::move(otherwise_statements));
 }
 
 // Caseclauses      ->  (Caseclause ';')+;
@@ -460,15 +479,17 @@ void Parser::parse_otherwise_clause(
 //                  ->  '<false>'
 //                  ->  '<identifier>';
 std::unique_ptr<AST::Expression> Parser::parse_const_value() {
+  AST::SourceLocation location = {current_token->line, current_token->column};
   switch (current_token->kind) {
   case Syntax::Kind::kInteger:
-    return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
+    return std::make_unique<AST::IntegerExpression>(location,
+                                                    std::stoi(read(Syntax::Kind::kInteger)));
   case Syntax::Kind::kTrue:
-    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kTrue)));
+    return std::make_unique<AST::BooleanExpression>(location, get_bool(read(Syntax::Kind::kTrue)));
   case Syntax::Kind::kFalse:
-    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kFalse)));
+    return std::make_unique<AST::BooleanExpression>(location, get_bool(read(Syntax::Kind::kFalse)));
   case Syntax::Kind::kIdentifier:
-    return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+    return std::make_unique<AST::IdentifierExpression>(location, read(Syntax::Kind::kIdentifier));
   default:
     throw std::runtime_error("Invalid const value");
     break;
@@ -490,6 +511,7 @@ std::unique_ptr<AST::Expression> Parser::parse_binary_rhs(int precedence,
     if (token_precedence < precedence) {
       return lhs;
     }
+    AST::SourceLocation location = {current_token->line, current_token->column};
     AST::BinaryOperation binary_operator = get_binary_operation(current_token->kind);
     go_to_next_token();
     std::unique_ptr<AST::Expression> rhs = parse_primary();
@@ -503,12 +525,14 @@ std::unique_ptr<AST::Expression> Parser::parse_binary_rhs(int precedence,
         return nullptr;
       }
     }
-    lhs = std::make_unique<AST::BinaryExpression>(binary_operator, std::move(lhs), std::move(rhs));
+    lhs = std::make_unique<AST::BinaryExpression>(location, binary_operator, std::move(lhs),
+                                                  std::move(rhs));
   }
 }
 
 std::unique_ptr<AST::Expression> Parser::parse_primary() {
   std::unique_ptr<AST::Expression> expr;
+  AST::SourceLocation location = {current_token->line, current_token->column};
   switch (current_token->kind) {
   case Syntax::Kind::kIdentifier:
     if (peek_next_kind() == Syntax::Kind::kOpenBracket) {
@@ -523,20 +547,21 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
         }
       }
       read(Syntax::Kind::kCloseBracket);
-      return std::make_unique<AST::CallExpression>(name, std::move(arguments));
+      return std::make_unique<AST::CallExpression>(location, name, std::move(arguments));
     }
-    return std::make_unique<AST::IdentifierExpression>(read(Syntax::Kind::kIdentifier));
+    return std::make_unique<AST::IdentifierExpression>(location, read(Syntax::Kind::kIdentifier));
   case Syntax::Kind::kInteger:
-    return std::make_unique<AST::IntegerExpression>(std::stoi(read(Syntax::Kind::kInteger)));
+    return std::make_unique<AST::IntegerExpression>(location,
+                                                    std::stoi(read(Syntax::Kind::kInteger)));
   case Syntax::Kind::kTrue:
-    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kTrue)));
+    return std::make_unique<AST::BooleanExpression>(location, get_bool(read(Syntax::Kind::kTrue)));
   case Syntax::Kind::kFalse:
-    return std::make_unique<AST::BooleanExpression>(get_bool(read(Syntax::Kind::kFalse)));
+    return std::make_unique<AST::BooleanExpression>(location, get_bool(read(Syntax::Kind::kFalse)));
   case Syntax::Kind::kChar:
-    return std::make_unique<AST::CharacterExpression>(read(Syntax::Kind::kChar)[1]);
+    return std::make_unique<AST::CharacterExpression>(location, read(Syntax::Kind::kChar)[1]);
   case Syntax::Kind::kEndOfFile:
     read(Syntax::Kind::kEndOfFile);
-    return std::make_unique<AST::BooleanExpression>(false);
+    return std::make_unique<AST::BooleanExpression>(location, false);
   case Syntax::Kind::kOpenBracket:
     read(Syntax::Kind::kOpenBracket);
     expr = parse_expression();
@@ -544,21 +569,24 @@ std::unique_ptr<AST::Expression> Parser::parse_primary() {
     return expr;
   case Syntax::Kind::kMinus:
     read(Syntax::Kind::kMinus);
-    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kMinus, parse_primary());
+    return std::make_unique<AST::UnaryExpression>(location, AST::UnaryOperation::kMinus,
+                                                  parse_primary());
   case Syntax::Kind::kPlus:
     read(Syntax::Kind::kPlus);
-    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kPlus, parse_primary());
+    return std::make_unique<AST::UnaryExpression>(location, AST::UnaryOperation::kPlus,
+                                                  parse_primary());
   case Syntax::Kind::kNotOpr:
     read(Syntax::Kind::kNotOpr);
-    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kNot, parse_primary());
+    return std::make_unique<AST::UnaryExpression>(location, AST::UnaryOperation::kNot,
+                                                  parse_primary());
   case Syntax::Kind::kSuccessor:
     read(Syntax::Kind::kSuccessor);
-    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kSucc,
+    return std::make_unique<AST::UnaryExpression>(location, AST::UnaryOperation::kSucc,
                                                   parse_primary());
   case Syntax::Kind::kPredecessor:
     read(Syntax::Kind::kPredecessor);
-    return std::make_unique<AST::UnaryExpression>(AST::UnaryOperation::kPred,
-                                                  parse_primary());                                             
+    return std::make_unique<AST::UnaryExpression>(location, AST::UnaryOperation::kPred,
+                                                  parse_primary());
   default:
     throw std::runtime_error("Invalid primary expression");
     return nullptr;
