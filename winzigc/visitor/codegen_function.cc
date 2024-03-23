@@ -50,7 +50,7 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
     // Unset the location for the prologue emission (leading instructions with no
     // location in a function are considered part of the prologue and the debugger
     // will run past them when breaking on a function)
-    builder->SetCurrentDebugLocation(llvm::DebugLoc());
+    emit_location(nullptr);
   }
   /* Debug Information End   */
 

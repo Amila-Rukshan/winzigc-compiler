@@ -115,7 +115,7 @@ void CodeGenVisitor::codegen_main_body(
         scope_line, llvm::DINode::FlagPrototyped, llvm::DISubprogram::SPFlagDefinition);
     main_func->setSubprogram(sub_program);
     lexical_blocks.push(sub_program);
-    builder->SetCurrentDebugLocation(llvm::DebugLoc());
+    emit_location(nullptr);
   }
   /* Debug Information End   */
 
@@ -172,16 +172,6 @@ llvm::DIBasicType* CodeGenVisitor::debug_get_type(const Frontend::AST::Type& typ
 }
 
 void CodeGenVisitor::emit_location(const Frontend::AST::Expression* expression) {
-  if (!debug)
-    return;
-  if (expression == nullptr)
-    return builder->SetCurrentDebugLocation(llvm::DebugLoc());
-  llvm::DIScope* scope = !lexical_blocks.empty() ? lexical_blocks.top() : compile_unit;
-  builder->SetCurrentDebugLocation(llvm::DILocation::get(
-      scope->getContext(), expression->get_line(), expression->get_column(), scope));
-}
-
-void CodeGenVisitor::emit_location(const Frontend::AST::Variable* expression) {
   if (!debug)
     return;
   if (expression == nullptr)

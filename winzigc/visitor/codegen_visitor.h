@@ -78,7 +78,6 @@ public:
   llvm::DIBasicType* debug_get_type(const Frontend::AST::Type& type);
 
   void emit_location(const Frontend::AST::Expression* expression);
-  void emit_location(const Frontend::AST::Variable* expression);
   /* Debug Information End   */
 
 private:
