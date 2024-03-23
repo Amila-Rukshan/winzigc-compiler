@@ -61,6 +61,7 @@ public:
 
   llvm::Value* visit(const Frontend::AST::LocalVariable& expression) override;
   llvm::Value* visit(const Frontend::AST::GlobalVariable& expression) override;
+  llvm::Constant* get_default_value(const Frontend::AST::Type& type);
   llvm::Value* lookup_variable(std::string var_name);
 
   llvm::Value* visit(const Frontend::AST::LocalUserTypeDef& expression) override;
@@ -77,6 +78,7 @@ public:
   llvm::DIBasicType* debug_get_type(const Frontend::AST::Type& type);
 
   void emit_location(const Frontend::AST::Expression* expression);
+  void emit_location(const Frontend::AST::Variable* expression);
   /* Debug Information End   */
 
 private:

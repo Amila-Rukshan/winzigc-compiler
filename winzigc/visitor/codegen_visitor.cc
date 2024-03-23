@@ -115,7 +115,7 @@ void CodeGenVisitor::codegen_main_body(
         scope_line, llvm::DINode::FlagPrototyped, llvm::DISubprogram::SPFlagDefinition);
     main_func->setSubprogram(sub_program);
     lexical_blocks.push(sub_program);
-    emit_location(nullptr);
+    builder->SetCurrentDebugLocation(llvm::DebugLoc());
   }
   /* Debug Information End   */
 
@@ -163,7 +163,7 @@ llvm::DIBasicType* CodeGenVisitor::debug_get_type(const Frontend::AST::Type& typ
     return debug_builder->createBasicType("integer", 32, llvm::dwarf::DW_ATE_signed);
   if (const Frontend::AST::BooleanType* boolean_type =
           dynamic_cast<const Frontend::AST::BooleanType*>(&type))
-    return debug_builder->createBasicType("boolean", 1, llvm::dwarf::DW_ATE_boolean);
+    return debug_builder->createBasicType("boolean", 8, llvm::dwarf::DW_ATE_boolean);
   if (const Frontend::AST::CharacterType* char_type =
           dynamic_cast<const Frontend::AST::CharacterType*>(&type))
     return debug_builder->createBasicType("char", 8, llvm::dwarf::DW_ATE_signed_char);
@@ -172,6 +172,16 @@ llvm::DIBasicType* CodeGenVisitor::debug_get_type(const Frontend::AST::Type& typ
 }
 
 void CodeGenVisitor::emit_location(const Frontend::AST::Expression* expression) {
+  if (!debug)
+    return;
+  if (expression == nullptr)
+    return builder->SetCurrentDebugLocation(llvm::DebugLoc());
+  llvm::DIScope* scope = !lexical_blocks.empty() ? lexical_blocks.top() : compile_unit;
+  builder->SetCurrentDebugLocation(llvm::DILocation::get(
+      scope->getContext(), expression->get_line(), expression->get_column(), scope));
+}
+
+void CodeGenVisitor::emit_location(const Frontend::AST::Variable* expression) {
   if (!debug)
     return;
   if (expression == nullptr)
