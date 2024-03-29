@@ -1,6 +1,6 @@
 #include <filesystem>
 
-#include "winzigc/visitor/codegen_visitor.h"
+#include "winzigc/visitor/codegen/codegen_visitor.h"
 
 #include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"

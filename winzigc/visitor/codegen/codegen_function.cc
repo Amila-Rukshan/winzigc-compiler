@@ -1,4 +1,4 @@
-#include "winzigc/visitor/codegen_visitor.h"
+#include "winzigc/visitor/codegen/codegen_visitor.h"
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Constants.h"

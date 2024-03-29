@@ -25,6 +25,6 @@ cc_library(
     ],
     visibility = [
         "//winzigc/frontend/parser:__pkg__",
-        "//winzigc/visitor:__pkg__",
+        "//winzigc/visitor/codegen:__pkg__",
     ],
 )

@@ -8,7 +8,7 @@
 #include "winzigc/frontend/lexer/lexer.h"
 #include "winzigc/frontend/parser/parser.h"
 #include "winzigc/frontend/ast/program.h"
-#include "winzigc/visitor/codegen_visitor.h"
+#include "winzigc/visitor/codegen/codegen_visitor.h"
 
 #include "glog/logging.h"
 
