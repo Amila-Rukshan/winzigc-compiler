@@ -18,33 +18,33 @@ class Visitor {
 public:
   virtual ~Visitor() = default;
 
-  virtual llvm::Value* visit(const IntegerExpression& expression) PURE;
-  virtual llvm::Value* visit(const BooleanExpression& expression) PURE;
-  virtual llvm::Value* visit(const CharacterExpression& expression) PURE;
+  virtual void visit(const IntegerExpression& expression) PURE;
+  virtual void visit(const BooleanExpression& expression) PURE;
+  virtual void visit(const CharacterExpression& expression) PURE;
 
-  virtual llvm::Value* visit(const CallExpression& expression) PURE;
-  virtual llvm::Value* visit(const IdentifierExpression& expression) PURE;
-  virtual llvm::Value* visit(const AssignmentExpression& expression) PURE;
-  virtual llvm::Value* visit(const SwapExpression& expression) PURE;
-  virtual llvm::Value* visit(const IfExpression& expression) PURE;
-  virtual llvm::Value* visit(const ForExpression& expression) PURE;
-  virtual llvm::Value* visit(const RepeatUntilExpression& expression) PURE;
-  virtual llvm::Value* visit(const WhileExpression& expression) PURE;
-  virtual llvm::Value* visit(const CaseExpression& expression) PURE;
-  virtual llvm::Value* visit(const ReturnExpression& expression) PURE;
-  virtual llvm::Value* visit(const BinaryExpression& expression) PURE;
-  virtual llvm::Value* visit(const UnaryExpression& expression) PURE;
+  virtual void visit(const CallExpression& expression) PURE;
+  virtual void visit(const IdentifierExpression& expression) PURE;
+  virtual void visit(const AssignmentExpression& expression) PURE;
+  virtual void visit(const SwapExpression& expression) PURE;
+  virtual void visit(const IfExpression& expression) PURE;
+  virtual void visit(const ForExpression& expression) PURE;
+  virtual void visit(const RepeatUntilExpression& expression) PURE;
+  virtual void visit(const WhileExpression& expression) PURE;
+  virtual void visit(const CaseExpression& expression) PURE;
+  virtual void visit(const ReturnExpression& expression) PURE;
+  virtual void visit(const BinaryExpression& expression) PURE;
+  virtual void visit(const UnaryExpression& expression) PURE;
 
-  virtual llvm::Value* visit(const GlobalVariable& expression) PURE;
-  virtual llvm::Value* visit(const LocalVariable& expression) PURE;
+  virtual void visit(const GlobalVariable& expression) PURE;
+  virtual void visit(const LocalVariable& expression) PURE;
 
-  virtual llvm::Value* visit(const GlobalUserTypeDef& expression) PURE;
-  virtual llvm::Value* visit(const LocalUserTypeDef& expression) PURE;
+  virtual void visit(const GlobalUserTypeDef& expression) PURE;
+  virtual void visit(const LocalUserTypeDef& expression) PURE;
 
-  virtual llvm::Type* visit(const IntegerType& expression) PURE;
-  virtual llvm::Type* visit(const BooleanType& expression) PURE;
-  virtual llvm::Type* visit(const CharacterType& expression) PURE;
-  virtual llvm::Type* visit(const UserType& expression) PURE;
+  virtual void visit(const IntegerType& expression) PURE;
+  virtual void visit(const BooleanType& expression) PURE;
+  virtual void visit(const CharacterType& expression) PURE;
+  virtual void visit(const UserType& expression) PURE;
 };
 
 } // namespace AST

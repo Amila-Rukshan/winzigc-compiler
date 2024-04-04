@@ -17,31 +17,31 @@ class Visitor;
 class Type {
 public:
   virtual ~Type() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const PURE;
+  virtual void accept(Visitor& visitor) const PURE;
 };
 
 class IntegerType : public Type {
 public:
   IntegerType() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
 };
 
 class BooleanType : public Type {
 public:
   BooleanType() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
 };
 
 class CharacterType : public Type {
 public:
   CharacterType() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
 };
 
 class UserType : public Type {
 public:
   UserType() = default;
-  virtual llvm::Type* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
 };
 
 } // namespace AST

@@ -7,35 +7,35 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
-llvm::Value* IntegerExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void IntegerExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* BooleanExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void BooleanExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* CharacterExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void CharacterExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* CallExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void CallExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* IdentifierExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void IdentifierExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* AssignmentExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void AssignmentExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* IfExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void IfExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* ForExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void ForExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* RepeatUntilExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void RepeatUntilExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* WhileExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void WhileExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* CaseExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void CaseExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* ReturnExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void ReturnExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* SwapExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void SwapExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* BinaryExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void BinaryExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* UnaryExpression::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void UnaryExpression::accept(Visitor& visitor) const { visitor.visit(*this); }
 
 } // namespace AST
 } // namespace Frontend

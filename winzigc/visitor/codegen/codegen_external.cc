@@ -59,7 +59,8 @@ llvm::Value* CodeGenVisitor::codegen_output_call(const Frontend::AST::CallExpres
   std::vector<llvm::Value*> args;
 
   for (const auto& arg : expression.get_arguments()) {
-    llvm::Value* arg_val = arg->accept(*this);
+    arg->accept(*this);
+    llvm::Value* arg_val = arg->get_codegen_value();
     if (arg_val == nullptr) {
       LOG(ERROR) << "Unknown argument";
       return nullptr;
@@ -97,7 +98,8 @@ CodeGenVisitor::codegen_output_many_call(const Frontend::AST::CallExpression& ex
   bool isChar = false;
 
   for (const auto& arg : expression.get_arguments()) {
-    llvm::Value* arg_val = arg->accept(*this);
+    arg->accept(*this);
+    llvm::Value* arg_val = arg->get_codegen_value();
     if (arg_val == nullptr) {
       LOG(ERROR) << "Unknown argument";
       return nullptr;

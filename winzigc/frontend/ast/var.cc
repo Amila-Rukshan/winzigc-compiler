@@ -5,9 +5,9 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
-llvm::Value* GlobalVariable::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void GlobalVariable::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* LocalVariable::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void LocalVariable::accept(Visitor& visitor) const { visitor.visit(*this); }
 
 } // namespace AST
 } // namespace Frontend

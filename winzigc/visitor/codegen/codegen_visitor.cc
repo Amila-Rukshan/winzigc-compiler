@@ -156,6 +156,20 @@ void CodeGenVisitor::run_optimizations(
   fpm.run(*main_function);
 }
 
+llvm::Type* CodeGenVisitor::get_type(const Frontend::AST::Type& type) {
+  if (const Frontend::AST::IntegerType* integer_type =
+          dynamic_cast<const Frontend::AST::IntegerType*>(&type))
+    return llvm::Type::getInt32Ty(*context);
+  if (const Frontend::AST::BooleanType* boolean_type =
+          dynamic_cast<const Frontend::AST::BooleanType*>(&type))
+    return llvm::Type::getInt1Ty(*context);
+  if (const Frontend::AST::CharacterType* char_type =
+          dynamic_cast<const Frontend::AST::CharacterType*>(&type))
+    return llvm::Type::getInt8Ty(*context);
+  // otherwise, assume it is a user type
+  return llvm::Type::getInt32Ty(*context);
+}
+
 /* Debug Information Start */
 llvm::DIBasicType* CodeGenVisitor::debug_get_type(const Frontend::AST::Type& type) {
   if (const Frontend::AST::IntegerType* integer_type =

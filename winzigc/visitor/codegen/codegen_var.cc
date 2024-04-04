@@ -7,7 +7,7 @@
 namespace WinZigC {
 namespace Visitor {
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expression) {
+void CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expression) {
   llvm::Constant* default_value = get_default_value(expression.get_type());
   llvm::GlobalVariable* global_variable = new llvm::GlobalVariable(
       *module, default_value->getType(), false, llvm::GlobalValue::InternalLinkage, default_value,
@@ -24,13 +24,12 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expressi
   }
   /* Debug Information End   */
   global_variables[llvm::StringRef(expression.get_name())] = global_variable;
-  return global_variable;
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expression) {
-  llvm::Type* param_type = expression.get_type().accept(*this);
-  llvm::AllocaInst* alloca = builder->CreateAlloca(param_type, nullptr, expression.get_name());
+void CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expression) {
   llvm::Constant* default_value = get_default_value(expression.get_type());
+  llvm::AllocaInst* alloca =
+      builder->CreateAlloca(default_value->getType(), nullptr, expression.get_name());
   builder->CreateStore(default_value, alloca);
   /* Debug Information Start */
   if (debug) {
@@ -46,9 +45,7 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expressio
         builder->GetInsertBlock());
   }
   /* Debug Information End   */
-
   local_variables[llvm::StringRef(expression.get_name())] = alloca;
-  return nullptr;
 }
 
 llvm::Constant* CodeGenVisitor::get_default_value(const Frontend::AST::Type& type) {

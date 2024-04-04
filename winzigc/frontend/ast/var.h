@@ -20,7 +20,7 @@ class Variable {
 public:
   Variable(SourceLocation location = {0, 0}) : location(location) {}
   virtual ~Variable() = default;
-  virtual llvm::Value* accept(Visitor& visitor) const PURE;
+  virtual void accept(Visitor& visitor) const PURE;
   int get_line() const { return location.line; }
   int get_column() const { return location.column; }
 
@@ -32,7 +32,7 @@ class GlobalVariable : public Variable {
 public:
   GlobalVariable(SourceLocation location, std::string name, std::unique_ptr<Type> type)
       : Variable(location), name(name), type(std::move(type)) {}
-  virtual llvm::Value* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
   const std::string& get_name() const { return name; }
   const Type& get_type() const { return *type; }
 
@@ -45,7 +45,7 @@ class LocalVariable : public Variable {
 public:
   LocalVariable(SourceLocation location, std::string name, std::unique_ptr<Type> type)
       : Variable(location), name(name), type(std::move(type)) {}
-  virtual llvm::Value* accept(Visitor& visitor) const override;
+  virtual void accept(Visitor& visitor) const override;
   const std::string& get_name() const { return name; }
   const Type& get_type() const { return *type; }
 

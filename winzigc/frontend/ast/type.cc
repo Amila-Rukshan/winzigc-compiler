@@ -5,13 +5,13 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
-llvm::Type* IntegerType::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void IntegerType::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Type* BooleanType::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void BooleanType::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Type* CharacterType::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void CharacterType::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Type* UserType::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void UserType::accept(Visitor& visitor) const { visitor.visit(*this); }
 
 } // namespace AST
 } // namespace Frontend

@@ -5,9 +5,9 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
-llvm::Value* GlobalUserTypeDef::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void GlobalUserTypeDef::accept(Visitor& visitor) const { visitor.visit(*this); }
 
-llvm::Value* LocalUserTypeDef::accept(Visitor& visitor) const { return visitor.visit(*this); }
+void LocalUserTypeDef::accept(Visitor& visitor) const { visitor.visit(*this); }
 
 } // namespace AST
 } // namespace Frontend

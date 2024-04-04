@@ -10,9 +10,9 @@ llvm::FunctionType*
 CodeGenVisitor::codegen_func_dcln(const std::unique_ptr<Frontend::AST::Function>& function) {
   std::vector<llvm::Type*> param_types;
   for (const auto& param : function->get_parameters()) {
-    param_types.push_back(param->get_type().accept(*this));
+    param_types.push_back(get_type(param->get_type()));
   }
-  llvm::Type* return_type = function->get_return_type().accept(*this);
+  llvm::Type* return_type = get_type(function->get_return_type());
   return llvm::FunctionType::get(return_type, param_types, false);
 }
 
@@ -54,7 +54,7 @@ void CodeGenVisitor::codegen_func_def(const std::unique_ptr<Frontend::AST::Funct
   }
   /* Debug Information End   */
 
-  llvm::Type* return_type = function->get_return_type().accept(*this);
+  llvm::Type* return_type = get_type(function->get_return_type());
   llvm::AllocaInst* return_alloca =
       builder->CreateAlloca(return_type, nullptr, function->get_name());
   builder->CreateStore(llvm::ConstantInt::get(return_type, 0), return_alloca);

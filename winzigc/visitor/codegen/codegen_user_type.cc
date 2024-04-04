@@ -7,7 +7,7 @@
 namespace WinZigC {
 namespace Visitor {
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalUserTypeDef& expression) {
+void CodeGenVisitor::visit(const Frontend::AST::GlobalUserTypeDef& expression) {
   for (size_t value_index = 0; value_index < expression.get_value_names().size(); value_index++) {
     llvm::Constant* const_value = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context),
                                                          llvm::APInt(32, value_index, true));
@@ -17,10 +17,9 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::GlobalUserTypeDef& expre
     global_variables[llvm::StringRef(expression.get_value_names().at(value_index))] = global_const;
     global_user_def_type_consts[expression.get_value_names().at(value_index)] = value_index;
   }
-  return nullptr;
 }
 
-llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalUserTypeDef& expression) {
+void CodeGenVisitor::visit(const Frontend::AST::LocalUserTypeDef& expression) {
   for (size_t value_index = 0; value_index < expression.get_value_names().size(); value_index++) {
     llvm::Constant* const_value = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context),
                                                          llvm::APInt(32, value_index, true));
@@ -30,7 +29,6 @@ llvm::Value* CodeGenVisitor::visit(const Frontend::AST::LocalUserTypeDef& expres
     local_variables[llvm::StringRef(expression.get_value_names().at(value_index))] = alloca;
     local_user_def_type_consts[expression.get_value_names().at(value_index)] = value_index;
   }
-  return nullptr;
 }
 
 } // namespace Visitor

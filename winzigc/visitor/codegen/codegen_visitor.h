@@ -42,35 +42,36 @@ public:
 
   void run_optimizations(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
 
-  llvm::Value* visit(const Frontend::AST::IntegerExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::BooleanExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::CharacterExpression& expression) override;
+  void visit(const Frontend::AST::IntegerExpression& expression) override;
+  void visit(const Frontend::AST::BooleanExpression& expression) override;
+  void visit(const Frontend::AST::CharacterExpression& expression) override;
 
-  llvm::Value* visit(const Frontend::AST::CallExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::IdentifierExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::AssignmentExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::SwapExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::IfExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::ForExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::RepeatUntilExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::WhileExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::CaseExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::ReturnExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::BinaryExpression& expression) override;
-  llvm::Value* visit(const Frontend::AST::UnaryExpression& expression) override;
+  void visit(const Frontend::AST::CallExpression& expression) override;
+  void visit(const Frontend::AST::IdentifierExpression& expression) override;
+  void visit(const Frontend::AST::AssignmentExpression& expression) override;
+  void visit(const Frontend::AST::SwapExpression& expression) override;
+  void visit(const Frontend::AST::IfExpression& expression) override;
+  void visit(const Frontend::AST::ForExpression& expression) override;
+  void visit(const Frontend::AST::RepeatUntilExpression& expression) override;
+  void visit(const Frontend::AST::WhileExpression& expression) override;
+  void visit(const Frontend::AST::CaseExpression& expression) override;
+  void visit(const Frontend::AST::ReturnExpression& expression) override;
+  void visit(const Frontend::AST::BinaryExpression& expression) override;
+  void visit(const Frontend::AST::UnaryExpression& expression) override;
 
-  llvm::Value* visit(const Frontend::AST::LocalVariable& expression) override;
-  llvm::Value* visit(const Frontend::AST::GlobalVariable& expression) override;
+  void visit(const Frontend::AST::LocalVariable& expression) override;
+  void visit(const Frontend::AST::GlobalVariable& expression) override;
   llvm::Constant* get_default_value(const Frontend::AST::Type& type);
   llvm::Value* lookup_variable(std::string var_name);
 
-  llvm::Value* visit(const Frontend::AST::LocalUserTypeDef& expression) override;
-  llvm::Value* visit(const Frontend::AST::GlobalUserTypeDef& expression) override;
+  void visit(const Frontend::AST::LocalUserTypeDef& expression) override;
+  void visit(const Frontend::AST::GlobalUserTypeDef& expression) override;
 
-  llvm::Type* visit(const Frontend::AST::IntegerType& expression) override;
-  llvm::Type* visit(const Frontend::AST::BooleanType& expression) override;
-  llvm::Type* visit(const Frontend::AST::CharacterType& expression) override;
-  llvm::Type* visit(const Frontend::AST::UserType& expression) override;
+  llvm::Type* get_type(const Frontend::AST::Type& type);
+  void visit(const Frontend::AST::IntegerType& expression) override{};
+  void visit(const Frontend::AST::BooleanType& expression) override{};
+  void visit(const Frontend::AST::CharacterType& expression) override{};
+  void visit(const Frontend::AST::UserType& expression) override{};
 
   /* Debug Information Start */
   llvm::DISubroutineType*
