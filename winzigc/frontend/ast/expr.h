@@ -52,6 +52,8 @@ public:
     assert(codegen_info->value != nullptr);
     return codegen_info->value;
   }
+  void set_type_info(const std::string& type_name) const { type_info->type_name = type_name; }
+  const std::string& get_type_info() const { return type_info->type_name; }
 
 private:
   SourceLocation location;
@@ -59,6 +61,10 @@ private:
     llvm::Value* value = nullptr;
   };
   std::unique_ptr<CodegenInfo> codegen_info = std::make_unique<CodegenInfo>();
+  struct TypeInfo {
+    std::string type_name;
+  };
+  std::unique_ptr<TypeInfo> type_info = std::make_unique<TypeInfo>();
 };
 
 using CaseValue = std::variant<std::unique_ptr<Expression>,

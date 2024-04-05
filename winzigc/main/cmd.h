@@ -8,6 +8,7 @@
 #include "winzigc/frontend/lexer/lexer.h"
 #include "winzigc/frontend/parser/parser.h"
 #include "winzigc/frontend/ast/program.h"
+#include "winzigc/visitor/semantic/semantic_visitor.h"
 #include "winzigc/visitor/codegen/codegen_visitor.h"
 
 #include "glog/logging.h"
@@ -59,6 +60,9 @@ int main(int argc, char** argv) {
 
   WinZigC::Frontend::Parser parser(std::move(tokens));
   auto program = parser.parse();
+
+  WinZigC::Visitor::SemanticVisitor semantic_visitor;
+  semantic_visitor.check(*program, program_path);
 
   WinZigC::Visitor::CodeGenVisitor codegen_visitor(optimize, debug);
   codegen_visitor.codegen(*program, program_path);

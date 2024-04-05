@@ -4,7 +4,6 @@
 #include <stack>
 
 #include "winzigc/frontend/ast/visitor.h"
-#include "winzigc/frontend/ast/program.h"
 
 #include "llvm/IR/DIBuilder.h"
 #include "llvm/IR/IRBuilder.h"

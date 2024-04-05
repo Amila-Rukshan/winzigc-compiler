@@ -9,13 +9,14 @@ cc_binary(
 cc_library(
     name = "main_lib",
     hdrs = ["cmd.h"],
+    visibility = [
+        "//test/integration:__pkg__",
+    ],
     deps = [
-        "@com_github_google_glog//:glog",
         "//winzigc/frontend/lexer:lexer_lib",
         "//winzigc/frontend/parser:parser_lib",
         "//winzigc/visitor/codegen:codegen_lib",
-    ],
-    visibility = [
-        "//test/integration:__pkg__",
+        "//winzigc/visitor/semantic:semantic_lib",
+        "@com_github_google_glog//:glog",
     ],
 )

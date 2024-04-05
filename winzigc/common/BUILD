@@ -6,7 +6,8 @@ cc_library(
         "pure.h",
     ],
     visibility = [
-        "//winzigc/visitor/codegen:__pkg__",
         "//winzigc/frontend/ast:__pkg__",
+        "//winzigc/visitor/codegen:__pkg__",
+        "//winzigc/visitor/semantic:__pkg__",
     ],
 )
