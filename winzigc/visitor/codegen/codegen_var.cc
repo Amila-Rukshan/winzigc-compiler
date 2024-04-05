@@ -16,7 +16,6 @@ void CodeGenVisitor::visit(const Frontend::AST::GlobalVariable& expression) {
   if (debug) {
     llvm::DIFile* unit =
         debug_builder->createFile(compile_unit->getFilename(), compile_unit->getDirectory());
-    llvm::DIBasicType* basic_type = debug_get_type(expression.get_type());
     llvm::DIType* type = debug_get_type(expression.get_type());
     llvm::DIGlobalVariableExpression* var_expr = debug_builder->createGlobalVariableExpression(
         compile_unit, expression.get_name(), expression.get_name(), unit, 1, type, false);
@@ -35,7 +34,6 @@ void CodeGenVisitor::visit(const Frontend::AST::LocalVariable& expression) {
   if (debug) {
     llvm::DIFile* unit =
         debug_builder->createFile(compile_unit->getFilename(), compile_unit->getDirectory());
-    llvm::DIBasicType* basic_type = debug_get_type(expression.get_type());
     llvm::DIType* type = debug_get_type(expression.get_type());
     llvm::DILocalVariable* var = debug_builder->createAutoVariable(
         lexical_blocks.top(), expression.get_name(), unit, 1, type);

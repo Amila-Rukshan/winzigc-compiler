@@ -5,6 +5,7 @@
 #include "winzigc/frontend/ast/user_type.h"
 #include "winzigc/frontend/ast/var.h"
 #include "winzigc/frontend/ast/function.h"
+#include "winzigc/frontend/ast/program.h"
 #include "winzigc/common/pure.h"
 
 #include "llvm/IR/Value.h"
@@ -45,6 +46,9 @@ public:
   virtual void visit(const BooleanType& expression) PURE;
   virtual void visit(const CharacterType& expression) PURE;
   virtual void visit(const UserType& expression) PURE;
+
+  virtual void visit(const Function& expression) PURE;
+  virtual void visit(const Program& expression) PURE;
 };
 
 } // namespace AST

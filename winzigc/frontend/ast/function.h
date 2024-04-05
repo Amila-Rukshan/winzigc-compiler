@@ -13,6 +13,8 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
+class Visitor;
+
 class Function {
 public:
   Function(int line, std::string name, std::unique_ptr<Type> return_type,
@@ -34,6 +36,7 @@ public:
   const std::vector<std::unique_ptr<Expression>>& get_function_body_exprs() const {
     return function_body_exprs;
   }
+  void accept(Visitor& visitor) const;
 
 private:
   int line;

@@ -56,12 +56,18 @@ void CodeGenVisitor::codegen(const Frontend::AST::Program& program, std::string 
                                                     "WinZigC Compiler", false, "", 0);
   }
   /* Debug Information End   */
+  program.accept(*this);
+}
 
+void CodeGenVisitor::visit(const Frontend::AST::Program& program) {
   codegen_external_func_dclns();
   codegen_global_user_types(program.get_user_types());
   codegen_global_vars(program);
-  codegen_func_dclns(program.get_functions());
-  codegen_func_defs(program.get_functions());
+
+  for (const auto& function : program.get_functions()) {
+    function->accept(*this);
+  }
+
   codegen_main_body(program.get_statements());
   if (optimize) {
     run_optimizations(program.get_functions());

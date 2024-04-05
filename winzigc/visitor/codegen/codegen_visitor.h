@@ -24,29 +24,29 @@ public:
   ~CodeGenVisitor();
 
   void print_llvm_ir(std::string output_path = "") const;
+
+  void visit(const Frontend::AST::Program& program) override;
   void codegen(const Frontend::AST::Program& program, std::string program_path);
   void codegen_global_user_types(
       const std::vector<std::unique_ptr<Frontend::AST::GlobalUserTypeDef>>& user_types);
   void codegen_global_vars(const Frontend::AST::Program& program);
-
-  void codegen_func_dclns(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
-  llvm::FunctionType* codegen_func_dcln(const std::unique_ptr<Frontend::AST::Function>& function);
-  void codegen_func_defs(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
-  void codegen_func_def(const std::unique_ptr<Frontend::AST::Function>& function);
-
   void codegen_main_body(const std::vector<std::unique_ptr<Frontend::AST::Expression>>& statements);
   void codegen_external_func_dclns();
-  llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
-  llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
-  llvm::Value* codegen_output_many_call(const Frontend::AST::CallExpression& expression);
-
   void run_optimizations(const std::vector<std::unique_ptr<Frontend::AST::Function>>& functions);
+
+  void visit(const Frontend::AST::Function& function) override;
+  llvm::FunctionType* codegen_func_dcln(const Frontend::AST::Function& function);
+  void codegen_func_def(const Frontend::AST::Function& function);
 
   void visit(const Frontend::AST::IntegerExpression& expression) override;
   void visit(const Frontend::AST::BooleanExpression& expression) override;
   void visit(const Frontend::AST::CharacterExpression& expression) override;
 
   void visit(const Frontend::AST::CallExpression& expression) override;
+  llvm::Value* codegen_read_call(const Frontend::AST::CallExpression& expression);
+  llvm::Value* codegen_output_call(const Frontend::AST::CallExpression& expression);
+  llvm::Value* codegen_output_many_call(const Frontend::AST::CallExpression& expression);
+
   void visit(const Frontend::AST::IdentifierExpression& expression) override;
   void visit(const Frontend::AST::AssignmentExpression& expression) override;
   void visit(const Frontend::AST::SwapExpression& expression) override;
@@ -74,8 +74,7 @@ public:
   void visit(const Frontend::AST::UserType& expression) override{};
 
   /* Debug Information Start */
-  llvm::DISubroutineType*
-  debug_create_function_type(const std::unique_ptr<Frontend::AST::Function>& function);
+  llvm::DISubroutineType* debug_create_function_type(const Frontend::AST::Function& function);
   llvm::DIBasicType* debug_get_type(const Frontend::AST::Type& type);
 
   void emit_location(const Frontend::AST::Expression* expression);

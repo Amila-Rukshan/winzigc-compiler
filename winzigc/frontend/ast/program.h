@@ -15,6 +15,8 @@ namespace WinZigC {
 namespace Frontend {
 namespace AST {
 
+class Visitor;
+
 class Program {
 public:
   Program(std::string name, std::vector<std::unique_ptr<GlobalUserTypeDef>> user_types,
@@ -35,6 +37,7 @@ public:
   const std::vector<std::unique_ptr<Function>>& get_functions() const { return functions; }
   const std::vector<std::unique_ptr<Expression>>& get_statements() const { return statements; }
   const std::unique_ptr<GlobalVariable>& get_discard_variable() const { return discard_variable; }
+  void accept(Visitor& visitor) const;
 
 private:
   std::string name;

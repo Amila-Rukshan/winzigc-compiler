@@ -17,6 +17,8 @@ cc_library(
         "type.cc",
         "user_type.cc",
         "var.cc",
+        "function.cc",
+        "program.cc",
     ],
     deps = [
         "@llvm-project//llvm:Core",

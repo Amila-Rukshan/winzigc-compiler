@@ -237,7 +237,6 @@ void CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expression) {
   emit_location(&expression);
   llvm::Function* function = builder->GetInsertBlock()->getParent();
   llvm::BasicBlock* exit_block = llvm::BasicBlock::Create(*context, "case_exit");
-  bool add_exit_block = false;
 
   expression.get_expression().accept(*this);
   llvm::Value* switch_val = expression.get_expression().get_codegen_value();
@@ -308,7 +307,6 @@ void CodeGenVisitor::visit(const Frontend::AST::CaseExpression& expression) {
     }
 
     if (!builder->GetInsertBlock()->getTerminator()) {
-      add_exit_block = true;
       builder->CreateBr(exit_block);
     }
   }
