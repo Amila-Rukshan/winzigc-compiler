@@ -293,20 +293,23 @@ std::unique_ptr<AST::Expression> Parser::parse_assignment_statement() {
   std::unique_ptr<AST::IdentifierExpression> identifier_expr_rhs;
   AST::SourceLocation identifier_right_location;
   std::unique_ptr<AST::Expression> expression;
+  AST::SourceLocation assignment_operator_location;
   switch (current_token->kind) {
   case Syntax::Kind::kAssign:
+    assignment_operator_location = {current_token->line, current_token->column};
     read(Syntax::Kind::kAssign);
     expression = parse_expression();
     return std::make_unique<AST::AssignmentExpression>(
-        identifier_location, std::move(identifier_expr), std::move(expression));
+        assignment_operator_location, std::move(identifier_expr), std::move(expression));
     break;
   case Syntax::Kind::kSwap:
+    assignment_operator_location = {current_token->line, current_token->column};
     read(Syntax::Kind::kSwap);
     identifier_right_location = {current_token->line, current_token->column};
     identifier_expr_rhs = std::make_unique<AST::IdentifierExpression>(
         identifier_right_location, read(Syntax::Kind::kIdentifier));
-    return std::make_unique<AST::SwapExpression>(identifier_location, std::move(identifier_expr),
-                                                 std::move(identifier_expr_rhs));
+    return std::make_unique<AST::SwapExpression>(
+        assignment_operator_location, std::move(identifier_expr), std::move(identifier_expr_rhs));
     break;
   default:
     throw std::runtime_error("Invalid assignment statement");

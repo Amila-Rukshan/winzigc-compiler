@@ -191,77 +191,78 @@ Syntax::Token Lexer::find_next_token() {
 
   if (!lexeme.empty()) {
     if (lexeme == "program") {
-      return Syntax::Token{Syntax::Kind::kProgram, "program", line, column};
+      return Syntax::Token{Syntax::Kind::kProgram, "program", line, column - 6};
     } else if (lexeme == "var") {
-      return Syntax::Token{Syntax::Kind::kVar, "var", line, column};
+      return Syntax::Token{Syntax::Kind::kVar, "var", line, column - 2};
     } else if (lexeme == "const") {
-      return Syntax::Token{Syntax::Kind::kConst, "const", line, column};
+      return Syntax::Token{Syntax::Kind::kConst, "const", line, column - 4};
     } else if (lexeme == "type") {
-      return Syntax::Token{Syntax::Kind::kType, "type", line, column};
+      return Syntax::Token{Syntax::Kind::kType, "type", line, column - 3};
     } else if (lexeme == "function") {
-      return Syntax::Token{Syntax::Kind::kFunction, "function", line, column};
+      return Syntax::Token{Syntax::Kind::kFunction, "function", line, column - 7};
     } else if (lexeme == "return") {
-      return Syntax::Token{Syntax::Kind::kReturn, "return", line, column};
+      return Syntax::Token{Syntax::Kind::kReturn, "return", line, column - 5};
     } else if (lexeme == "begin") {
-      return Syntax::Token{Syntax::Kind::kBegin, "begin", line, column};
+      return Syntax::Token{Syntax::Kind::kBegin, "begin", line, column - 4};
     } else if (lexeme == "end") {
-      return Syntax::Token{Syntax::Kind::kEnd, "end", line, column};
+      return Syntax::Token{Syntax::Kind::kEnd, "end", line, column - 2};
     } else if (lexeme == "output") {
-      return Syntax::Token{Syntax::Kind::kOutput, "output", line, column};
+      return Syntax::Token{Syntax::Kind::kOutput, "output", line, column - 4};
     } else if (lexeme == "if") {
-      return Syntax::Token{Syntax::Kind::kIf, "if", line, column};
+      return Syntax::Token{Syntax::Kind::kIf, "if", line, column - 1};
     } else if (lexeme == "then") {
-      return Syntax::Token{Syntax::Kind::kThen, "then", line, column};
+      return Syntax::Token{Syntax::Kind::kThen, "then", line, column - 3};
     } else if (lexeme == "else") {
-      return Syntax::Token{Syntax::Kind::kElse, "else", line, column};
+      return Syntax::Token{Syntax::Kind::kElse, "else", line, column - 3};
     } else if (lexeme == "while") {
-      return Syntax::Token{Syntax::Kind::kWhile, "while", line, column};
+      return Syntax::Token{Syntax::Kind::kWhile, "while", line, column - 3};
     } else if (lexeme == "do") {
-      return Syntax::Token{Syntax::Kind::kDo, "do", line, column};
+      return Syntax::Token{Syntax::Kind::kDo, "do", line, column - 1};
     } else if (lexeme == "case") {
-      return Syntax::Token{Syntax::Kind::kCase, "case", line, column};
+      return Syntax::Token{Syntax::Kind::kCase, "case", line, column - 3};
     } else if (lexeme == "of") {
-      return Syntax::Token{Syntax::Kind::kOf, "of", line, column};
+      return Syntax::Token{Syntax::Kind::kOf, "of", line, column - 1};
     } else if (lexeme == "otherwise") {
-      return Syntax::Token{Syntax::Kind::kOtherwise, "otherwise", line, column};
+      return Syntax::Token{Syntax::Kind::kOtherwise, "otherwise", line, column - 8};
     } else if (lexeme == "repeat") {
-      return Syntax::Token{Syntax::Kind::kRepeat, "repeat", line, column};
+      return Syntax::Token{Syntax::Kind::kRepeat, "repeat", line, column - 4};
     } else if (lexeme == "for") {
-      return Syntax::Token{Syntax::Kind::kFor, "for", line, column};
+      return Syntax::Token{Syntax::Kind::kFor, "for", line, column - 2};
     } else if (lexeme == "until") {
-      return Syntax::Token{Syntax::Kind::kUntil, "until", line, column};
+      return Syntax::Token{Syntax::Kind::kUntil, "until", line, column - 4};
     } else if (lexeme == "loop") {
-      return Syntax::Token{Syntax::Kind::kLoop, "loop", line, column};
+      return Syntax::Token{Syntax::Kind::kLoop, "loop", line, column - 3};
     } else if (lexeme == "pool") {
-      return Syntax::Token{Syntax::Kind::kPool, "pool", line, column};
+      return Syntax::Token{Syntax::Kind::kPool, "pool", line, column - 3};
     } else if (lexeme == "exit") {
-      return Syntax::Token{Syntax::Kind::kExit, "exit", line, column};
+      return Syntax::Token{Syntax::Kind::kExit, "exit", line, column - 3};
     } else if (lexeme == "mod") {
-      return Syntax::Token{Syntax::Kind::kModulusOpr, "mod", line, column};
+      return Syntax::Token{Syntax::Kind::kModulusOpr, "mod", line, column - 2};
     } else if (lexeme == "or") {
-      return Syntax::Token{Syntax::Kind::kOrOpr, "or", line, column};
+      return Syntax::Token{Syntax::Kind::kOrOpr, "or", line, column - 1};
     } else if (lexeme == "and") {
-      return Syntax::Token{Syntax::Kind::kAndOpr, "and", line, column};
+      return Syntax::Token{Syntax::Kind::kAndOpr, "and", line, column - 2};
     } else if (lexeme == "not") {
-      return Syntax::Token{Syntax::Kind::kNotOpr, "not", line, column};
+      return Syntax::Token{Syntax::Kind::kNotOpr, "not", line, column - 2};
     } else if (lexeme == "read") {
-      return Syntax::Token{Syntax::Kind::kRead, "read", line, column};
+      return Syntax::Token{Syntax::Kind::kRead, "read", line, column - 3};
     } else if (lexeme == "succ") {
-      return Syntax::Token{Syntax::Kind::kSuccessor, "succ", line, column};
+      return Syntax::Token{Syntax::Kind::kSuccessor, "succ", line, column - 3};
     } else if (lexeme == "pred") {
-      return Syntax::Token{Syntax::Kind::kPredecessor, "pred", line, column};
+      return Syntax::Token{Syntax::Kind::kPredecessor, "pred", line, column - 3};
     } else if (lexeme == "chr") {
-      return Syntax::Token{Syntax::Kind::kChr, "chr", line, column};
+      return Syntax::Token{Syntax::Kind::kChr, "chr", line, column - 2};
     } else if (lexeme == "ord") {
-      return Syntax::Token{Syntax::Kind::kOrd, "ord", line, column};
+      return Syntax::Token{Syntax::Kind::kOrd, "ord", line, column - 2};
     } else if (lexeme == "eof") {
-      return Syntax::Token{Syntax::Kind::kEndOfFile, "eof", line, column};
+      return Syntax::Token{Syntax::Kind::kEndOfFile, "eof", line, column - 3};
     } else if (lexeme == "true") {
-      return Syntax::Token{Syntax::Kind::kTrue, "true", line, column};
+      return Syntax::Token{Syntax::Kind::kTrue, "true", line, column - 3};
     } else if (lexeme == "false") {
-      return Syntax::Token{Syntax::Kind::kFalse, "false", line, column};
+      return Syntax::Token{Syntax::Kind::kFalse, "false", line, column - 4};
     } else {
-      return Syntax::Token{Syntax::Kind::kIdentifier, lexeme, line, column};
+      return Syntax::Token{Syntax::Kind::kIdentifier, lexeme, line,
+                           static_cast<int>(column - lexeme.length() + 1)};
     }
   }
 
@@ -305,30 +306,30 @@ Syntax::Token Lexer::find_next_token() {
       get_char_at(position + 2) == ':') {
     position += 3;
     column += 3;
-    return Syntax::Token{Syntax::Kind::kSwap, ":=:", line, column};
+    return Syntax::Token{Syntax::Kind::kSwap, ":=:", line, column - 2};
   }
 
   // ":=", "..", "<=", "<>", ">="
   if (get_current_char() == ':' && get_char_at(position + 1) == '=') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kAssign, ":=", line, column};
+    return Syntax::Token{Syntax::Kind::kAssign, ":=", line, column - 1};
   } else if (get_current_char() == '.' && get_char_at(position + 1) == '.') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kCaseRange, "..", line, column};
+    return Syntax::Token{Syntax::Kind::kCaseRange, "..", line, column - 1};
   } else if (get_current_char() == '<' && get_char_at(position + 1) == '=') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kLessOrEqualOpr, "<=", line, column};
+    return Syntax::Token{Syntax::Kind::kLessOrEqualOpr, "<=", line, column - 1};
   } else if (get_current_char() == '<' && get_char_at(position + 1) == '>') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kNotEqualOpr, "<>", line, column};
+    return Syntax::Token{Syntax::Kind::kNotEqualOpr, "<>", line, column - 1};
   } else if (get_current_char() == '>' && get_char_at(position + 1) == '=') {
     position += 2;
     column += 2;
-    return Syntax::Token{Syntax::Kind::kGreaterOrEqualOpr, ">=", line, column};
+    return Syntax::Token{Syntax::Kind::kGreaterOrEqualOpr, ">=", line, column - 1};
   }
 
   //  ":", ".", "<", ">", "=", ";", ",", "(", ")", "+", "-", "*", "/"
