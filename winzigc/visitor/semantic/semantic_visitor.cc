@@ -85,6 +85,9 @@ void SemanticVisitor::visit(const Frontend::AST::CallExpression& expression) {
   }
   expression.set_type_info(function_to_return_type[expression.get_name()]);
   if (expression.get_name() == "read" || expression.get_name() == "output") {
+    for (const auto& arg : expression.get_arguments()) {
+      arg->accept(*this);
+    }
     return;
   }
   if (function_to_return_type.find(expression.get_name()) == function_to_return_type.end()) {
