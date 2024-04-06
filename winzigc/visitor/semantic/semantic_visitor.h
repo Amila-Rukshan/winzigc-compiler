@@ -69,7 +69,8 @@ private:
   std::vector<SemanticError> errors;
   std::unordered_map<std::string, std::string> global_var_to_type = {{"d", "integer"}};
   std::unordered_map<std::string, std::string> local_var_to_type;
-  std::unordered_map<std::string, std::string> function_to_return_type;
+  std::unordered_map<std::string, std::string> function_to_return_type = {{"read", "void"},
+                                                                          {"output", "void"}};
   std::string current_function_return_type;
   std::string current_function_name;
   std::unordered_map<std::string, std::vector<std::string>> function_to_param_types;

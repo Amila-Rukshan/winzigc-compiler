@@ -77,6 +77,12 @@ void SemanticVisitor::visit(const Frontend::AST::CharacterExpression& expression
 };
 
 void SemanticVisitor::visit(const Frontend::AST::CallExpression& expression) {
+  if (function_to_return_type.find(expression.get_name()) == function_to_return_type.end()) {
+    errors.push_back(
+        SemanticError(expression.get_line(), expression.get_column(),
+                      "Calling an undeclared function: '" + expression.get_name() + "'"));
+    return;
+  }
   expression.set_type_info(function_to_return_type[expression.get_name()]);
   if (expression.get_name() == "read" || expression.get_name() == "output") {
     return;
@@ -190,14 +196,60 @@ void SemanticVisitor::visit(const Frontend::AST::WhileExpression& expression) {
   }
 };
 
-void SemanticVisitor::visit(const Frontend::AST::CaseExpression& expression){
-    // TODO: Implement this
+void SemanticVisitor::visit(const Frontend::AST::CaseExpression& expression) {
+  const Frontend::AST::Expression& case_exp = expression.get_expression();
+  if (dynamic_cast<const Frontend::AST::IntegerExpression*>(&case_exp) ||
+      dynamic_cast<const Frontend::AST::BooleanExpression*>(&case_exp) ||
+      dynamic_cast<const Frontend::AST::CharacterExpression*>(&case_exp)) {
+    errors.push_back(
+        SemanticError(case_exp.get_line(), case_exp.get_column(),
+                      "Case expression cannot be literal integer, boolean or char values"));
+  }
+  case_exp.accept(*this);
+  std::string case_exp_type = case_exp.get_type_info();
+  for (const auto& case_clause : expression.get_cases()) {
+    const auto& case_value = case_clause.first;
+    if (std::holds_alternative<std::unique_ptr<Frontend::AST::Expression>>(case_value)) {
+      const auto& case_val = std::get<std::unique_ptr<Frontend::AST::Expression>>(case_value);
+      case_val->accept(*this);
+      if (case_val->get_type_info() != case_exp_type) {
+        errors.push_back(SemanticError(case_val->get_line(), case_val->get_column(),
+                                       "Case value type mismatch: '" + case_val->get_type_info() +
+                                           "' and '" + case_exp_type + "'"));
+      }
+    } else if (std::holds_alternative<std::pair<std::unique_ptr<Frontend::AST::Expression>,
+                                                std::unique_ptr<Frontend::AST::Expression>>>(
+                   case_value)) {
+      const auto& case_range =
+          std::get<std::pair<std::unique_ptr<Frontend::AST::Expression>,
+                             std::unique_ptr<Frontend::AST::Expression>>>(case_value);
+      case_range.first->accept(*this);
+      case_range.second->accept(*this);
+      if (case_range.first->get_type_info() != case_exp_type ||
+          case_range.second->get_type_info() != case_exp_type) {
+        errors.push_back(SemanticError(case_range.first->get_line(), case_range.first->get_column(),
+                                       "Case range start value type mismatch: '" +
+                                           case_range.first->get_type_info() + "' and '" +
+                                           case_exp_type + "'"));
+        errors.push_back(SemanticError(
+            case_range.second->get_line(), case_range.second->get_column(),
+            "Case range end value type mismatch: '" + case_range.second->get_type_info() +
+                "' and '" + case_exp_type + "'"));
+      }
+    }
+    const auto& case_expressions = case_clause.second;
+    for (const auto& case_expr : case_expressions) {
+      case_expr->accept(*this);
+    }
+  }
+  for (const auto& otherwise_expr : expression.get_otherwise_clause()) {
+    otherwise_expr->accept(*this);
+  }
 };
 
 void SemanticVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
   expression.get_expression().accept(*this);
   if (expression.get_expression().get_type_info() != current_function_return_type) {
-    // include current function name in the error message
     errors.push_back(SemanticError(
         expression.get_line(), expression.get_column(),
         "Return type mismatch: '" + expression.get_expression().get_type_info() + "' and '" +
