@@ -1,7 +1,17 @@
 ## WinZigC programming language
 
 This tree includes the code for a compiler for the language specified by [WinZigC language spectification](/SPECIFICATION.md).
-It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend. Have a read on the related blog post [The journey of implementing the WinZigC programming language](https://developerdiary.me/the-journey-of-implementing-the-winzigc-programming-language/).
+It generates [LLVM](https://llvm.org/) bitcode for the WinZigC program and compiles the bitcode to an executable binary using the [Clang](https://clang.llvm.org/) backend.
+## Related content
+
+### Blog posts
+
+- [The journey of implementing the WinZigC programming language](https://developerdiary.me/the-journey-of-implementing-the-winzigc-programming-language/)
+- [Making WinZigC programs debuggable](https://developerdiary.me/making-winzigc-programs-debuggable/)
+
+### Videos
+
+- [Demo: Debugging a WinZigC program using LLDB](https://youtu.be/AF6I5WRHq2E?si=3xELeZTg1plAgbat)
 
 ## Give me some example programs!
 
