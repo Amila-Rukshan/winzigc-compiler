@@ -7,23 +7,10 @@
 namespace WinZigC {
 namespace Visitor {
 
-void SemanticVisitor::print_errors(const std::string& program_path) {
-  std::filesystem::path path(program_path);
-  std::string directory = path.parent_path().string();
-  std::string filename = path.filename().string();
-  for (auto& error : errors) {
-    LOG(ERROR) << filename << error.get_error_message();
-  }
-  if (errors.size() > 0) {
-    LOG(ERROR) << "WinZigC compiler exiting...";
-    exit(1);
-  }
-}
-
-void SemanticVisitor::check(const Frontend::AST::Program& program,
-                            const std::string& program_path) {
+std::vector<SemanticError> SemanticVisitor::check(const Frontend::AST::Program& program,
+                                                  const std::string& program_path) {
   program.accept(*this);
-  print_errors(program_path);
+  return errors;
 }
 
 void SemanticVisitor::visit(const Frontend::AST::Program& program) {
@@ -132,21 +119,24 @@ void SemanticVisitor::visit(const Frontend::AST::IdentifierExpression& expressio
 void SemanticVisitor::visit(const Frontend::AST::AssignmentExpression& expression) {
   expression.get_name().accept(*this);
   expression.get_expression().accept(*this);
-  if (expression.get_name().get_type_info() != expression.get_expression().get_type_info()) {
-    errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
-                                   "Assignment type mismatch: '" +
-                                       expression.get_name().get_type_info() + "' and '" +
-                                       expression.get_expression().get_type_info() + "'"));
+  std::string left_type = expression.get_name().get_type_info();
+  std::string right_type = expression.get_expression().get_type_info();
+  if (!left_type.empty() && !right_type.empty() && left_type != right_type) {
+    errors.push_back(
+        SemanticError(expression.get_line(), expression.get_column(),
+                      "Assignment type mismatch: '" + left_type + "' and '" + right_type + "'"));
   }
 };
 
 void SemanticVisitor::visit(const Frontend::AST::SwapExpression& expression) {
   expression.get_lhs().accept(*this);
   expression.get_rhs().accept(*this);
-  if (expression.get_lhs().get_type_info() != expression.get_rhs().get_type_info()) {
-    errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
-                                   "Swap type mismatch: '" + expression.get_lhs().get_type_info() +
-                                       "' and '" + expression.get_rhs().get_type_info() + "'"));
+  std::string left_type = expression.get_lhs().get_type_info();
+  std::string right_type = expression.get_rhs().get_type_info();
+  if (!left_type.empty() && !right_type.empty() && left_type != right_type) {
+    errors.push_back(
+        SemanticError(expression.get_line(), expression.get_column(),
+                      "Swap type mismatch: '" + left_type + "' and '" + right_type + "'"));
   }
 };
 
@@ -252,17 +242,23 @@ void SemanticVisitor::visit(const Frontend::AST::CaseExpression& expression) {
 
 void SemanticVisitor::visit(const Frontend::AST::ReturnExpression& expression) {
   expression.get_expression().accept(*this);
-  if (expression.get_expression().get_type_info() != current_function_return_type) {
-    errors.push_back(SemanticError(
-        expression.get_line(), expression.get_column(),
-        "Return type mismatch: '" + expression.get_expression().get_type_info() + "' and '" +
-            current_function_return_type + "' in " + current_function_name));
+  std::string type = expression.get_expression().get_type_info();
+  if (!type.empty() && type != current_function_return_type) {
+    errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
+                                   "Return type mismatch: '" + type + "' and '" +
+                                       current_function_return_type + "' in " +
+                                       current_function_name));
   }
 };
 
 void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   expression.get_lhs().accept(*this);
   expression.get_rhs().accept(*this);
+  std::string left_type = expression.get_lhs().get_type_info();
+  std::string right_type = expression.get_rhs().get_type_info();
+  if (left_type.empty() || right_type.empty()) {
+    return;
+  }
   switch (expression.get_op()) {
   case Frontend::AST::BinaryOperation::kAdd:
   case Frontend::AST::BinaryOperation::kSubtract:
@@ -270,8 +266,7 @@ void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   case Frontend::AST::BinaryOperation::kDivide:
   case Frontend::AST::BinaryOperation::kModulo:
     expression.set_type_info("integer");
-    if (expression.get_lhs().get_type_info() != "integer" ||
-        expression.get_rhs().get_type_info() != "integer") {
+    if (left_type != "integer" || right_type != "integer") {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Binary operator '" +
                                          binary_op_to_token_str.at(expression.get_op()) +
@@ -283,9 +278,7 @@ void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   case Frontend::AST::BinaryOperation::kGreaterThan:
   case Frontend::AST::BinaryOperation::kGreaterThanOrEqual:
     expression.set_type_info("boolean");
-    if (!(expression.get_lhs().get_type_info() == expression.get_rhs().get_type_info() &&
-          (expression.get_lhs().get_type_info() == "integer" ||
-           expression.get_lhs().get_type_info() == "char"))) {
+    if (!(left_type == right_type && (left_type == "integer" || left_type == "char"))) {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Binary operator '" +
                                          binary_op_to_token_str.at(expression.get_op()) +
@@ -295,7 +288,7 @@ void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   case Frontend::AST::BinaryOperation::kEqual:
   case Frontend::AST::BinaryOperation::kNotEqual:
     expression.set_type_info("boolean");
-    if (expression.get_lhs().get_type_info() != expression.get_rhs().get_type_info()) {
+    if (left_type != right_type) {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Binary operator '" +
                                          binary_op_to_token_str.at(expression.get_op()) +
@@ -305,8 +298,7 @@ void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
   case Frontend::AST::BinaryOperation::kAnd:
   case Frontend::AST::BinaryOperation::kOr:
     expression.set_type_info("boolean");
-    if (expression.get_lhs().get_type_info() != "boolean" ||
-        expression.get_rhs().get_type_info() != "boolean") {
+    if (left_type != "boolean" || right_type != "boolean") {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Binary operator '" +
                                          binary_op_to_token_str.at(expression.get_op()) +
@@ -318,13 +310,17 @@ void SemanticVisitor::visit(const Frontend::AST::BinaryExpression& expression) {
 
 void SemanticVisitor::visit(const Frontend::AST::UnaryExpression& expression) {
   expression.get_expression().accept(*this);
+  std::string type = expression.get_expression().get_type_info();
+  if (type.empty()) {
+    return;
+  }
   switch (expression.get_op()) {
   case Frontend::AST::UnaryOperation::kMinus:
   case Frontend::AST::UnaryOperation::kPlus:
   case Frontend::AST::UnaryOperation::kSucc:
   case Frontend::AST::UnaryOperation::kPred:
     expression.set_type_info("integer");
-    if (expression.get_expression().get_type_info() != "integer") {
+    if (type != "integer") {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Unary operator '" +
                                          unary_op_to_token_str.at(expression.get_op()) +
@@ -333,7 +329,7 @@ void SemanticVisitor::visit(const Frontend::AST::UnaryExpression& expression) {
     break;
   case Frontend::AST::UnaryOperation::kNot:
     expression.set_type_info("boolean");
-    if (expression.get_expression().get_type_info() != "boolean") {
+    if (type != "boolean") {
       errors.push_back(SemanticError(expression.get_line(), expression.get_column(),
                                      "Unary operator '" +
                                          unary_op_to_token_str.at(expression.get_op()) +

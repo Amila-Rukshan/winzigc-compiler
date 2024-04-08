@@ -8,11 +8,11 @@ cc_library(
 cc_library(
     name = "token_lib",
     hdrs = ["token.h"],
-    deps = [":kind_lib"],
     visibility = [
-        "//winzigc/frontend/lexer:__pkg__",
-        "//winzigc/frontend/parser:__pkg__",
         "//test/frontend/lexer:__pkg__",
         "//test/frontend/parser:__pkg__",
+        "//winzigc/frontend/lexer:__pkg__",
+        "//winzigc/frontend/parser:__pkg__",
     ],
+    deps = [":kind_lib"],
 )

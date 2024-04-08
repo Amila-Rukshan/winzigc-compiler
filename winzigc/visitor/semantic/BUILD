@@ -8,7 +8,10 @@ cc_library(
     hdrs = [
         "semantic_visitor.h",
     ],
-    visibility = ["//winzigc/main:__pkg__"],
+    visibility = [
+        "//test/visitor/semantic:__pkg__",
+        "//winzigc/main:__pkg__",
+    ],
     deps = [
         "//winzigc/common:pure_lib",
         "//winzigc/frontend/ast:ast_lib",

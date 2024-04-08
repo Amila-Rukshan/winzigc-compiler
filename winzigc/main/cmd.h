@@ -62,7 +62,15 @@ int main(int argc, char** argv) {
   auto program = parser.parse();
 
   WinZigC::Visitor::SemanticVisitor semantic_visitor;
-  semantic_visitor.check(*program, program_path);
+  auto errors = semantic_visitor.check(*program, program_path);
+  std::filesystem::path path(program_path);
+  std::string filename = path.filename().string();
+  if (!errors.empty()) {
+    for (const auto& error : errors) {
+      LOG(ERROR) << filename << error.get_error_message();
+    }
+    return 1;
+  }
 
   WinZigC::Visitor::CodeGenVisitor codegen_visitor(optimize, debug);
   codegen_visitor.codegen(*program, program_path);

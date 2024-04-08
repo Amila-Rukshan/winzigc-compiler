@@ -434,7 +434,7 @@ void Parser::parse_case_clauses(std::vector<AST::CaseClause>& case_clauses) {
   case_clauses.push_back(parse_case_clause());
   read(Syntax::Kind::kSemiColon);
   while (current_token->kind == Syntax::Kind::kInteger ||
-         current_token->kind == Syntax::Kind::kTrue ||
+         current_token->kind == Syntax::Kind::kChar || current_token->kind == Syntax::Kind::kTrue ||
          current_token->kind == Syntax::Kind::kFalse ||
          current_token->kind == Syntax::Kind::kIdentifier) {
     case_clauses.push_back(parse_case_clause());
@@ -487,6 +487,8 @@ std::unique_ptr<AST::Expression> Parser::parse_const_value() {
   case Syntax::Kind::kInteger:
     return std::make_unique<AST::IntegerExpression>(location,
                                                     std::stoi(read(Syntax::Kind::kInteger)));
+  case Syntax::Kind::kChar:
+    return std::make_unique<AST::CharacterExpression>(location, read(Syntax::Kind::kChar)[1]);
   case Syntax::Kind::kTrue:
     return std::make_unique<AST::BooleanExpression>(location, get_bool(read(Syntax::Kind::kTrue)));
   case Syntax::Kind::kFalse:

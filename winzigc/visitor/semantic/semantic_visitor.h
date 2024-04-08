@@ -12,7 +12,7 @@ class SemanticError {
 public:
   SemanticError(int line, int column, std::string message)
       : line(line), column(column), message(message) {}
-  std::string get_error_message() {
+  std::string get_error_message() const {
     return ":" + std::to_string(line) + ":" + std::to_string(column) + ": " + message;
   }
 
@@ -28,8 +28,8 @@ public:
   SemanticVisitor() = default;
   ~SemanticVisitor() = default;
 
-  void print_errors(const std::string& program_path);
-  void check(const Frontend::AST::Program& program, const std::string& program_path);
+  std::vector<SemanticError> check(const Frontend::AST::Program& program,
+                                   const std::string& program_path);
 
   void visit(const Frontend::AST::Program& program) override;
   void visit(const Frontend::AST::Function& function) override;
