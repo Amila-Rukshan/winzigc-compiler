@@ -32,7 +32,7 @@
       "program": "${workspaceFolder}/example-programs/winzig_zz.c_binary",
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
-      "externalConsole": false,
+      "externalConsole": true,
       "MIMode": "lldb",
       "sourceFileMap": {
         ".": "${workspaceFolder}/example-programs"

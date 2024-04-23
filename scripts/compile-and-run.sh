@@ -54,5 +54,6 @@ echo "Executing the" "$winzigc_prog_name"_binary:
 
 "$winzigc_prog_path"_binary
 
-# Comment out the following line to keep the generated binary and llvm bitcode
-rm "$winzigc_prog_path".ll "$winzigc_prog_path"_binary
+if [ "$dbg_flag" = false ]; then
+    rm "$winzigc_prog_path".ll "$winzigc_prog_path"_binary
+fi
