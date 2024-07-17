@@ -35,6 +35,17 @@
       }
     },
     {
+      "label": "Bazel Semantic Test (Debug)",
+      "type": "shell",
+      "osx": {
+        "command": "bazel build --cxxopt='-std=c++17' //test/visitor/semantic:semantic_test --strip=never -c dbg --sandbox_debug --spawn_strategy=local"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
       "label": "Bazel Integration Test (Debug)",
       "type": "shell",
       "osx": {

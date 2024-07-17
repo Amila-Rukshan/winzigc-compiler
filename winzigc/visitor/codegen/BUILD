@@ -10,6 +10,7 @@ cc_library(
         "@llvm-project//llvm:include/llvm/Support/raw_ostream.h",
         "@llvm-project//llvm:include/llvm/Transforms/Utils/SimplifyCFGOptions.h",
         "@llvm-project//llvm:include/llvm/Transforms/Scalar/GVN.h",
+        "@llvm-project//llvm:include/llvm/Transforms/Scalar/TailRecursionElimination.h",
         "@llvm-project//llvm:include/llvm/Analysis/InstructionPrecedenceTracking.h",
         "@llvm-project//llvm:include/llvm/Analysis/MemoryDependenceAnalysis.h",
         "@llvm-project//llvm:include/llvm/Analysis/MemoryLocation.h",

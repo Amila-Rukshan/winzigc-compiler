@@ -8,7 +8,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/winzigc/main/cmd",
       "args": [
-        "-dbg",
+        "-dbg -opt",
         "${workspaceFolder}/example-programs/winzig_zz",
       ],
       "stopAtEntry": false,
@@ -64,6 +64,26 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/bazel-bin/test/frontend/parser/parser_test",
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [
+        {
+          "name": "GLOG_logtostderr",
+          "value": "1"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "sourceFileMap": {
+        ".": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Debug Semantic Test",
+      "preLaunchTask": "Bazel Semantic Test (Debug)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bazel-bin/test/visitor/semantic/semantic_test",
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
       "environment": [

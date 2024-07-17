@@ -13,6 +13,7 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/DCE.h"
+#include "llvm/Transforms/Scalar/TailRecursionElimination.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
@@ -154,6 +155,7 @@ void CodeGenVisitor::run_optimizations(
   fpm.add(llvm::createReassociatePass());
   fpm.add(llvm::createGVNPass());
   fpm.add(llvm::createCFGSimplificationPass());
+  fpm.add(llvm::createTailCallEliminationPass());
   fpm.doInitialization();
   for (const auto& function : functions) {
     fpm.run(*module->getFunction(function->get_name()));
